@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
-<title>Loving Heart Hospital Management Software</title>
+<title>Loving Heart Hospital Management System</title>
 <link rel="manifest" href="manifest.json"/>
 <meta name="theme-color" content="#0057b8"/>
 <meta name="mobile-web-app-capable" content="yes"/>
@@ -99,7 +99,7 @@ textarea.fi{resize:vertical;min-height:80px}
 .cr{text-align:center;color:var(--mu);padding:18px!important}
 .badge{display:inline-block;padding:2px 9px;border-radius:20px;font-size:.7rem;font-weight:600;text-transform:uppercase}
 .bg-ok{background:#e6f7ef;color:#1a7a4a}.bg-no{background:#fce8e8;color:var(--D)}.bg-warn{background:#fff8e1;color:#7a5e00}
-.role-admin{background:#ede7f6;color:#5e35b1}.role-doctor{background:var(--PL);color:var(--P)}.role-nurse{background:#e8f5e9;color:#388e3c}.role-receptionist{background:#fff3e0;color:#ef6c00}.role-lab-technician{background:#e0f7fa;color:#00838f}.role-pharmacist{background:#fce4ec;color:#c2185b}
+.role-admin{background:#ede7f6;color:#5e35b1}.role-doctor{background:var(--PL);color:var(--P)}.role-nurse{background:#e8f5e9;color:#388e3c}.role-receptionist{background:#fff3e0;color:#ef6c00}.role-lab-technician{background:#e0f7fa;color:#00838f}.role-pharmacist{background:#fce4ec;color:#c2185b}.role-accountant{background:#e8f5e9;color:#1b5e20}.role-super-admin{background:#4a148c;color:#fff}
 .st-paid{background:#e6f7ef;color:#1a7a4a}.st-unpaid{background:#fce8e8;color:var(--D)}.st-partially-paid{background:#fff8e1;color:#7a5e00}
 .pid{background:var(--PL);color:var(--P);font-size:.73rem;font-weight:700;padding:2px 7px;border-radius:5px;font-family:monospace;letter-spacing:.5px}
 .bsm{padding:8px 14px;font-size:.82rem;font-weight:600;border:none;border-radius:var(--rs);cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:.17s}
@@ -168,26 +168,6 @@ textarea.fi{resize:vertical;min-height:80px}
 .notif-empty{text-align:center;padding:30px;color:var(--mu);font-size:.85rem}
 .notif-markall{width:100%;padding:10px;background:none;border:none;border-top:1px solid var(--brd);color:var(--P);font-size:.82rem;font-weight:600;cursor:pointer;font-family:"DM Sans",sans-serif}
 .notif-markall:hover{background:var(--PL)}
-
-/* ATTENDANCE */
-.clock-card{background:linear-gradient(135deg,var(--P),#00a878);border-radius:var(--r);padding:24px;color:#fff;text-align:center;margin-bottom:14px;box-shadow:var(--sh)}
-.clock-time{font-size:2.8rem;font-weight:700;font-family:'Sora',sans-serif;letter-spacing:2px}
-.clock-date{font-size:.9rem;opacity:.85;margin:4px 0 18px}
-.clock-status{font-size:.82rem;background:rgba(255,255,255,.2);border-radius:20px;padding:4px 14px;display:inline-block;margin-bottom:16px}
-.btn-clockin{background:#fff;color:var(--A);border:none;border-radius:30px;padding:13px 36px;font-size:1rem;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:.2s}
-.btn-clockin:hover{transform:scale(1.04)}
-.btn-clockout{background:#fff;color:var(--D);border:none;border-radius:30px;padding:13px 36px;font-size:1rem;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:.2s}
-.att-row{display:flex;align-items:center;gap:10px;padding:10px 13px;background:var(--sur);border:1px solid var(--brd);border-radius:var(--rs);margin-bottom:7px}
-.att-status{font-size:.72rem;font-weight:700;padding:2px 9px;border-radius:12px}
-.att-present{background:#e6f7ef;color:#1a7a4a}
-.att-late{background:#fff8e1;color:#7a5e00}
-.att-absent{background:#fce8e8;color:var(--D)}
-/* PAYSLIP */
-.payslip{background:var(--sur);border:2px solid var(--brd);border-radius:var(--r);padding:20px;margin-bottom:14px}
-.payslip-header{background:var(--P);color:#fff;border-radius:var(--rs) var(--rs) 0 0;padding:14px 16px;margin:-20px -20px 16px;display:flex;justify-content:space-between;align-items:center}
-.payslip-row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px dashed var(--brd);font-size:.87rem}
-.payslip-total{display:flex;justify-content:space-between;padding:10px 0;font-weight:700;font-size:1rem;color:var(--P)}
-.role-accountant{background:#e8f5e9;color:#2e7d32}
 /* PWA Install Button */
 #installBtn{
   display:none;position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
@@ -201,6 +181,120 @@ textarea.fi{resize:vertical;min-height:80px}
 .toast{background:#fff;border-radius:9px;padding:11px 15px;font-size:.83rem;font-weight:500;box-shadow:0 4px 20px rgba(0,0,0,.18);transform:translateX(130%);transition:transform .3s;display:flex;align-items:center;gap:9px;max-width:280px;border-left:4px solid}
 .toast.show{transform:translateX(0)}
 .t-ok{border-color:var(--A)}.t-ok i{color:var(--A)}.t-err{border-color:var(--D)}.t-err i{color:var(--D)}
+
+/* PAYSLIP */
+.payslip{background:#fff;border:1px solid var(--brd);border-radius:var(--r);padding:18px;margin-bottom:14px;box-shadow:var(--sh)}
+.payslip-hdr{background:var(--P);color:#fff;border-radius:var(--rs);padding:14px;margin-bottom:14px;text-align:center}
+.payslip-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px dashed var(--brd);font-size:.86rem}
+.payslip-total{display:flex;justify-content:space-between;padding:10px 0;font-weight:700;font-size:1rem;color:var(--A);border-top:2px solid var(--A);margin-top:8px}
+/* ATTENDANCE */
+.att-status-present{background:#e6f7ef;color:#1a7a4a;padding:2px 9px;border-radius:20px;font-size:.72rem;font-weight:700}
+.att-status-late{background:#fff8e1;color:#7a5e00;padding:2px 9px;border-radius:20px;font-size:.72rem;font-weight:700}
+.att-status-absent{background:#fce8e8;color:var(--D);padding:2px 9px;border-radius:20px;font-size:.72px;font-weight:700}
+.clock-btn{width:100%;padding:18px;font-size:1.1rem;font-weight:700;border:none;border-radius:var(--r);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:.2s}
+.clock-in-btn{background:#e6f7ef;color:#1a7a4a;border:2px solid #1a7a4a}
+.clock-out-btn{background:#fce8e8;color:var(--D);border:2px solid var(--D)}
+.att-card{background:var(--sur);border:1px solid var(--brd);border-radius:var(--rs);padding:13px;margin-bottom:9px;box-shadow:var(--sh)}
+/* SALARY SETTINGS IN STAFF TABLE */
+.salary-badge{background:#e6f7ef;color:#1a7a4a;font-size:.72rem;font-weight:700;padding:2px 8px;border-radius:20px}
+
+
+/* NOTIFICATIONS PAGE */
+.notif-page-item{display:flex;gap:12px;align-items:flex-start;padding:13px 15px;border-bottom:1px solid var(--brd);cursor:pointer;transition:background .17s;position:relative}
+.notif-page-item:hover{background:var(--PL)}
+.notif-page-item.unread{background:#f0f7ff;border-left:3px solid var(--P)}
+.notif-page-item.read{opacity:.75}
+.notif-page-icon{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0}
+.notif-page-body{flex:1;min-width:0}
+.notif-page-title{font-size:.88rem;font-weight:600;margin-bottom:3px}
+.notif-page-msg{font-size:.79rem;color:var(--mu);line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.notif-page-meta{font-size:.7rem;color:var(--mu);margin-top:4px}
+.notif-unread-dot{width:9px;height:9px;border-radius:50%;background:var(--P);flex-shrink:0;margin-top:5px}
+/* PROFESSIONAL EXTRAS */
+.stat-trend{font-size:.72rem;font-weight:600;display:inline-flex;align-items:center;gap:3px;padding:2px 7px;border-radius:20px;margin-top:3px}
+.trend-up{background:#e6f7ef;color:#1a7a4a}
+.trend-dn{background:#fce8e8;color:var(--D)}
+.trend-nt{background:var(--bg);color:var(--mu)}
+/* ACTIVITY FEED */
+.afeed-item{display:flex;gap:10px;align-items:flex-start;padding:9px 0;border-bottom:1px dashed var(--brd)}
+.afeed-icon{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.78rem;flex-shrink:0}
+.afeed-body{flex:1}
+.afeed-text{font-size:.82rem;line-height:1.4}
+.afeed-time{font-size:.7rem;color:var(--mu);margin-top:2px}
+/* QUICK STATS ROW */
+.qstat-row{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;margin-bottom:14px;-webkit-overflow-scrolling:touch}
+.qstat-row::-webkit-scrollbar{display:none}
+.qstat-chip{background:var(--sur);border-radius:var(--rs);padding:10px 14px;flex-shrink:0;box-shadow:var(--sh);border-left:3px solid var(--P);min-width:130px}
+.qstat-chip.green{border-color:var(--A)}.qstat-chip.orange{border-color:var(--W)}.qstat-chip.red{border-color:var(--D)}.qstat-chip.purple{border-color:#5e35b1}
+.qstat-val{font-size:1.2rem;font-weight:700;font-family:'Sora',sans-serif}
+.qstat-lbl{font-size:.72rem;color:var(--mu);margin-top:2px}
+/* SEARCH BAR GLOBAL */
+.global-search{position:relative;margin-bottom:14px}
+.global-search input{padding-left:38px}
+.global-search i{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--mu)}
+/* DATE BADGE */
+.date-badge{background:var(--PL);color:var(--P);font-size:.72rem;font-weight:700;padding:3px 9px;border-radius:20px;display:inline-flex;align-items:center;gap:5px}
+/* ONLINE DOT */
+.online-dot{width:9px;height:9px;border-radius:50%;background:var(--A);display:inline-block;animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.4}}
+/* WELCOME CARD */
+.welcome-card{background:linear-gradient(135deg,var(--P),var(--PD) 60%,#5e35b1);border-radius:var(--r);padding:18px;color:#fff;margin-bottom:14px;box-shadow:var(--sh)}
+.welcome-card h3{font-size:1.1rem;font-weight:700}
+.welcome-card p{font-size:.82rem;opacity:.87;margin-top:4px}
+.welcome-card .wc-row{display:flex;align-items:center;justify-content:space-between;margin-top:12px}
+.welcome-card .wc-chip{background:rgba(255,255,255,.18);border-radius:20px;padding:4px 12px;font-size:.75rem;display:flex;align-items:center;gap:6px}
+/* NOTIFICATION FILTER TABS */
+.ntab-row{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:12px;-webkit-overflow-scrolling:touch}
+.ntab-row::-webkit-scrollbar{display:none}
+.ntab{background:var(--bg);border:1px solid var(--brd);border-radius:20px;padding:5px 14px;font-size:.78rem;font-weight:600;cursor:pointer;white-space:nowrap;transition:.17s}
+.ntab.active{background:var(--P);color:#fff;border-color:var(--P)}
+/* ENHANCED NOTIF PANEL */
+.notif-panel-footer{padding:10px 14px;border-top:1px solid var(--brd);display:flex;gap:8px}
+.notif-panel-footer button{flex:1;padding:8px;font-size:.78rem;font-weight:600;border-radius:var(--rs);border:none;cursor:pointer;font-family:'DM Sans',sans-serif}
+
+
+/* ── PAYROLL MANAGEMENT ── */
+.pr-summary{background:linear-gradient(135deg,var(--P),var(--PD));border-radius:var(--r);padding:16px;color:#fff;margin-bottom:14px}
+.pr-summary-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.pr-summary-row:last-child{margin-bottom:0;padding-top:10px;border-top:1px solid rgba(255,255,255,.2)}
+.pr-big{font-size:1.6rem;font-weight:700;font-family:'Sora',sans-serif}
+.pr-label{font-size:.75rem;opacity:.85}
+.pr-status-chip{padding:3px 10px;border-radius:20px;font-size:.7rem;font-weight:700;text-transform:uppercase}
+.pr-paid{background:#e6f7ef;color:#1a7a4a}
+.pr-pending{background:#fff8e1;color:#7a5e00}
+.pr-processing{background:var(--PL);color:var(--P)}
+.pr-cancelled{background:#fce8e8;color:var(--D)}
+.staff-pay-card{background:var(--sur);border:1px solid var(--brd);border-radius:var(--rs);padding:13px;margin-bottom:9px;box-shadow:var(--sh);transition:border .18s}
+.staff-pay-card:hover{border-color:var(--P)}
+.staff-pay-hdr{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.staff-pay-av{width:38px;height:38px;border-radius:50%;background:var(--P);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.88rem;flex-shrink:0}
+.staff-pay-info{flex:1}
+.staff-pay-name{font-weight:600;font-size:.9rem}
+.staff-pay-role{font-size:.75rem;color:var(--mu)}
+.pay-breakdown{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:8px 0}
+.pay-item{background:var(--bg);border-radius:6px;padding:7px 10px}
+.pay-item-label{font-size:.68rem;color:var(--mu);text-transform:uppercase;letter-spacing:.3px}
+.pay-item-val{font-size:.88rem;font-weight:700;margin-top:2px}
+.pay-item-val.green{color:var(--A)}
+.pay-item-val.red{color:var(--D)}
+.pay-item-val.blue{color:var(--P)}
+.payslip-print{background:#fff;border:1px solid var(--brd);border-radius:var(--r);padding:20px;margin-bottom:14px}
+.payslip-print-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;padding-bottom:12px;border-bottom:2px solid var(--P)}
+.payslip-print-logo{display:flex;align-items:center;gap:10px}
+.payslip-print-logo .ico{width:40px;height:40px;background:var(--P);border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff}
+.payslip-line{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px dashed var(--brd);font-size:.84rem}
+.payslip-section-title{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin:12px 0 6px;padding:4px 0;border-bottom:1px solid var(--brd)}
+.payslip-section-title.earn{color:var(--A)}
+.payslip-section-title.ded{color:var(--D)}
+.payslip-net{display:flex;justify-content:space-between;padding:10px;background:linear-gradient(135deg,var(--A),#00876a);border-radius:var(--rs);color:#fff;font-weight:700;font-size:1rem;margin-top:10px}
+.bonus-tag{background:#e6f7ef;color:#1a7a4a;font-size:.7rem;font-weight:700;padding:2px 8px;border-radius:20px}
+.loan-tag{background:#fff8e1;color:#7a5e00;font-size:.7rem;font-weight:700;padding:2px 8px;border-radius:20px}
+/* PAYROLL NAV TABS inside admin */
+.ptab-row{display:flex;gap:6px;margin-bottom:14px;border-bottom:1px solid var(--brd);padding-bottom:0;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.ptab-row::-webkit-scrollbar{display:none}
+.ptab{padding:9px 14px;font-size:.82rem;font-weight:600;cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap;color:var(--mu);transition:.17s}
+.ptab.active{color:var(--P);border-bottom-color:var(--P)}
+
 @media(min-width:600px){
   #sidebar{transform:translateX(0)}
   #mainContent{margin-left:var(--sw)}
@@ -215,7 +309,7 @@ textarea.fi{resize:vertical;min-height:80px}
 <!-- LOGIN -->
 <div id="loginScreen">
   <div class="lcard">
-    <div class="llogo"><div class="lico"><i class="fa fa-hospital-user"></i></div><h1>Loving Heart Hospital</h1><p>Loving Heart Hospital Management Software</p></div>
+    <div class="llogo"><div class="lico"><i class="fa fa-hospital-user"></i></div><h1>Loving Heart Hospital</h1><p>Loving Heart Hospital Management System</p></div>
     <div style="background:#e8f1fb;border-radius:var(--rs);padding:10px 12px;font-size:.8rem;color:var(--P);margin-bottom:18px;display:flex;gap:8px"><i class="fa fa-lock"></i><span><b>Staff Only.</b> Authorised personnel use only.</span></div>
     <div class="fg"><label class="fl">Email</label><input id="le" type="email" class="fi" placeholder="staff@hospital.org"/></div>
     <div class="fg"><label class="fl">Password</label><input id="lp" type="password" class="fi" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"/></div>
@@ -251,8 +345,11 @@ textarea.fi{resize:vertical;min-height:80px}
     <div class="ni" data-mod="messages" onclick="showMod('messages')" style="position:relative"><i class="fa fa-comments"></i> Messages<span id="msgBadge" class="nbadge">0</span></div>
     <div class="ni" data-mod="profile" onclick="showMod('profile')"><i class="fa fa-circle-user"></i> My Profile</div>
     <div class="ni" id="adminNav" data-mod="admin" onclick="showMod('admin')" style="display:none"><i class="fa fa-user-shield"></i> Admin Panel</div>
-    <div class="ni" data-mod="attendance" onclick="showMod('attendance')"><i class="fa fa-clock"></i> Attendance</div>
-    <div class="ni" data-mod="accountant" onclick="showMod('accountant')" style="display:none" id="acctNav"><i class="fa fa-calculator"></i> Accountant</div>
+    <div class="ni" id="payrollNav" data-mod="payroll" onclick="showMod('payroll')" style="display:none"><i class="fa fa-money-bill-wave"></i> Payroll</div>
+    <div class="ni" id="accountantNav" data-mod="accountant" onclick="showMod('accountant')" style="display:none"><i class="fa fa-calculator"></i> Accountant</div>
+    <div class="ni" id="attendanceNav" data-mod="attendance" onclick="showMod('attendance')"><i class="fa fa-clock"></i> Attendance</div>
+    <div class="nl">System</div>
+    <div class="ni" data-mod="notifications" onclick="showMod('notifications')" style="position:relative"><i class="fa fa-bell"></i> All Notifications<span id="notifSideCount" class="nbadge">0</span></div>
   </nav>
   <div class="sov" onclick="cSB()"></div>
 
@@ -268,7 +365,20 @@ textarea.fi{resize:vertical;min-height:80px}
 
     <!-- DASHBOARD -->
     <div id="mod-dashboard" class="mod" style="display:block">
-      <div class="mhdr"><div><h2>Welcome, <span id="staffName">—</span></h2><p class="muted">Today's overview</p></div></div>
+      <!-- Welcome Card -->
+      <div class="welcome-card" id="welcomeCard">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:2px">
+          <div style="width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:1.2rem"><i class="fa fa-user-nurse"></i></div>
+          <div>
+            <h3>Welcome back, <span id="staffName">—</span>! 👋</h3>
+            <p id="welcomeSubtitle">Loading today's overview…</p>
+          </div>
+        </div>
+        <div class="wc-row">
+          <div class="wc-chip"><span class="online-dot"></span> Online</div>
+          <div class="wc-chip" id="wcDate" style="font-size:.72rem"></div>
+        </div>
+      </div>
       <div class="sgrid">
         <div class="scard"><div class="iw ib"><i class="fa fa-users"></i></div><div class="sv2" id="dPat">—</div><div class="sl">Patients</div></div>
         <div class="scard"><div class="iw ig"><i class="fa fa-naira-sign"></i></div><div class="sv2" id="dRev">—</div><div class="sl">Revenue Today</div></div>
@@ -408,7 +518,209 @@ textarea.fi{resize:vertical;min-height:80px}
       </div>
       <div class="sc-mb">
         <div class="mhdr" style="margin-bottom:10px"><h4 style="font-size:.93rem">👥 All Staff</h4><button class="bsm outline" onclick="loadStaff()"><i class="fa fa-rotate"></i></button></div>
-        <div class="twrap"><table class="dtab"><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Dept</th><th>Status</th></tr></thead><tbody id="staffBody"></tbody></table></div>
+        <div class="twrap"><table class="dtab"><thead><tr><th>Name</th><th>Role</th><th>Salary</th><th>Status</th><th>Actions</th></tr></thead><tbody id="staffBody"></tbody></table></div>
+      </div>
+    </div>
+
+
+    <!-- ══ PAYROLL MANAGEMENT MODULE ══ -->
+    <div id="mod-payroll" class="mod">
+      <div class="mhdr">
+        <h2><i class="fa fa-money-bill-wave" style="color:var(--P)"></i> Payroll Management</h2>
+        <button class="bsm primary" onclick="openPayrollGenModal()"><i class="fa fa-cog"></i> Run Payroll</button>
+      </div>
+
+      <!-- Summary cards -->
+      <div class="sgrid" style="grid-template-columns:1fr 1fr;margin-bottom:14px">
+        <div class="scard"><div class="iw ig"><i class="fa fa-naira-sign"></i></div><div class="sv2" id="prTotalNet">—</div><div class="sl">Total Net Pay</div></div>
+        <div class="scard"><div class="iw ib"><i class="fa fa-users"></i></div><div class="sv2" id="prStaffPaid">—</div><div class="sl">Staff on Payroll</div></div>
+        <div class="scard"><div class="iw io"><i class="fa fa-percent"></i></div><div class="sv2" id="prTotalDed">—</div><div class="sl">Total Deductions</div></div>
+        <div class="scard"><div class="iw ip"><i class="fa fa-calendar-check"></i></div><div class="sv2" id="prMonth">—</div><div class="sl">Pay Period</div></div>
+      </div>
+
+      <!-- Tab navigation -->
+      <div class="ptab-row">
+        <div class="ptab active" onclick="switchPayrollTab('overview',this)" id="ptab-overview">📊 Overview</div>
+        <div class="ptab" onclick="switchPayrollTab('staff',this)" id="ptab-staff">👥 Staff Salaries</div>
+        <div class="ptab" onclick="switchPayrollTab('history',this)" id="ptab-history">📋 Payroll History</div>
+        <div class="ptab" onclick="switchPayrollTab('bonuses',this)" id="ptab-bonuses">🎁 Bonuses & Loans</div>
+      </div>
+
+      <!-- OVERVIEW TAB -->
+      <div id="pr-tab-overview">
+        <div class="sc-mb">
+          <div class="mhdr" style="margin-bottom:10px">
+            <h4 style="font-size:.9rem"><i class="fa fa-calendar"></i> Select Pay Period</h4>
+            <div style="display:flex;gap:7px;align-items:center">
+              <select id="prMonthSel" class="fsel" style="font-size:.82rem;padding:7px 10px" onchange="loadPayrollOverview()">
+                <option value="">Select month…</option>
+              </select>
+              <button class="bsm outline" onclick="loadPayrollOverview()"><i class="fa fa-rotate"></i></button>
+            </div>
+          </div>
+          <div id="prOverviewContent"><div class="en">Select a pay period above to view payroll overview</div></div>
+        </div>
+      </div>
+
+      <!-- STAFF SALARIES TAB -->
+      <div id="pr-tab-staff" style="display:none">
+        <div class="sc-mb">
+          <div class="mhdr" style="margin-bottom:10px">
+            <h4 style="font-size:.9rem">💼 All Staff Salary Configuration</h4>
+            <button class="bsm outline" onclick="loadStaffSalaryList()"><i class="fa fa-rotate"></i></button>
+          </div>
+          <div style="position:relative;margin-bottom:10px">
+            <i class="fa fa-search" style="position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--mu);font-size:.85rem"></i>
+            <input id="salSearchQ" class="fi sm" style="padding-left:32px" placeholder="Search staff name or role…" oninput="filterSalaryList()"/>
+          </div>
+          <div id="staffSalaryList"><div class="cr"><i class="fa fa-spinner fa-spin"></i></div></div>
+        </div>
+      </div>
+
+      <!-- HISTORY TAB -->
+      <div id="pr-tab-history" style="display:none">
+        <div class="sc-mb">
+          <div class="mhdr" style="margin-bottom:10px">
+            <h4 style="font-size:.9rem">📋 Payroll Run History</h4>
+            <button class="bsm outline" onclick="loadPayrollHistory()"><i class="fa fa-rotate"></i></button>
+          </div>
+          <div id="payrollHistoryList"><div class="cr"><i class="fa fa-spinner fa-spin"></i></div></div>
+        </div>
+      </div>
+
+      <!-- BONUSES & LOANS TAB -->
+      <div id="pr-tab-bonuses" style="display:none">
+        <div class="sc-mb">
+          <div class="mhdr" style="margin-bottom:10px">
+            <h4 style="font-size:.9rem">🎁 Add Bonus / Loan / Deduction</h4>
+          </div>
+          <div class="fg"><label class="fl">Staff Member</label>
+            <select id="blStaff" class="fsel"><option value="">Select staff…</option></select>
+          </div>
+          <div class="frow">
+            <div class="fg"><label class="fl">Type</label>
+              <select id="blType" class="fsel" onchange="toggleBLFields()">
+                <option value="bonus">Bonus</option>
+                <option value="loan">Salary Advance / Loan</option>
+                <option value="extra_deduction">Extra Deduction</option>
+              </select>
+            </div>
+            <div class="fg"><label class="fl">Amount (₦)</label>
+              <input id="blAmount" class="fi" type="number" placeholder="0"/>
+            </div>
+          </div>
+          <div class="fg" id="blMonthField">
+            <label class="fl">Apply to Month</label>
+            <select id="blMonth" class="fsel"><option value="">Select month…</option></select>
+          </div>
+          <div class="fg"><label class="fl">Reason / Note</label>
+            <input id="blNote" class="fi" placeholder="e.g. Performance bonus, Emergency loan…"/>
+          </div>
+          <button class="btnP" onclick="saveBonusLoan()"><i class="fa fa-save"></i> Save & Apply</button>
+        </div>
+        <div class="sc-mb">
+          <div class="mhdr" style="margin-bottom:10px">
+            <h4 style="font-size:.9rem">📌 Recent Bonuses & Loans</h4>
+            <button class="bsm outline" onclick="loadBonusLoanList()"><i class="fa fa-rotate"></i></button>
+          </div>
+          <div id="bonusLoanList"><div class="cr"><i class="fa fa-spinner fa-spin"></i></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- NOTIFICATIONS FULL PAGE -->
+    <div id="mod-notifications" class="mod">
+      <div class="mhdr">
+        <h2><i class="fa fa-bell" style="color:var(--P)"></i> All Notifications</h2>
+        <button class="bsm outline" onclick="markAllRead();loadNotifPage()"><i class="fa fa-check-double"></i> Mark All Read</button>
+      </div>
+      <!-- Filter tabs -->
+      <div class="ntab-row">
+        <div class="ntab active" onclick="filterNotifs('all',this)">All</div>
+        <div class="ntab" onclick="filterNotifs('unread',this)">Unread</div>
+        <div class="ntab" onclick="filterNotifs('rx',this)">💊 Pharmacy</div>
+        <div class="ntab" onclick="filterNotifs('labReq',this)">🔬 Lab</div>
+        <div class="ntab" onclick="filterNotifs('appointment',this)">📅 Appointments</div>
+        <div class="ntab" onclick="filterNotifs('reg',this)">🏥 Registrations</div>
+      </div>
+      <div class="twrap" id="notifPageWrap">
+        <div id="notifPageList"><div class="cr"><i class="fa fa-spinner fa-spin"></i></div></div>
+      </div>
+    </div>
+
+    <!-- ACCOUNTANT DASHBOARD -->
+    <div id="mod-accountant" class="mod">
+      <div class="mhdr"><h2><i class="fa fa-calculator" style="color:var(--P)"></i> Accountant Dashboard</h2></div>
+      <div class="sgrid" style="grid-template-columns:1fr 1fr">
+        <div class="scard"><div class="iw ig"><i class="fa fa-naira-sign"></i></div><div class="sv2" id="acTotalPayroll">—</div><div class="sl">Monthly Payroll</div></div>
+        <div class="scard"><div class="iw ib"><i class="fa fa-users"></i></div><div class="sv2" id="acStaffCount">—</div><div class="sl">Staff Count</div></div>
+        <div class="scard"><div class="iw io"><i class="fa fa-calendar"></i></div><div class="sv2" id="acCurrentMonth">—</div><div class="sl">Current Period</div></div>
+        <div class="scard"><div class="iw ir"><i class="fa fa-clock"></i></div><div class="sv2" id="acAbsent">—</div><div class="sl">Absences Today</div></div>
+      </div>
+      <!-- PAYROLL SECTION -->
+      <div class="sc-mb">
+        <div class="mhdr" style="margin-bottom:10px">
+          <h4 style="font-size:.93rem"><i class="fa fa-money-bill-wave" style="color:var(--A)"></i> Payroll Management</h4>
+          <button class="bsm primary" onclick="generateMonthlyPayroll()"><i class="fa fa-cog"></i> Generate Payroll</button>
+        </div>
+        <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+          <select id="payrollMonthSel" class="fsel" style="flex:1" onchange="loadPayrollRecords()">
+            <option value="">Select Month…</option>
+          </select>
+          <button class="bsm outline" onclick="loadPayrollRecords()"><i class="fa fa-rotate"></i></button>
+        </div>
+        <div id="payrollList"><div class="en">Select a month to view payroll records</div></div>
+      </div>
+      <!-- STAFF SALARY SETTINGS -->
+      <div class="sc-mb">
+        <div class="mhdr" style="margin-bottom:10px">
+          <h4 style="font-size:.93rem"><i class="fa fa-sliders" style="color:var(--P)"></i> Staff Salary Settings</h4>
+          <button class="bsm outline" onclick="loadSalarySettings()"><i class="fa fa-rotate"></i></button>
+        </div>
+        <div id="salarySettingsList"><div class="cr"><i class="fa fa-spinner fa-spin"></i></div></div>
+      </div>
+      <!-- ATTENDANCE OVERVIEW -->
+      <div class="sc-mb">
+        <div class="mhdr" style="margin-bottom:10px">
+          <h4 style="font-size:.93rem"><i class="fa fa-clock" style="color:var(--W)"></i> Today's Attendance</h4>
+          <input type="date" id="attDateFilter" class="fi" style="width:auto;padding:6px 9px;font-size:.8rem" onchange="loadAllAttendance()"/>
+        </div>
+        <div id="allAttendanceList"><div class="cr"><i class="fa fa-spinner fa-spin"></i></div></div>
+      </div>
+    </div>
+
+    <!-- ATTENDANCE MODULE (all staff) -->
+    <div id="mod-attendance" class="mod">
+      <div class="mhdr"><h2><i class="fa fa-clock" style="color:var(--P)"></i> My Attendance</h2></div>
+      <!-- Clock In/Out Card -->
+      <div class="sc-mb" id="clockCard">
+        <h4 class="ssub">⏱ Today's Clock</h4>
+        <div id="clockStatus" style="text-align:center;padding:10px 0;font-size:.85rem;color:var(--mu)">Checking status…</div>
+        <button id="clockBtn" class="clock-btn clock-in-btn" onclick="doClockIn()" style="margin-top:8px"><i class="fa fa-play"></i> Clock In</button>
+        <div id="gpsInfo" style="text-align:center;font-size:.75rem;color:var(--mu);margin-top:6px"></div>
+      </div>
+      <!-- Today's Record -->
+      <div class="sc-mb">
+        <h4 class="ssub">📅 Today's Record</h4>
+        <div id="todayAtt"><div class="cr"><i class="fa fa-spinner fa-spin"></i></div></div>
+      </div>
+      <!-- Attendance History -->
+      <div class="sc-mb">
+        <div class="mhdr" style="margin-bottom:10px">
+          <h4 style="font-size:.93rem">📋 My Attendance History</h4>
+          <button class="bsm outline" onclick="loadMyAttendance()"><i class="fa fa-rotate"></i></button>
+        </div>
+        <div id="myAttList"><div class="cr"><i class="fa fa-spinner fa-spin"></i></div></div>
+      </div>
+      <!-- Payslip Section for Staff -->
+      <div class="sc-mb" id="myPayslipSection">
+        <div class="mhdr" style="margin-bottom:10px">
+          <h4 style="font-size:.93rem"><i class="fa fa-file-invoice-dollar" style="color:var(--A)"></i> My Payslips</h4>
+        </div>
+        <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+          <select id="myPayslipMonthSel" class="fsel" style="flex:1" onchange="loadMyPayslips()"><option value="">Select Month…</option></select>
+        </div>
+        <div id="myPayslipList"><div class="en">Select a month to view your payslip</div></div>
       </div>
     </div>
 
@@ -461,12 +773,132 @@ textarea.fi{resize:vertical;min-height:80px}
   <button class="btnP" onclick="genBill()"><i class="fa fa-print"></i> Generate &amp; Print</button>
 </div></div>
 
+
+
+<!-- PAYROLL GENERATE MODAL -->
+<div id="payrollGenModal" class="movl"><div class="modal">
+  <div class="mhd"><h3><i class="fa fa-cog" style="color:var(--P)"></i> Run Monthly Payroll</h3><button class="mcls" onclick="cModal('payrollGenModal')">✕</button></div>
+  <div style="background:var(--PL);border-radius:var(--rs);padding:12px;margin-bottom:14px;font-size:.84rem;color:var(--P)">
+    <i class="fa fa-circle-info"></i> This will calculate salaries for all staff with salary settings configured for the selected month.
+  </div>
+  <div class="fg"><label class="fl">Pay Month</label>
+    <select id="genPayMonth" class="fsel"><option value="">Select month…</option></select>
+  </div>
+  <div class="fg"><label class="fl">Payment Date</label>
+    <input id="genPayDate" type="date" class="fi"/>
+  </div>
+  <div class="fg"><label class="fl">Payment Method</label>
+    <select id="genPayMethod" class="fsel">
+      <option>Bank Transfer</option><option>Cash</option><option>Cheque</option>
+    </select>
+  </div>
+  <div class="fg"><label class="fl">Notes (optional)</label>
+    <input id="genPayNote" class="fi" placeholder="e.g. July 2025 salary payment"/>
+  </div>
+  <div id="genPayPreview" style="margin-bottom:12px"></div>
+  <button class="bsm outline" style="width:100%;margin-bottom:9px" onclick="previewPayroll()"><i class="fa fa-eye"></i> Preview Payroll</button>
+  <button class="btnP" id="genPayBtn" onclick="runPayroll()"><i class="fa fa-play"></i> Generate & Confirm Payroll</button>
+</div></div>
+
+<!-- STAFF PAYSLIP DETAIL MODAL -->
+<div id="staffPayslipModal" class="movl"><div class="modal">
+  <div class="mhd"><h3><i class="fa fa-file-invoice-dollar" style="color:var(--A)"></i> Payslip</h3><button class="mcls" onclick="cModal('staffPayslipModal')">✕</button></div>
+  <div id="staffPayslipContent"></div>
+  <div style="display:flex;gap:8px;margin-top:10px">
+    <button class="bsm primary" style="flex:1" onclick="printStaffPayslip()"><i class="fa fa-print"></i> Print</button>
+    <button class="bsm outline" style="flex:1" onclick="markPayslipPaid()"><i class="fa fa-check"></i> Mark Paid</button>
+  </div>
+</div></div>
+
+<!-- SALARY SETUP MODAL (enhanced) -->
+<div id="salarySetupModal" class="movl"><div class="modal">
+  <div class="mhd"><h3><i class="fa fa-sliders" style="color:var(--P)"></i> Salary Configuration</h3><button class="mcls" onclick="cModal('salarySetupModal')">✕</button></div>
+  <div id="salarySetupInfo" style="background:var(--PL);border-radius:var(--rs);padding:10px;margin-bottom:12px;font-size:.85rem"></div>
+  <div class="ptab-row" style="margin-bottom:12px">
+    <div class="ptab active" onclick="switchSalaryTab('earnings',this)">💰 Earnings</div>
+    <div class="ptab" onclick="switchSalaryTab('deductions',this)">📉 Deductions</div>
+  </div>
+  <div id="sal-tab-earnings">
+    <div class="fg"><label class="fl">Basic Salary (₦) *</label><input id="ss_basic" class="fi" type="number" placeholder="e.g. 150000"/></div>
+    <div class="frow">
+      <div class="fg"><label class="fl">Housing (₦)</label><input id="ss_housing" class="fi" type="number" placeholder="0"/></div>
+      <div class="fg"><label class="fl">Transport (₦)</label><input id="ss_transport" class="fi" type="number" placeholder="0"/></div>
+    </div>
+    <div class="frow">
+      <div class="fg"><label class="fl">Medical (₦)</label><input id="ss_medical" class="fi" type="number" placeholder="0"/></div>
+      <div class="fg"><label class="fl">Other Allowance (₦)</label><input id="ss_other" class="fi" type="number" placeholder="0"/></div>
+    </div>
+    <div id="sal-live-gross" style="background:var(--bg);border-radius:var(--rs);padding:10px;text-align:center;margin-top:4px">
+      <span style="font-size:.75rem;color:var(--mu)">Gross Salary</span>
+      <div style="font-size:1.2rem;font-weight:700;color:var(--A)" id="sal-gross-val">₦0</div>
+    </div>
+  </div>
+  <div id="sal-tab-deductions" style="display:none">
+    <div class="frow">
+      <div class="fg"><label class="fl">Tax (%)</label><input id="ss_tax" class="fi" type="number" placeholder="7.5" step="0.1"/></div>
+      <div class="fg"><label class="fl">Pension (%)</label><input id="ss_pension" class="fi" type="number" placeholder="8" step="0.1"/></div>
+    </div>
+    <div class="fg"><label class="fl">NHF (%)</label><input id="ss_nhf" class="fi" type="number" placeholder="2.5" step="0.1"/></div>
+    <div class="fg"><label class="fl">Other Fixed Deductions (₦)</label><input id="ss_otherded" class="fi" type="number" placeholder="0"/></div>
+    <div id="sal-live-net" style="background:var(--bg);border-radius:var(--rs);padding:10px;text-align:center;margin-top:4px">
+      <span style="font-size:.75rem;color:var(--mu)">Estimated Net Pay</span>
+      <div style="font-size:1.2rem;font-weight:700;color:var(--P)" id="sal-net-val">₦0</div>
+    </div>
+  </div>
+  <input type="hidden" id="ss_uid"/>
+  <button class="btnP" style="margin-top:14px" onclick="saveSalarySetup()"><i class="fa fa-save"></i> Save Configuration</button>
+</div></div>
+
+<!-- SALARY SETTINGS MODAL (legacy kept) -->
+<div id="salaryModal" class="movl"><div class="modal">
+  <div class="mhd"><h3><i class="fa fa-sliders" style="color:var(--P)"></i> Salary Settings</h3><button class="mcls" onclick="cModal('salaryModal')">✕</button></div>
+  <div id="salaryModalContent"></div>
+  <div class="fg"><label class="fl">Basic Salary (₦)</label><input id="salBasic" class="fi" type="number" placeholder="e.g. 150000"/></div>
+  <div class="fg"><label class="fl">Housing Allowance (₦)</label><input id="salHousing" class="fi" type="number" placeholder="e.g. 20000"/></div>
+  <div class="fg"><label class="fl">Transport Allowance (₦)</label><input id="salTransport" class="fi" type="number" placeholder="e.g. 10000"/></div>
+  <div class="fg"><label class="fl">Medical Allowance (₦)</label><input id="salMedical" class="fi" type="number" placeholder="e.g. 5000"/></div>
+  <div class="fg"><label class="fl">Other Allowance (₦)</label><input id="salOther" class="fi" type="number" placeholder="e.g. 0"/></div>
+  <div class="fg"><label class="fl">Tax Deduction (%)</label><input id="salTax" class="fi" type="number" placeholder="e.g. 7.5"/></div>
+  <div class="fg"><label class="fl">Pension Deduction (%)</label><input id="salPension" class="fi" type="number" placeholder="e.g. 8"/></div>
+  <div class="fg"><label class="fl">Other Deductions (₦)</label><input id="salOtherDed" class="fi" type="number" placeholder="e.g. 0"/></div>
+  <input type="hidden" id="salStaffUid"/>
+  <button class="btnP" onclick="saveSalarySettings()"><i class="fa fa-save"></i> Save Salary Settings</button>
+</div></div>
+
+<!-- EDIT STAFF MODAL (Super Admin) -->
+<div id="editStaffModal" class="movl"><div class="modal">
+  <div class="mhd"><h3><i class="fa fa-user-edit" style="color:var(--P)"></i> Edit Staff</h3><button class="mcls" onclick="cModal('editStaffModal')">✕</button></div>
+  <div class="fg"><label class="fl">Full Name</label><input id="esName" class="fi"/></div>
+  <div class="fg"><label class="fl">Role</label>
+    <select id="esRole" class="fsel">
+      <option>Admin</option><option>Super Admin</option><option>Doctor</option><option>Nurse</option>
+      <option>Receptionist</option><option>Lab Technician</option><option>Pharmacist</option><option>Accountant</option>
+    </select>
+  </div>
+  <div class="fg"><label class="fl">Department</label><input id="esDept" class="fi"/></div>
+  <div class="fg"><label class="fl">Status</label>
+    <select id="esStat" class="fsel"><option value="true">Active</option><option value="false">Inactive</option></select>
+  </div>
+  <input type="hidden" id="esUid"/>
+  <div style="display:flex;gap:9px;margin-top:8px">
+    <button class="btnP" style="flex:1" onclick="saveStaffEdit()"><i class="fa fa-save"></i> Save Changes</button>
+    <button class="bsm danger" onclick="deleteStaff()"><i class="fa fa-trash"></i> Delete</button>
+  </div>
+</div></div>
+
+<!-- PAYSLIP VIEW MODAL -->
+<div id="payslipModal" class="movl"><div class="modal">
+  <div class="mhd"><h3><i class="fa fa-file-invoice-dollar" style="color:var(--A)"></i> Payslip</h3><button class="mcls" onclick="cModal('payslipModal')">✕</button></div>
+  <div id="payslipContent"></div>
+  <button class="bsm primary" style="width:100%;margin-top:10px" onclick="printPayslip()"><i class="fa fa-print"></i> Print Payslip</button>
+</div></div>
+
 <div id="staffModal" class="movl"><div class="modal">
   <div class="mhd"><h3><i class="fa fa-user-plus" style="color:var(--P)"></i> Create Staff Account</h3><button class="mcls" onclick="cModal('staffModal')">✕</button></div>
   <div class="fg"><label class="fl">Full Name *</label><input id="sName" class="fi" placeholder="Staff full name"/></div>
   <div class="fg"><label class="fl">Email *</label><input id="sEmail" class="fi" type="email" placeholder="staff@hospital.org"/></div>
   <div class="fg"><label class="fl">Password *</label><input id="sPass" class="fi" type="password" placeholder="Min 6 characters"/></div>
-  <div class="frow"><div class="fg"><label class="fl">Role *</label><select id="sRole" class="fsel"><option value="">Select…</option><option>Admin</option><option>Doctor</option><option>Nurse</option><option>Receptionist</option><option>Lab Technician</option><option>Pharmacist</option><option>Accountant</option></select></div><div class="fg"><label class="fl">Department</label><input id="sDept" class="fi" placeholder="e.g. Cardiology"/></div></div>
+  <div class="frow"><div class="fg"><label class="fl">Role *</label><select id="sRole" class="fsel"><option value="">Select…</option><option>Admin</option><option>Super Admin</option><option>Doctor</option><option>Nurse</option><option>Receptionist</option><option>Lab Technician</option><option>Pharmacist</option><option>Accountant</option></select></div><div class="fg"><label class="fl">Department</label><input id="sDept" class="fi" placeholder="e.g. Cardiology"/></div></div>
   <button class="btnP" onclick="createStaff()"><i class="fa fa-save"></i> Create Account</button>
 </div></div>
 
@@ -476,110 +908,12 @@ textarea.fi{resize:vertical;min-height:80px}
   <button class="btnP" onclick="startChat()"><i class="fa fa-paper-plane"></i> Open Chat</button>
 </div></div>
 
-
-    <!-- ATTENDANCE MODULE -->
-    <div id="mod-attendance" class="mod">
-      <div class="mhdr"><h2><i class="fa fa-clock" style="color:var(--P)"></i> Attendance</h2></div>
-      <!-- Clock In/Out Card -->
-      <div class="clock-card">
-        <div class="clock-time" id="liveTime">--:--:--</div>
-        <div class="clock-date" id="liveDate">--</div>
-        <div class="clock-status" id="clockStatus">Not clocked in today</div>
-        <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
-          <button class="btn-clockin" id="btnClockIn" onclick="clockIn()"><i class="fa fa-play"></i> Clock In</button>
-          <button class="btn-clockout" id="btnClockOut" onclick="clockOut()" style="display:none"><i class="fa fa-stop"></i> Clock Out</button>
-        </div>
-      </div>
-      <!-- My Attendance History -->
-      <div class="sc-mb">
-        <div class="mhdr" style="margin-bottom:10px">
-          <h4 style="font-size:.93rem">📅 My Attendance History</h4>
-          <select id="attMonthFilter" class="fsel" style="width:auto;padding:6px 10px;font-size:.8rem" onchange="loadMyAttendance()">
-            <option value="">This Month</option>
-          </select>
-        </div>
-        <div id="myAttList"><div class="cr"><i class="fa fa-spinner fa-spin"></i></div></div>
-      </div>
-    </div>
-
-    <!-- ACCOUNTANT MODULE -->
-    <div id="mod-accountant" class="mod">
-      <div class="mhdr"><h2><i class="fa fa-calculator" style="color:var(--P)"></i> Accountant Dashboard</h2></div>
-      <!-- Stats -->
-      <div class="sgrid" style="grid-template-columns:1fr 1fr">
-        <div class="scard"><div class="iw ig"><i class="fa fa-naira-sign"></i></div><div class="sv2" id="acTotalPayroll">—</div><div class="sl">Monthly Payroll</div></div>
-        <div class="scard"><div class="iw ib"><i class="fa fa-users"></i></div><div class="sv2" id="acTotalStaff">—</div><div class="sl">Total Staff</div></div>
-        <div class="scard"><div class="iw io"><i class="fa fa-clock"></i></div><div class="sv2" id="acAttRate">—</div><div class="sl">Attendance Rate</div></div>
-        <div class="scard"><div class="iw ir"><i class="fa fa-file-invoice"></i></div><div class="sv2" id="acPayslips">—</div><div class="sl">Payslips This Month</div></div>
-      </div>
-      <!-- Tabs -->
-      <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
-        <button class="bsm primary" onclick="showAcctTab('payroll')"><i class="fa fa-money-bill"></i> Payroll</button>
-        <button class="bsm outline" onclick="showAcctTab('salary')"><i class="fa fa-gear"></i> Salary Settings</button>
-        <button class="bsm outline" onclick="showAcctTab('attendance')"><i class="fa fa-clock"></i> All Attendance</button>
-      </div>
-      <!-- Payroll Tab -->
-      <div id="acctPayroll" class="sc-mb">
-        <div class="mhdr" style="margin-bottom:10px">
-          <h4 style="font-size:.93rem">💰 Monthly Payroll</h4>
-          <div style="display:flex;gap:6px">
-            <select id="payrollMonth" class="fsel" style="width:auto;padding:6px 10px;font-size:.8rem"></select>
-            <button class="bsm primary" style="padding:6px 10px" onclick="genPayroll()"><i class="fa fa-play"></i> Generate</button>
-          </div>
-        </div>
-        <div id="payrollList"><div class="en">Select month and click Generate</div></div>
-      </div>
-      <!-- Salary Settings Tab -->
-      <div id="acctSalary" class="sc-mb" style="display:none">
-        <h4 style="font-size:.93rem;margin-bottom:12px">⚙️ Staff Salary Settings</h4>
-        <div id="salarySettingsList"><div class="cr"><i class="fa fa-spinner fa-spin"></i></div></div>
-      </div>
-      <!-- All Attendance Tab -->
-      <div id="acctAttendance" class="sc-mb" style="display:none">
-        <div class="mhdr" style="margin-bottom:10px">
-          <h4 style="font-size:.93rem">📋 All Staff Attendance</h4>
-          <select id="allAttMonth" class="fsel" style="width:auto;padding:6px 10px;font-size:.8rem" onchange="loadAllAttendance()"></select>
-        </div>
-        <div id="allAttList"><div class="cr"><i class="fa fa-spinner fa-spin"></i></div></div>
-      </div>
-    </div>
-
 <button id="installBtn" onclick="installApp()"><i class="fa fa-download"></i> Install App on Phone</button>
-
-<!-- SALARY EDIT MODAL -->
-<div id="salaryModal" class="movl"><div class="modal">
-  <div class="mhd"><h3><i class="fa fa-gear" style="color:var(--P)"></i> Set Salary</h3><button class="mcls" onclick="cModal('salaryModal')">✕</button></div>
-  <div style="background:var(--PL);border-radius:var(--rs);padding:10px;font-size:.82rem;color:var(--P);margin-bottom:14px">
-    <b id="salStaffName">Staff Name</b> — <span id="salStaffRole"></span>
-  </div>
-  <input type="hidden" id="salStaffUid"/>
-  <div class="fg"><label class="fl">Basic Salary (₦)</label><input id="salBasic" class="fi" type="number" placeholder="e.g. 80000"/></div>
-  <div class="fg"><label class="fl">Housing Allowance (₦)</label><input id="salHousing" class="fi" type="number" placeholder="e.g. 10000"/></div>
-  <div class="fg"><label class="fl">Transport Allowance (₦)</label><input id="salTransport" class="fi" type="number" placeholder="e.g. 5000"/></div>
-  <div class="fg"><label class="fl">Other Allowances (₦)</label><input id="salOther" class="fi" type="number" placeholder="e.g. 0"/></div>
-  <div class="fg"><label class="fl">Tax Deduction (%)</label><input id="salTax" class="fi" type="number" placeholder="e.g. 5"/></div>
-  <div class="fg"><label class="fl">Other Deductions (₦)</label><input id="salDeduct" class="fi" type="number" placeholder="e.g. 0"/></div>
-  <button class="btnP" onclick="saveSalary()"><i class="fa fa-save"></i> Save Salary Settings</button>
-</div></div>
-
-<!-- PAYSLIP MODAL -->
-<div id="payslipModal" class="movl"><div class="modal">
-  <div class="mhd"><h3><i class="fa fa-file-invoice" style="color:var(--P)"></i> Payslip</h3><button class="mcls" onclick="cModal('payslipModal')">✕</button></div>
-  <div id="payslipContent"></div>
-  <button class="btnP mt8" onclick="printPayslip()"><i class="fa fa-print"></i> Print Payslip</button>
-</div></div>
-
-<!-- STAFF DETAIL MODAL (Super Admin) -->
-<div id="staffDetailModal" class="movl"><div class="modal">
-  <div class="mhd"><h3><i class="fa fa-user-gear" style="color:var(--P)"></i> Manage Staff</h3><button class="mcls" onclick="cModal('staffDetailModal')">✕</button></div>
-  <div id="staffDetailContent"></div>
-</div></div>
-
 <div id="toasts"></div>
 <script type="module">
 import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import{getAuth,signInWithEmailAndPassword,signOut,onAuthStateChanged,createUserWithEmailAndPassword,updatePassword}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import{getFirestore,collection,doc,setDoc,getDoc,getDocs,addDoc,updateDoc,query,where,orderBy,limit,serverTimestamp,onSnapshot,runTransaction}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import{getFirestore,collection,doc,setDoc,getDoc,getDocs,addDoc,updateDoc,deleteDoc,query,where,orderBy,limit,serverTimestamp,onSnapshot,runTransaction}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const FC={apiKey:"AIzaSyAYWVzLpHxIOxgwampWoPsa1PZP2O7xzbs",authDomain:"loving-heart-hospital.firebaseapp.com",projectId:"loving-heart-hospital",storageBucket:"loving-heart-hospital.firebasestorage.app",messagingSenderId:"560428403650",appId:"1:560428403650:web:65ac3a27428a3486f2645b"};
 const app=initializeApp(FC);
@@ -603,9 +937,19 @@ const ADMIN_EMAILS=["oladejiridwanopeyemi@gmail.com","admin@lovinghearthospital.
 
 function isAdmin(){
   if(!CU||!SP)return false;
-  if(SP.role==="Admin")return true;
+  if(SP.role==="Admin"||SP.role==="Super Admin")return true;
   if(CU.email&&ADMIN_EMAILS.includes(CU.email.toLowerCase()))return true;
   return false;
+}
+function isSuperAdmin(){
+  if(!CU||!SP)return false;
+  if(SP.role==="Super Admin")return true;
+  if(CU.email&&ADMIN_EMAILS.includes(CU.email.toLowerCase()))return true;
+  return false;
+}
+function isAccountant(){
+  if(!SP)return false;
+  return SP.role==="Accountant"||isAdmin();
 }
 
 // ─── AUTO-INCREMENT PATIENT ID ─────────────────────────────────────────────
@@ -629,9 +973,9 @@ onAuthStateChanged(auth,async user=>{
         SP={...s.data()};CU=user;
         // If email is in admin list, force role to Admin
         if(CU.email&&ADMIN_EMAILS.includes(CU.email.toLowerCase())){
-          SP.role="Admin";
+          SP.role="Super Admin";
           // Also update Firestore so it stays consistent
-          await updateDoc(doc(db,"staff",user.uid),{role:"Admin"}).catch(()=>{});
+          await updateDoc(doc(db,"staff",user.uid),{role:"Super Admin"}).catch(()=>{});
         }
         ge("appScreen").style.display="flex";
         ge("loginScreen").style.display="none";
@@ -656,22 +1000,24 @@ window.doLogout=async()=>{await signOut(auth);toast("Logged out","ok");};
 
 // ── STRICT ROLE PERMISSIONS ────────────────────────────────────────────────
 const ROLE_MODULES={
-  "Admin":          ["dashboard","patients","appointments","lab","pharmacy","billing","messages","profile","admin","attendance"],
-  "Doctor":         ["dashboard","patients","appointments","messages","profile","attendance"],
-  "Nurse":          ["dashboard","patients","appointments","messages","profile","attendance"],
-  "Receptionist":   ["dashboard","patients","appointments","billing","messages","profile","attendance"],
-  "Lab Technician": ["dashboard","lab","patients","messages","profile","attendance"],
-  "Pharmacist":     ["dashboard","pharmacy","patients","messages","profile","attendance"],
-  "Accountant":     ["dashboard","accountant","messages","profile","attendance"]
+  "Super Admin":    ["dashboard","patients","appointments","lab","pharmacy","billing","messages","profile","admin","payroll","accountant","attendance","notifications"],
+  "Admin":          ["dashboard","patients","appointments","lab","pharmacy","billing","messages","profile","admin","payroll","accountant","attendance","notifications"],
+  "Doctor":         ["dashboard","patients","appointments","messages","profile","attendance","notifications"],
+  "Nurse":          ["dashboard","patients","appointments","messages","profile","attendance","notifications"],
+  "Receptionist":   ["dashboard","patients","appointments","billing","messages","profile","attendance","notifications"],
+  "Lab Technician": ["dashboard","lab","patients","messages","profile","attendance","notifications"],
+  "Pharmacist":     ["dashboard","pharmacy","patients","messages","profile","attendance","notifications"],
+  "Accountant":     ["dashboard","payroll","accountant","messages","profile","attendance","notifications"]
 };
 const ROLE_ACTIONS={
-  "Admin":          ["register","dispense","uploadLab","manageStock","viewPatient","book","bill","addRecord","viewRecord","managePayroll","viewAllAttendance","superAdmin"],
+  "Super Admin":    ["register","dispense","uploadLab","manageStock","viewPatient","book","bill","addRecord","viewRecord","managePayroll","manageStaff"],
+  "Admin":          ["register","dispense","uploadLab","manageStock","viewPatient","book","bill","addRecord","viewRecord","managePayroll","manageStaff"],
   "Doctor":         ["viewPatient","addRecord","viewRecord","book"],
   "Nurse":          ["register","viewPatient","addRecord","viewRecord","book"],
   "Receptionist":   ["register","viewPatient","book","bill","viewRecord"],
   "Lab Technician": ["uploadLab","viewPatient","viewRecord"],
   "Pharmacist":     ["dispense","manageStock","viewPatient","viewRecord"],
-  "Accountant":     ["managePayroll","viewAllAttendance","viewRecord"]
+  "Accountant":     ["managePayroll","viewRecord"]
 };
 function canDo(action){return(ROLE_ACTIONS[SP.role]||[]).includes(action);}
 
@@ -690,7 +1036,17 @@ function initApp(){
     if(ge("adminNav"))ge("adminNav").style.display="flex";
     if(ge("adminBanner"))ge("adminBanner").style.display="flex";
   }
+  if(isAccountant()){
+    if(ge("accountantNav"))ge("accountantNav").style.display="flex";
+    if(ge("payrollNav"))ge("payrollNav").style.display="flex";
+  } else if(isAdmin()){
+    if(ge("payrollNav"))ge("payrollNav").style.display="flex";
+  }
+  // Attendance is available to all
+  if(ge("attendanceNav"))ge("attendanceNav").style.display="flex";
   showMod("dashboard");
+  populateMonthSelects();
+  loadWelcomeCard();
   loadDashCards();
   loadDashNotifs();
   startMsgBadge();
@@ -701,6 +1057,7 @@ function initApp(){
 window.showMod=mod=>{
   // Guard all modules by role
   if(mod==="admin"&&!isAdmin()){toast("⛔ Admin access only","err");return;}
+  if(mod==="accountant"&&!isAccountant()){toast("⛔ Accountant/Admin access only","err");return;}
   const allowed=ROLE_MODULES[SP&&SP.role]||["dashboard","messages","profile"];
   if(!allowed.includes(mod)&&mod!=="dashboard"){
     toast("⛔ You do not have access to this module","err");return;
@@ -717,6 +1074,10 @@ window.showMod=mod=>{
   if(mod==="messages")    loadThreads();
   if(mod==="profile")     loadProf();
   if(mod==="admin")       {loadAdminStats();loadStaff();}
+  if(mod==="accountant")  {loadAccountantDash();}
+  if(mod==="attendance")  {loadAttendanceModule();}
+  if(mod==="notifications"){loadNotifPage();}
+  if(mod==="payroll"){loadPayrollModule();}
   if(mod==="dashboard")   { loadDashCards(); loadDashNotifs(); }
 };
 window.tSB=()=>ge("sidebar").classList.toggle("open");
@@ -728,12 +1089,29 @@ window.cModal=id=>ge(id).style.display="none";
 async function loadDashNotifs(){
   const el = ge("dashNotifList"); if(!el) return;
   try{
-    // No orderBy needed — sort client-side to avoid requiring Firestore index
-    const snap = await getDocs(query(collection(db,"notifications"),
-      where("targetRole","==",SP.role)
-    ));
+    // Admin/Super Admin fetches from both "Admin" and "Super Admin" targets
+    // Other roles only fetch their own role — all safe, no full collection scan
+    let filtered = [];
+    if(isAdmin()){
+      const [snapA, snapB] = await Promise.all([
+        getDocs(query(collection(db,"notifications"), where("targetRole","==","Admin"))),
+        getDocs(query(collection(db,"notifications"), where("targetRole","==","Super Admin")))
+      ]);
+      const map={};
+      [...snapA.docs,...snapB.docs].forEach(d=>{ map[d.id]=d; });
+      if(isSuperAdmin()){
+        // Super Admin also sees other roles' notifications
+        const roles=["Doctor","Nurse","Receptionist","Lab Technician","Pharmacist","Accountant"];
+        const extras=await Promise.all(roles.map(r=>getDocs(query(collection(db,"notifications"),where("targetRole","==",r)))));
+        extras.forEach(s=>s.docs.forEach(d=>{ map[d.id]=d; }));
+      }
+      filtered = Object.values(map);
+    } else {
+      const snap = await getDocs(query(collection(db,"notifications"), where("targetRole","==",SP.role)));
+      filtered = snap.docs;
+    }
     // Sort newest first client-side
-    const allDocs = [...snap.docs].sort((a,b)=>{
+    const allDocs = [...filtered].sort((a,b)=>{
       const at=a.data().createdAt?.toDate?.()?.getTime()||0;
       const bt=b.data().createdAt?.toDate?.()?.getTime()||0;
       return bt-at;
@@ -1210,7 +1588,12 @@ window.loadStaff=async()=>{
   el.innerHTML='<tr><td colspan="5" class="cr"><i class="fa fa-spinner fa-spin"></i></td></tr>';
   const s=await getDocs(collection(db,"staff"));
   if(s.empty){el.innerHTML='<tr><td colspan="5" class="cr">No staff</td></tr>';return;}
-  el.innerHTML=s.docs.map(d=>{const r=d.data();return`<tr><td>${r.name}</td><td style="font-size:.78rem">${r.email}</td><td><span class="badge role-${r.role.toLowerCase().replace(/\s/g,"-")}">${r.role}</span></td><td>${r.dept||"—"}</td><td><span class="badge ${r.active?"bg-ok":"bg-no"}">${r.active?"Active":"Inactive"}</span></td></tr>`;}).join("");
+  const canEdit=isSuperAdmin()||isAdmin();
+  el.innerHTML=s.docs.map(d=>{const r=d.data(),uid=d.id;
+    const salBadge=r.basicSalary?`<span class="salary-badge">₦${Number(r.basicSalary).toLocaleString()}</span>`:"<span style=\"color:var(--mu);font-size:.75rem\">Not set</span>";
+    const actions=canEdit?`<div style="display:flex;gap:5px"><button class="btn-ic" onclick="openEditStaff('${uid}')" title="Edit"><i class="fa fa-edit"></i></button><button class="btn-ic" onclick="openSalaryModal('${uid}')" title="Salary"><i class="fa fa-naira-sign"></i></button></div>`:"—";
+    return`<tr><td><b>${r.name}</b><br><small style="color:var(--mu);font-size:.72rem">${r.email}</small></td><td><span class="badge role-${(r.role||"").toLowerCase().replace(/\s/g,"-")}">${r.role}</span></td><td>${salBadge}</td><td><span class="badge ${r.active?"bg-ok":"bg-no"}">${r.active?"Active":"Inactive"}</span></td><td>${actions}</td></tr>`;
+  }).join("");
 };
 
 // ─── PROFILE ───────────────────────────────────────────────────────────────
@@ -1272,7 +1655,9 @@ const NOTIF_ROLES = {
   "Doctor":         ["labRes","referral_doctor","appointment","note_doctor"],
   "Nurse":          ["referral_nurse","appointment","note_nurse","labRes"],
   "Receptionist":   ["appointment","referral_reception"],
-  "Admin":          ["rx","labReq","labRes","referral","appointment","reg","note"]
+  "Admin":          ["rx","labReq","labRes","referral","appointment","reg","note"],
+  "Super Admin":    ["rx","labReq","labRes","referral","appointment","reg","note"],
+  "Accountant":     ["payroll","appointment"]
 };
 
 let notifUnsub = null;
@@ -1281,7 +1666,10 @@ let notifOpen = false;
 // Send a notification to target role(s)
 async function sendNotif(targetRoles, type, title, message, patientId=""){
   if(!Array.isArray(targetRoles)) targetRoles=[targetRoles];
-  for(const role of targetRoles){
+  // Always include Admin and Super Admin for system events
+  const adminRoles = ["Admin","Super Admin"];
+  const merged = [...new Set([...targetRoles, ...adminRoles])];
+  for(const role of merged){
     await addDoc(collection(db,"notifications"),{
       targetRole: role,
       type, title, message, patientId,
@@ -1294,32 +1682,75 @@ async function sendNotif(targetRoles, type, title, message, patientId=""){
 }
 
 // Start listening for notifications for this staff member's role
+// Super Admin & Admin receive ALL system notifications
+let notifAllDocs = [];
+
 function startNotifListener(){
   if(!SP||!CU) return;
-  const myRoles = isAdmin() ? ["Admin","rx","labReq","labRes","referral","appointment","reg","note"] : null;
-  
-  // Simple query with no orderBy — avoids needing Firestore composite index
-  notifUnsub = onSnapshot(
-    query(collection(db,"notifications"),
-      where("targetRole","==", SP.role)
-    ),
-    snap => {
-      const unread = snap.docs.filter(d => !d.data().read).length;
-      const bell = ge("notifCount");
-      if(bell){
-        bell.textContent = unread > 9 ? "9+" : unread;
-        bell.style.display = unread > 0 ? "flex" : "none";
-      }
-      // Sort newest first client-side
-      const sorted = [...snap.docs].sort((a,b)=>{
-        const at=a.data().createdAt?.toDate?.()?.getTime()||0;
-        const bt=b.data().createdAt?.toDate?.()?.getTime()||0;
-        return bt-at;
-      }).slice(0,30);
-      renderNotifList(sorted);
-    },
-    err => console.log("Notif listener error:", err.message)
-  );
+  if(notifUnsub){ notifUnsub(); notifUnsub=null; }
+
+  // Admin/Super Admin listen to TWO role targets (Admin + Super Admin)
+  // Other roles listen only to their own role
+  // We run two separate listeners for admins and merge results
+  let docsA = [], docsB = [];
+
+  function mergeAndRender(){
+    // Merge unique docs by id
+    const map = {};
+    [...docsA,...docsB].forEach(d=>{ map[d.id]=d; });
+    const myDocs = Object.values(map);
+    notifAllDocs = myDocs;
+    const unread = myDocs.filter(d=>!d.data().read).length;
+    const bell = ge("notifCount");
+    const sideCount = ge("notifSideCount");
+    if(bell){ bell.textContent=unread>9?"9+":unread; bell.style.display=unread>0?"flex":"none"; }
+    if(sideCount){ sideCount.textContent=unread>9?"9+":unread; sideCount.style.display=unread>0?"flex":"none"; }
+    const sorted = [...myDocs].sort((a,b)=>{
+      const at=a.data().createdAt?.toDate?.()?.getTime()||0;
+      const bt=b.data().createdAt?.toDate?.()?.getTime()||0;
+      return bt-at;
+    }).slice(0,50);
+    renderNotifList(sorted);
+    const notifPageEl = ge("notifPageList");
+    if(notifPageEl && ge("mod-notifications") && ge("mod-notifications").style.display!=="none"){
+      renderNotifPage(sorted, window._notifFilter||"all");
+    }
+  }
+
+  if(isAdmin()){
+    // Listen to "Admin" targeted notifications
+    const unsubA = onSnapshot(
+      query(collection(db,"notifications"), where("targetRole","==","Admin")),
+      snap=>{ docsA=snap.docs; mergeAndRender(); },
+      err=>console.log("Notif A error:",err.message)
+    );
+    // Listen to "Super Admin" targeted notifications
+    const unsubB = onSnapshot(
+      query(collection(db,"notifications"), where("targetRole","==","Super Admin")),
+      snap=>{ docsB=snap.docs; mergeAndRender(); },
+      err=>console.log("Notif B error:",err.message)
+    );
+    // Also pull in all other roles for Super Admin (they see everything)
+    if(isSuperAdmin()){
+      const roles=["Doctor","Nurse","Receptionist","Lab Technician","Pharmacist","Accountant"];
+      let extraDocs={};
+      roles.forEach(role=>{
+        onSnapshot(
+          query(collection(db,"notifications"), where("targetRole","==",role)),
+          snap=>{ snap.docs.forEach(d=>{ extraDocs[d.id]=d; }); docsB=[...Object.values(extraDocs)]; mergeAndRender(); },
+          err=>console.log("Notif extra error:",err.message)
+        );
+      });
+    }
+    notifUnsub = ()=>{ unsubA(); unsubB(); };
+  } else {
+    // Regular staff: only their own role
+    notifUnsub = onSnapshot(
+      query(collection(db,"notifications"), where("targetRole","==",SP.role)),
+      snap=>{ docsA=snap.docs; mergeAndRender(); },
+      err=>console.log("Notif listener error:",err.message)
+    );
+  }
 }
 
 function renderNotifList(docs){
@@ -1352,7 +1783,8 @@ function renderNotifList(docs){
       </div>
       ${!n.read?'<span style="width:8px;height:8px;border-radius:50%;background:var(--P);flex-shrink:0;margin-top:4px"></span>':''}
     </div>`;
-  }).join("") + '<button class="notif-markall" onclick="markAllRead()"><i class="fa fa-check-double"></i> Mark All as Read</button>';
+  }).join("") + '<button class="notif-markall" onclick="markAllRead()"><i class="fa fa-check-double"></i> Mark All as Read</button>' +
+    '<div class="notif-panel-footer"><button style="background:var(--P);color:#fff" onclick="toggleNotifPanel();showMod(\'notifications\')"><i class="fa fa-list"></i> View All Notifications</button></div>';
 }
 
 window.toggleNotifPanel = () => {
@@ -1386,524 +1818,1174 @@ window.handleNotifClick = async(docId, type, patientId) => {
 };
 
 window.markAllRead = async() => {
-  const snap = await getDocs(query(collection(db,"notifications"),where("targetRole","==",SP.role)));
-  const batch = [];
-  snap.docs.forEach(d => batch.push(updateDoc(doc(db,"notifications",d.id),{read:true})));
-  await Promise.all(batch);
-};
-
-
-// ═══════════════════════════════════════════════════════════════════════════
-// SUPER ADMIN & STAFF MANAGEMENT
-// ═══════════════════════════════════════════════════════════════════════════
-function isSuperAdmin(){
-  return CU&&(ADMIN_EMAILS.includes((CU.email||"").toLowerCase())||SP.role==="Admin");
-}
-
-// Enhanced initApp — show accountant nav + attendance
-const _origInitApp = window._origInitApp;
-// Patch after initApp runs: show acctNav if Accountant
-function postInitSetup(){
-  if(SP.role==="Accountant"){
-    const n=ge("acctNav"); if(n) n.style.display="flex";
+  let toMark = [];
+  if(isAdmin()){
+    const [snapA,snapB] = await Promise.all([
+      getDocs(query(collection(db,"notifications"),where("targetRole","==","Admin"))),
+      getDocs(query(collection(db,"notifications"),where("targetRole","==","Super Admin")))
+    ]);
+    const map={};
+    [...snapA.docs,...snapB.docs].forEach(d=>{ map[d.id]=d; });
+    if(isSuperAdmin()){
+      const roles=["Doctor","Nurse","Receptionist","Lab Technician","Pharmacist","Accountant"];
+      const extras=await Promise.all(roles.map(r=>getDocs(query(collection(db,"notifications"),where("targetRole","==",r)))));
+      extras.forEach(s=>s.docs.forEach(d=>{ map[d.id]=d; }));
+    }
+    toMark = Object.values(map);
+  } else {
+    const snap = await getDocs(query(collection(db,"notifications"),where("targetRole","==",SP.role)));
+    toMark = snap.docs;
   }
-  // Populate month dropdowns
-  populateMonthDropdowns();
-  // Start live clock
-  startLiveClock();
-  // Check today's attendance
-  checkTodayAttendance();
-}
-
-// Override showMod to call postInitSetup once
-const _origShowMod = window.showMod;
-window.showMod = function(mod){
-  _origShowMod(mod);
-  if(mod==="attendance") { checkTodayAttendance(); loadMyAttendance(); }
-  if(mod==="accountant") { loadAccountantStats(); showAcctTab("payroll"); loadSalarySettings(); populatePayrollMonths(); }
-  if(mod==="profile")    { loadProf(); loadMyPayslip(); }
+  await Promise.all(toMark.map(d=>updateDoc(doc(db,"notifications",d.id),{read:true})));
+  loadNotifPage();
 };
 
-// ── Enhanced loadStaff for Super Admin ──────────────────────────────────────
-window.loadStaff = async()=>{
-  const el=ge("staffBody"); if(!el) return;
-  el.innerHTML='<tr><td colspan="5" class="cr"><i class="fa fa-spinner fa-spin"></i></td></tr>';
+
+// ─── NOTIFICATIONS FULL PAGE ──────────────────────────────────────────────
+window._notifFilter = "all";
+let _notifPageDocs = [];
+
+window.loadNotifPage = async() => {
+  const el = ge("notifPageList"); if(!el) return;
+  el.innerHTML = '<div class="cr"><i class="fa fa-spinner fa-spin"></i></div>';
+  let filtered = [];
+  if(isAdmin()){
+    const [snapA, snapB] = await Promise.all([
+      getDocs(query(collection(db,"notifications"), where("targetRole","==","Admin"))),
+      getDocs(query(collection(db,"notifications"), where("targetRole","==","Super Admin")))
+    ]);
+    const map={};
+    [...snapA.docs,...snapB.docs].forEach(d=>{ map[d.id]=d; });
+    if(isSuperAdmin()){
+      const roles=["Doctor","Nurse","Receptionist","Lab Technician","Pharmacist","Accountant"];
+      const extras=await Promise.all(roles.map(r=>getDocs(query(collection(db,"notifications"),where("targetRole","==",r)))));
+      extras.forEach(s=>s.docs.forEach(d=>{ map[d.id]=d; }));
+    }
+    filtered = Object.values(map);
+  } else {
+    const snap = await getDocs(query(collection(db,"notifications"), where("targetRole","==",SP.role)));
+    filtered = snap.docs;
+  }
+  _notifPageDocs = [...filtered].sort((a,b)=>{
+    const at=a.data().createdAt?.toDate?.()?.getTime()||0;
+    const bt=b.data().createdAt?.toDate?.()?.getTime()||0;
+    return bt-at;
+  });
+  renderNotifPage(_notifPageDocs, window._notifFilter||"all");
+};
+
+window.filterNotifs = (type, el) => {
+  window._notifFilter = type;
+  document.querySelectorAll(".ntab").forEach(t=>t.classList.remove("active"));
+  if(el) el.classList.add("active");
+  renderNotifPage(_notifPageDocs, type);
+};
+
+function renderNotifPage(docs, filter){
+  const el = ge("notifPageList"); if(!el) return;
+  let list = docs;
+  if(filter === "unread") list = docs.filter(d=>!d.data().read);
+  else if(filter !== "all") list = docs.filter(d=>d.data().type===filter);
+
+  if(!list.length){
+    el.innerHTML='<div class="en" style="padding:28px"><i class="fa fa-bell-slash" style="font-size:2rem;display:block;margin-bottom:10px;opacity:.3"></i>No notifications in this category</div>';
+    return;
+  }
+  const iconMap={rx:{cls:"ni-pharmacy",icon:"fa-pills"},labReq:{cls:"ni-lab",icon:"fa-flask"},labRes:{cls:"ni-doctor",icon:"fa-vial"},appointment:{cls:"ni-appt",icon:"fa-calendar-check"},referral:{cls:"ni-admin",icon:"fa-paper-plane"},reg:{cls:"ni-nurse",icon:"fa-user-plus"},note:{cls:"ni-doctor",icon:"fa-note-medical"},default:{cls:"ni-admin",icon:"fa-bell"}};
+  const unread = list.filter(d=>!d.data().read).length;
+  el.innerHTML = (unread>0?`<div style="padding:10px 15px;background:var(--PL);font-size:.78rem;color:var(--P);font-weight:600"><i class="fa fa-circle" style="font-size:.5rem;margin-right:5px"></i>${unread} unread notification${unread>1?"s":""}</div>`:"") +
+  list.map(d=>{
+    const n=d.data();
+    const ic=iconMap[n.type]||iconMap.default;
+    const roleBadge=`<span style="background:#ede7f6;color:#5e35b1;font-size:.65rem;font-weight:700;padding:1px 7px;border-radius:20px;margin-left:5px">${n.targetRole}</span>`;
+    return`<div class="notif-page-item ${n.read?'read':'unread'}" onclick="handleNotifClick('${d.id}','${n.type}','${n.patientId||""}');loadNotifPage()">
+      <div class="notif-page-icon ${ic.cls}"><i class="fa ${ic.icon}"></i></div>
+      <div class="notif-page-body">
+        <div class="notif-page-title">${n.title||"Notification"}${isAdmin()?roleBadge:""}</div>
+        <div class="notif-page-msg">${n.message||""}</div>
+        <div class="notif-page-meta"><i class="fa fa-user" style="margin-right:4px"></i>${n.from||"System"} · ${n.fromRole||""} · ${fmt(n.createdAt)}</div>
+      </div>
+      ${!n.read?'<div class="notif-unread-dot"></div>':''}
+    </div>`;
+  }).join("") + `<div style="padding:12px;text-align:center"><button class="bsm outline" style="font-size:.76rem" onclick="markAllRead()"><i class="fa fa-check-double"></i> Mark All as Read</button></div>`;
+}
+
+// ─── PROFESSIONAL DASHBOARD EXTRAS ────────────────────────────────────────
+function loadWelcomeCard(){
+  const now = new Date();
+  const hour = now.getHours();
+  const greeting = hour<12 ? "Good morning" : hour<17 ? "Good afternoon" : "Good evening";
+  const dateStr = now.toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long",year:"numeric"});
+  const el = ge("welcomeSubtitle");
+  if(el) el.textContent = greeting + " — " + dateStr;
+  const wcDate = ge("wcDate");
+  if(wcDate) wcDate.innerHTML = '<i class="fa fa-calendar-days" style="margin-right:4px"></i>' + now.toLocaleDateString("en-GB",{day:"2-digit",month:"short"});
+}
+
+// ─── SUPER ADMIN — EDIT/DELETE STAFF ───────────────────────────────────────
+window.openEditStaff=async(uid)=>{
+  if(!isSuperAdmin()){toast("⛔ Super Admin only","err");return;}
+  const snap=await getDoc(doc(db,"staff",uid));
+  if(!snap.exists()){toast("Staff not found","err");return;}
+  const r=snap.data();
+  ge("esUid").value=uid;
+  ge("esName").value=r.name||"";
+  ge("esRole").value=r.role||"";
+  ge("esDept").value=r.dept||"";
+  ge("esStat").value=String(r.active!==false);
+  openModal("editStaffModal");
+};
+window.saveStaffEdit=async()=>{
+  const uid=gv("esUid"),name=gv("esName"),role=gv("esRole"),dept=gv("esDept"),active=ge("esStat").value==="true";
+  if(!uid||!name||!role){toast("Fill required fields","err");return;}
+  await updateDoc(doc(db,"staff",uid),{name,role,dept,active});
+  // Also update Firestore role badge
+  toast("Staff updated!","ok");cModal("editStaffModal");loadStaff();
+};
+window.deleteStaff=async()=>{
+  if(!isSuperAdmin()){toast("⛔ Super Admin only","err");return;}
+  const uid=gv("esUid");
+  if(!uid){toast("No staff selected","err");return;}
+  if(!confirm("Delete this staff member? This cannot be undone.")){return;}
+  // We deactivate instead of hard-delete (Firebase Auth can't be deleted from client easily)
+  await updateDoc(doc(db,"staff",uid),{active:false,deleted:true,deletedAt:new Date().toISOString(),deletedBy:SP.name});
+  toast("Staff removed from system","ok");cModal("editStaffModal");loadStaff();
+};
+
+// ─── SALARY SETTINGS ───────────────────────────────────────────────────────
+window.openSalaryModal=async(uid)=>{
+  if(!isAccountant()){toast("⛔ Accountant/Admin only","err");return;}
+  const snap=await getDoc(doc(db,"staff",uid));
+  if(!snap.exists()){toast("Staff not found","err");return;}
+  const r=snap.data();
+  ge("salStaffUid").value=uid;
+  ge("salBasic").value=r.basicSalary||"";
+  ge("salHousing").value=r.housingAllowance||"";
+  ge("salTransport").value=r.transportAllowance||"";
+  ge("salMedical").value=r.medicalAllowance||"";
+  ge("salOther").value=r.otherAllowance||"";
+  ge("salTax").value=r.taxPercent||"";
+  ge("salPension").value=r.pensionPercent||"";
+  ge("salOtherDed").value=r.otherDeductions||"";
+  ge("salaryModalContent").innerHTML=`<div style="background:var(--PL);border-radius:var(--rs);padding:10px;margin-bottom:12px"><b>${r.name}</b> — ${r.role}</div>`;
+  openModal("salaryModal");
+};
+window.saveSalarySettings=async()=>{
+  const uid=gv("salStaffUid");
+  if(!uid){toast("No staff selected","err");return;}
+  const data={
+    basicSalary:parseFloat(gv("salBasic"))||0,
+    housingAllowance:parseFloat(gv("salHousing"))||0,
+    transportAllowance:parseFloat(gv("salTransport"))||0,
+    medicalAllowance:parseFloat(gv("salMedical"))||0,
+    otherAllowance:parseFloat(gv("salOther"))||0,
+    taxPercent:parseFloat(gv("salTax"))||0,
+    pensionPercent:parseFloat(gv("salPension"))||0,
+    otherDeductions:parseFloat(gv("salOtherDed"))||0,
+    salaryUpdatedAt:new Date().toISOString(),
+    salaryUpdatedBy:SP.name
+  };
+  await updateDoc(doc(db,"staff",uid),data);
+  toast("Salary settings saved!","ok");cModal("salaryModal");loadStaff();
+  if(typeof loadSalarySettings==="function")loadSalarySettings();
+};
+window.loadSalarySettings=async()=>{
+  const el=ge("salarySettingsList");if(!el)return;
+  el.innerHTML='<div class="cr"><i class="fa fa-spinner fa-spin"></i></div>';
   const s=await getDocs(collection(db,"staff"));
-  if(s.empty){el.innerHTML='<tr><td colspan="5" class="cr">No staff</td></tr>';return;}
-  el.innerHTML=s.docs.map(d=>{
-    const r=d.data();
-    const isSA = isSuperAdmin();
-    return`<tr>
-      <td>${r.name}</td>
-      <td style="font-size:.78rem">${r.email}</td>
-      <td><span class="badge role-${r.role.toLowerCase().replace(/\s/g,"-")}">${r.role}</span></td>
-      <td>${r.dept||"—"}</td>
-      <td>
-        <span class="badge ${r.active?"bg-ok":"bg-no"}">${r.active?"Active":"Inactive"}</span>
-        ${isSA?`<button class="btn-ic" onclick="openStaffDetail('${d.id}')" title="Manage"><i class="fa fa-pen-to-square"></i></button>
-        <button class="btn-ic danger" onclick="deleteStaff('${d.id}','${r.name}')" title="Remove"><i class="fa fa-trash"></i></button>`:""}
-      </td>
-    </tr>`;
-  }).join("");
+  const staff=s.docs.map(d=>({uid:d.id,...d.data()})).filter(d=>!d.deleted);
+  if(!staff.length){el.innerHTML='<div class="en">No staff found</div>';return;}
+  el.innerHTML=`<table class="dtab"><thead><tr><th>Name</th><th>Role</th><th>Basic Salary</th><th>Total Allowance</th><th>Action</th></tr></thead><tbody>`+
+    staff.map(r=>{
+      const totalAllow=(r.housingAllowance||0)+(r.transportAllowance||0)+(r.medicalAllowance||0)+(r.otherAllowance||0);
+      return`<tr>
+        <td><b>${r.name}</b></td>
+        <td><span class="badge role-${(r.role||"").toLowerCase().replace(/\s/g,"-")}">${r.role}</span></td>
+        <td>${r.basicSalary?'₦'+Number(r.basicSalary).toLocaleString():'<span style="color:var(--mu)">Not set</span>'}</td>
+        <td>${totalAllow?'₦'+totalAllow.toLocaleString():'—'}</td>
+        <td><button class="btn-ic" onclick="openSalaryModal('${r.uid}')"><i class="fa fa-edit"></i></button></td>
+      </tr>`;
+    }).join("")+`</tbody></table>`;
 };
 
-window.openStaffDetail = async(uid)=>{
-  const s=await getDoc(doc(db,"staff",uid));
-  const r=s.data();
-  ge("staffDetailContent").innerHTML=`
-    <div class="dgrid">
-      <div class="di"><span>Name</span><strong>${r.name}</strong></div>
-      <div class="di"><span>Email</span><strong>${r.email}</strong></div>
-      <div class="di"><span>Role</span><strong>${r.role}</strong></div>
-      <div class="di"><span>Dept</span><strong>${r.dept||"—"}</strong></div>
-    </div>
-    <div class="fg"><label class="fl">Change Role</label>
-      <select id="editRole" class="fsel">
-        <option ${r.role==="Admin"?"selected":""}>Admin</option>
-        <option ${r.role==="Doctor"?"selected":""}>Doctor</option>
-        <option ${r.role==="Nurse"?"selected":""}>Nurse</option>
-        <option ${r.role==="Receptionist"?"selected":""}>Receptionist</option>
-        <option ${r.role==="Lab Technician"?"selected":""}>Lab Technician</option>
-        <option ${r.role==="Pharmacist"?"selected":""}>Pharmacist</option>
-        <option ${r.role==="Accountant"?"selected":""}>Accountant</option>
-      </select>
-    </div>
-    <div class="fg"><label class="fl">Department</label>
-      <input id="editDept" class="fi" value="${r.dept||""}"/>
-    </div>
-    <div class="fg"><label class="fl">Status</label>
-      <select id="editActive" class="fsel">
-        <option value="true" ${r.active?"selected":""}>Active</option>
-        <option value="false" ${!r.active?"selected":""}>Inactive</option>
-      </select>
-    </div>
-    <button class="btnP" onclick="saveStaffEdit('${uid}')"><i class="fa fa-save"></i> Save Changes</button>
-    <button class="btnA mt8" onclick="deleteStaff('${uid}','${r.name}');cModal('staffDetailModal')"><i class="fa fa-trash"></i> Remove Staff</button>`;
-  openModal("staffDetailModal");
-};
+// ─── PAYROLL CALCULATION ────────────────────────────────────────────────────
+function calcNetSalary(staff, attendanceRecords, year, month){
+  const basic=staff.basicSalary||0;
+  const housing=staff.housingAllowance||0;
+  const transport=staff.transportAllowance||0;
+  const medical=staff.medicalAllowance||0;
+  const otherAllow=staff.otherAllowance||0;
+  const grossSalary=basic+housing+transport+medical+otherAllow;
 
-window.saveStaffEdit=async(uid)=>{
-  if(!isSuperAdmin()){toast("⛔ Super Admin only","err");return;}
-  const role=gv("editRole"),dept=gv("editDept"),active=ge("editActive").value==="true";
-  await updateDoc(doc(db,"staff",uid),{role,dept,active});
-  toast("Staff updated!","ok"); cModal("staffDetailModal"); loadStaff();
-};
-
-window.deleteStaff=async(uid,name)=>{
-  if(!isSuperAdmin()){toast("⛔ Super Admin only","err");return;}
-  if(!confirm(`Remove ${name} from the system? This cannot be undone.`))return;
-  await updateDoc(doc(db,"staff",uid),{active:false,deletedAt:serverTimestamp(),deletedBy:SP.name});
-  toast(`${name} removed from system`,"ok"); loadStaff();
-};
-
-// ═══════════════════════════════════════════════════════════════════════════
-// ATTENDANCE SYSTEM
-// ═══════════════════════════════════════════════════════════════════════════
-let clockInterval=null;
-function startLiveClock(){
-  if(clockInterval)clearInterval(clockInterval);
-  clockInterval=setInterval(()=>{
-    const now=new Date();
-    const t=now.toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit",second:"2-digit"});
-    const d=now.toLocaleDateString("en-GB",{weekday:"long",day:"2-digit",month:"long",year:"numeric"});
-    sv("liveTime",t); sv("liveDate",d);
-  },1000);
+  // Count working days in month
+  const daysInMonth=new Date(year,month,0).getDate();
+  let workingDays=0,presentDays=0,absentDays=0,lateDays=0;
+  for(let d=1;d<=daysInMonth;d++){
+    const dow=new Date(year,month-1,d).getDay();
+    if(dow!==0&&dow!==6)workingDays++; // Mon–Fri
+  }
+  // Count from attendance
+  attendanceRecords.forEach(a=>{
+    if(a.status==="Present"||a.status==="Late")presentDays++;
+    if(a.status==="Late")lateDays++;
+    if(a.status==="Absent")absentDays++;
+  });
+  // Absent deduction: (basic/workingDays)*absentDays
+  const absentDeduction=workingDays>0?(basic/workingDays)*absentDays:0;
+  const lateDeduction=workingDays>0?(basic/workingDays*0.5)*lateDays:0; // 50% daily rate per late
+  const taxAmt=grossSalary*(staff.taxPercent||0)/100;
+  const pensionAmt=grossSalary*(staff.pensionPercent||0)/100;
+  const otherDed=staff.otherDeductions||0;
+  const totalDeductions=taxAmt+pensionAmt+otherDed+absentDeduction+lateDeduction;
+  const netPay=Math.max(0,grossSalary-totalDeductions);
+  return{basic,housing,transport,medical,otherAllow,grossSalary,taxAmt,pensionAmt,otherDed,absentDeduction,lateDeduction,totalDeductions,netPay,presentDays,absentDays,lateDays,workingDays};
 }
+
+window.generateMonthlyPayroll=async()=>{
+  if(!isAccountant()){toast("⛔ Accountant/Admin only","err");return;}
+  const now=new Date();
+  const year=now.getFullYear(),month=now.getMonth()+1;
+  const monthStr=`${year}-${String(month).padStart(2,"0")}`;
+  if(!confirm(`Generate payroll for ${monthStr}?`)){return;}
+  const staffSnap=await getDocs(collection(db,"staff"));
+  const staffList=staffSnap.docs.map(d=>({uid:d.id,...d.data()})).filter(d=>!d.deleted&&d.active!==false);
+  let count=0;
+  for(const staff of staffList){
+    if(!staff.basicSalary){continue;}
+    // Get attendance for this month
+    const attSnap=await getDocs(query(collection(db,"attendance"),where("staffUid","==",staff.uid),where("month","==",monthStr)));
+    const attRecs=attSnap.docs.map(d=>d.data());
+    const calc=calcNetSalary(staff,attRecs,year,month);
+    // Save payroll record
+    const payrollRef=`${staff.uid}_${monthStr}`;
+    await setDoc(doc(db,"payroll",payrollRef),{
+      staffUid:staff.uid,staffName:staff.name,role:staff.role,dept:staff.dept||"",
+      month:monthStr,year,monthNum:month,
+      ...calc,
+      generatedBy:SP.name,generatedAt:new Date().toISOString(),
+      status:"Generated"
+    });
+    count++;
+  }
+  toast(`✅ Payroll generated for ${count} staff!`,"ok");
+  loadPayrollRecords();
+  loadAccountantDash();
+};
+
+window.loadPayrollRecords=async()=>{
+  const el=ge("payrollList");if(!el)return;
+  const monthStr=gv("payrollMonthSel");
+  if(!monthStr){el.innerHTML='<div class="en">Select a month above</div>';return;}
+  el.innerHTML='<div class="cr"><i class="fa fa-spinner fa-spin"></i></div>';
+  const snap=await getDocs(query(collection(db,"payroll"),where("month","==",monthStr)));
+  if(snap.empty){el.innerHTML='<div class="en">No payroll records for this month. Click "Generate Payroll" first.</div>';return;}
+  const rows=snap.docs.map(d=>({id:d.id,...d.data()}));
+  const total=rows.reduce((a,r)=>a+r.netPay,0);
+  el.innerHTML=`<div style="background:var(--PL);border-radius:var(--rs);padding:10px;margin-bottom:10px;text-align:center"><b>Total Payroll: ₦${total.toLocaleString()}</b> for ${rows.length} staff</div>`+
+  `<table class="dtab"><thead><tr><th>Staff</th><th>Role</th><th>Gross</th><th>Deductions</th><th>Net Pay</th><th>Payslip</th></tr></thead><tbody>`+
+  rows.map(r=>`<tr>
+    <td><b>${r.staffName}</b></td>
+    <td><span class="badge role-${(r.role||"").toLowerCase().replace(/\s/g,"-")}">${r.role}</span></td>
+    <td>₦${Number(r.grossSalary||0).toLocaleString()}</td>
+    <td style="color:var(--D)">₦${Number(r.totalDeductions||0).toLocaleString()}</td>
+    <td style="color:var(--A);font-weight:700">₦${Number(r.netPay||0).toLocaleString()}</td>
+    <td><button class="btn-ic" onclick="viewPayslip('${r.id}')"><i class="fa fa-eye"></i></button></td>
+  </tr>`).join("")+`</tbody></table>`;
+};
+
+window.viewPayslip=async(id)=>{
+  const snap=await getDoc(doc(db,"payroll",id));
+  if(!snap.exists()){toast("Payslip not found","err");return;}
+  const p=snap.data();
+  const html=buildPayslipHTML(p);
+  ge("payslipContent").innerHTML=html;
+  window._currentPayslip=p;
+  openModal("payslipModal");
+};
+
+function buildPayslipHTML(p){
+  return`<div class="payslip">
+    <div class="payslip-hdr">
+      <h3 style="font-size:1.1rem"><i class="fa fa-hospital"></i> Loving Heart Hospital</h3>
+      <p style="font-size:.8rem;opacity:.85;margin-top:4px">PAYSLIP — ${p.month}</p>
+    </div>
+    <div style="margin-bottom:12px">
+      <div class="payslip-row"><span>Employee</span><strong>${p.staffName}</strong></div>
+      <div class="payslip-row"><span>Role</span><strong>${p.role}</strong></div>
+      <div class="payslip-row"><span>Department</span><strong>${p.dept||"—"}</strong></div>
+      <div class="payslip-row"><span>Pay Period</span><strong>${p.month}</strong></div>
+      <div class="payslip-row"><span>Working Days</span><strong>${p.workingDays||0} days</strong></div>
+      <div class="payslip-row"><span>Days Present</span><strong style="color:var(--A)">${p.presentDays||0} days</strong></div>
+      <div class="payslip-row"><span>Days Absent</span><strong style="color:var(--D)">${p.absentDays||0} days</strong></div>
+    </div>
+    <p style="font-size:.75rem;font-weight:700;color:var(--P);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Earnings</p>
+    <div class="payslip-row"><span>Basic Salary</span><span>₦${Number(p.basic||0).toLocaleString()}</span></div>
+    <div class="payslip-row"><span>Housing Allowance</span><span>₦${Number(p.housing||0).toLocaleString()}</span></div>
+    <div class="payslip-row"><span>Transport Allowance</span><span>₦${Number(p.transport||0).toLocaleString()}</span></div>
+    <div class="payslip-row"><span>Medical Allowance</span><span>₦${Number(p.medical||0).toLocaleString()}</span></div>
+    <div class="payslip-row"><span>Other Allowance</span><span>₦${Number(p.otherAllow||0).toLocaleString()}</span></div>
+    <div class="payslip-row" style="font-weight:700"><span>Gross Salary</span><span>₦${Number(p.grossSalary||0).toLocaleString()}</span></div>
+    <p style="font-size:.75rem;font-weight:700;color:var(--D);text-transform:uppercase;letter-spacing:.5px;margin:10px 0 6px">Deductions</p>
+    <div class="payslip-row"><span>Tax</span><span style="color:var(--D)">₦${Number(p.taxAmt||0).toLocaleString()}</span></div>
+    <div class="payslip-row"><span>Pension</span><span style="color:var(--D)">₦${Number(p.pensionAmt||0).toLocaleString()}</span></div>
+    <div class="payslip-row"><span>Absence Deduction</span><span style="color:var(--D)">₦${Number(p.absentDeduction||0).toLocaleString()}</span></div>
+    <div class="payslip-row"><span>Late Deduction</span><span style="color:var(--D)">₦${Number(p.lateDeduction||0).toLocaleString()}</span></div>
+    <div class="payslip-row"><span>Other Deductions</span><span style="color:var(--D)">₦${Number(p.otherDed||0).toLocaleString()}</span></div>
+    <div class="payslip-row" style="font-weight:700;color:var(--D)"><span>Total Deductions</span><span>₦${Number(p.totalDeductions||0).toLocaleString()}</span></div>
+    <div class="payslip-total"><span>NET PAY</span><span>₦${Number(p.netPay||0).toLocaleString()}</span></div>
+    <p style="font-size:.72rem;color:var(--mu);text-align:center;margin-top:10px">Generated by: ${p.generatedBy||"System"} | ${p.generatedAt?p.generatedAt.slice(0,10):"—"}</p>
+  </div>`;
+}
+
+window.printPayslip=()=>{
+  const p=window._currentPayslip;if(!p)return;
+  const w=window.open("","_blank","width=480,height=700");
+  w.document.write(`<!DOCTYPE html><html><head><title>Payslip ${p.month}</title><style>*{box-sizing:border-box}body{font-family:Arial;padding:24px;max-width:400px;margin:auto}.hdr{background:#0057b8;color:#fff;border-radius:8px;padding:14px;text-align:center;margin-bottom:14px}h2{margin:0;font-size:1.1rem}.row{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px dashed #ddd;font-size:13px}.section{font-size:11px;font-weight:700;color:#0057b8;text-transform:uppercase;margin:10px 0 5px}.total{display:flex;justify-content:space-between;font-weight:700;font-size:1rem;color:#00a878;border-top:2px solid #00a878;padding-top:8px;margin-top:8px}.footer{text-align:center;font-size:11px;color:#999;margin-top:20px}</style></head><body>
+  <div class="hdr"><h2>Loving Heart Hospital</h2><p style="font-size:12px;opacity:.85;margin:4px 0">PAYSLIP — ${p.month}</p></div>
+  <div class="row"><span>Employee</span><strong>${p.staffName}</strong></div>
+  <div class="row"><span>Role</span><strong>${p.role}</strong></div>
+  <div class="row"><span>Department</span><strong>${p.dept||"—"}</strong></div>
+  <div class="row"><span>Working Days</span><strong>${p.workingDays||0}</strong></div>
+  <div class="row"><span>Days Present</span><strong>${p.presentDays||0}</strong></div>
+  <div class="row"><span>Days Absent</span><strong>${p.absentDays||0}</strong></div>
+  <div class="section">Earnings</div>
+  <div class="row"><span>Basic Salary</span><span>₦${Number(p.basic||0).toLocaleString()}</span></div>
+  <div class="row"><span>Housing Allowance</span><span>₦${Number(p.housing||0).toLocaleString()}</span></div>
+  <div class="row"><span>Transport Allowance</span><span>₦${Number(p.transport||0).toLocaleString()}</span></div>
+  <div class="row"><span>Medical Allowance</span><span>₦${Number(p.medical||0).toLocaleString()}</span></div>
+  <div class="row"><span>Other Allowance</span><span>₦${Number(p.otherAllow||0).toLocaleString()}</span></div>
+  <div class="row" style="font-weight:700"><span>Gross Salary</span><span>₦${Number(p.grossSalary||0).toLocaleString()}</span></div>
+  <div class="section" style="color:#e53935">Deductions</div>
+  <div class="row"><span>Tax</span><span>₦${Number(p.taxAmt||0).toLocaleString()}</span></div>
+  <div class="row"><span>Pension</span><span>₦${Number(p.pensionAmt||0).toLocaleString()}</span></div>
+  <div class="row"><span>Absence Deduction</span><span>₦${Number(p.absentDeduction||0).toLocaleString()}</span></div>
+  <div class="row"><span>Late Deduction</span><span>₦${Number(p.lateDeduction||0).toLocaleString()}</span></div>
+  <div class="row"><span>Other Deductions</span><span>₦${Number(p.otherDed||0).toLocaleString()}</span></div>
+  <div class="row" style="color:#e53935;font-weight:700"><span>Total Deductions</span><span>₦${Number(p.totalDeductions||0).toLocaleString()}</span></div>
+  <div class="total"><span>NET PAY</span><span>₦${Number(p.netPay||0).toLocaleString()}</span></div>
+  <div class="footer">Generated by ${p.generatedBy||"System"} on ${p.generatedAt?p.generatedAt.slice(0,10):"—"}<br>Loving Heart Hospital Management System</div>
+  </body></html>`);
+  w.document.close();setTimeout(()=>w.print(),400);
+};
+
+// ─── ACCOUNTANT DASHBOARD LOADER ────────────────────────────────────────────
+window.loadAccountantDash=async()=>{
+  const now=new Date();
+  const monthStr=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}`;
+  sv("acCurrentMonth",monthStr);
+  // Load payroll total for current month
+  const paySnap=await getDocs(query(collection(db,"payroll"),where("month","==",monthStr)));
+  const payTotal=paySnap.docs.reduce((a,d)=>a+d.data().netPay,0);
+  sv("acTotalPayroll","₦"+payTotal.toLocaleString());
+  // Staff count
+  const staffSnap=await getDocs(collection(db,"staff"));
+  sv("acStaffCount",staffSnap.docs.filter(d=>!d.data().deleted&&d.data().active!==false).length);
+  // Today absences
+  const todayStr=today();
+  const attSnap=await getDocs(query(collection(db,"attendance"),where("date","==",todayStr)));
+  const absent=attSnap.docs.filter(d=>d.data().status==="Absent").length;
+  sv("acAbsent",absent);
+  // Load salary settings
+  loadSalarySettings();
+  // Load today attendance
+  ge("attDateFilter").value=todayStr;
+  loadAllAttendance();
+};
+
+window.loadAllAttendance=async()=>{
+  const el=ge("allAttendanceList");if(!el)return;
+  const dateVal=gv("attDateFilter")||today();
+  el.innerHTML='<div class="cr"><i class="fa fa-spinner fa-spin"></i></div>';
+  const snap=await getDocs(query(collection(db,"attendance"),where("date","==",dateVal)));
+  if(snap.empty){el.innerHTML='<div class="en">No attendance records for this date</div>';return;}
+  const rows=snap.docs.map(d=>({id:d.id,...d.data()}));
+  rows.sort((a,b)=>(a.staffName||"").localeCompare(b.staffName||""));
+  el.innerHTML=`<table class="dtab"><thead><tr><th>Staff</th><th>Role</th><th>Clock In</th><th>Clock Out</th><th>Hours</th><th>Status</th><th>GPS</th></tr></thead><tbody>`+
+    rows.map(r=>`<tr>
+      <td><b>${r.staffName}</b></td>
+      <td style="font-size:.75rem">${r.role||"—"}</td>
+      <td>${r.clockIn||"—"}</td>
+      <td>${r.clockOut||"—"}</td>
+      <td>${r.hoursWorked?r.hoursWorked.toFixed(1)+"h":"—"}</td>
+      <td><span class="att-status-${(r.status||"absent").toLowerCase()}">${r.status||"Absent"}</span></td>
+      <td style="font-size:.7rem;color:var(--mu)">${r.lat?`${Number(r.lat).toFixed(4)},${Number(r.lng).toFixed(4)}`:"—"}</td>
+    </tr>`).join("")+`</tbody></table>`;
+};
+
+// ─── ATTENDANCE MODULE ──────────────────────────────────────────────────────
+window.loadAttendanceModule=async()=>{
+  await checkTodayAttendance();
+  loadMyAttendance();
+  populateMonthSelects();
+};
 
 async function checkTodayAttendance(){
+  const el=ge("clockStatus"),btn=ge("clockBtn");if(!el||!btn)return;
   const todayStr=today();
-  const snap=await getDocs(query(collection(db,"attendance"),
-    where("staffUid","==",CU.uid),where("date","==",todayStr)));
-  const ci=ge("btnClockIn"),co=ge("btnClockOut"),cs=ge("clockStatus");
+  const snap=await getDocs(query(collection(db,"attendance"),where("staffUid","==",CU.uid),where("date","==",todayStr)));
+  const todayEl=ge("todayAtt");
   if(snap.empty){
-    if(ci)ci.style.display="inline-block";
-    if(co)co.style.display="none";
-    if(cs)cs.textContent="Not clocked in today";
-  } else {
-    const att=snap.docs[0].data();
-    if(att.clockOut){
-      if(ci)ci.style.display="none";
-      if(co)co.style.display="none";
-      if(cs)cs.textContent=`✅ Completed — In: ${att.clockIn} | Out: ${att.clockOut} | ${att.hoursWorked}h worked`;
-    } else {
-      if(ci)ci.style.display="none";
-      if(co)co.style.display="inline-block";
-      if(cs)cs.textContent=`🟢 Clocked in at ${att.clockIn} — tap Clock Out when done`;
+    el.innerHTML='<i class="fa fa-circle" style="color:var(--D);margin-right:5px"></i> Not clocked in today';
+    btn.className="clock-btn clock-in-btn";
+    btn.innerHTML='<i class="fa fa-play"></i> Clock In';
+    btn.onclick=()=>doClockIn();
+    if(todayEl)todayEl.innerHTML='<div class="en">You have not clocked in today</div>';
+  }else{
+    const rec=snap.docs[0].data();
+    if(!rec.clockOut){
+      el.innerHTML=`<i class="fa fa-circle" style="color:var(--A);margin-right:5px"></i> Clocked in at <b>${rec.clockIn}</b>`;
+      btn.className="clock-btn clock-out-btn";
+      btn.innerHTML='<i class="fa fa-stop"></i> Clock Out';
+      btn.onclick=()=>doClockOut(snap.docs[0].id);
+    }else{
+      el.innerHTML=`<i class="fa fa-circle-check" style="color:var(--A);margin-right:5px"></i> Done for today — ${rec.hoursWorked?rec.hoursWorked.toFixed(1)+"h worked":"Clocked out"}`;
+      btn.style.display="none";
+    }
+    if(todayEl){
+      todayEl.innerHTML=`<div class="att-card">
+        <div class="payslip-row"><span>Date</span><strong>${rec.date}</strong></div>
+        <div class="payslip-row"><span>Clock In</span><strong>${rec.clockIn||"—"}</strong></div>
+        <div class="payslip-row"><span>Clock Out</span><strong>${rec.clockOut||"—"}</strong></div>
+        <div class="payslip-row"><span>Hours Worked</span><strong>${rec.hoursWorked?rec.hoursWorked.toFixed(2)+"h":"In progress"}</strong></div>
+        <div class="payslip-row"><span>Status</span><strong><span class="att-status-${(rec.status||"present").toLowerCase()}">${rec.status||"Present"}</span></strong></div>
+        ${rec.lat?`<div class="payslip-row"><span>GPS Location</span><small style="color:var(--mu)">${Number(rec.lat).toFixed(5)}, ${Number(rec.lng).toFixed(5)}</small></div>`:""}
+      </div>`;
     }
   }
 }
 
-function getAttStatus(clockInTime){
-  // Workday starts at 08:00 — Late if after 08:15
-  const [h,m]=clockInTime.split(":").map(Number);
-  const mins=h*60+m;
-  if(mins<=8*60+15) return "Present";
-  if(mins<=9*60)    return "Late";
-  return "Late";
-}
-
 async function getGPS(){
-  return new Promise((resolve)=>{
-    if(!navigator.geolocation){resolve({lat:"N/A",lng:"N/A"});return;}
+  return new Promise((res)=>{
+    if(!navigator.geolocation){res({lat:null,lng:null});return;}
+    ge("gpsInfo").textContent="📍 Getting GPS location…";
     navigator.geolocation.getCurrentPosition(
-      p=>resolve({lat:p.coords.latitude.toFixed(6),lng:p.coords.longitude.toFixed(6)}),
-      ()=>resolve({lat:"Unavailable",lng:"Unavailable"}),
-      {timeout:8000}
+      pos=>res({lat:pos.coords.latitude,lng:pos.coords.longitude}),
+      ()=>res({lat:null,lng:null}),
+      {timeout:8000,enableHighAccuracy:true}
     );
   });
 }
 
-window.clockIn=async()=>{
+window.doClockIn=async()=>{
+  const btn=ge("clockBtn");if(btn)btn.disabled=true;
   const todayStr=today();
-  const snap=await getDocs(query(collection(db,"attendance"),
-    where("staffUid","==",CU.uid),where("date","==",todayStr)));
-  if(!snap.empty){toast("You already clocked in today","err");return;}
+  // Check already clocked in
+  const existing=await getDocs(query(collection(db,"attendance"),where("staffUid","==",CU.uid),where("date","==",todayStr)));
+  if(!existing.empty){toast("Already clocked in today!","err");if(btn)btn.disabled=false;return;}
   const now=new Date();
-  const clockInTime=now.toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"});
-  const status=getAttStatus(clockInTime);
-  const gps=await getGPS();
+  const timeStr=now.toTimeString().slice(0,5);
+  const isLate=now.getHours()>=9&&now.getMinutes()>15; // Late if after 9:15 AM
+  const {lat,lng}=await getGPS();
+  const month=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}`;
   await addDoc(collection(db,"attendance"),{
-    staffUid:CU.uid, staffName:SP.name, staffRole:SP.role,
-    date:todayStr, clockIn:clockInTime, clockOut:null,
-    hoursWorked:null, status,
-    gpsIn:{lat:gps.lat,lng:gps.lng},
+    staffUid:CU.uid,staffName:SP.name,role:SP.role,dept:SP.dept||"",
+    date:todayStr,month,clockIn:timeStr,clockOut:null,
+    status:isLate?"Late":"Present",
+    lat,lng,hoursWorked:null,
     createdAt:serverTimestamp()
   });
-  toast(`✅ Clocked in at ${clockInTime} — Status: ${status}`,"ok");
+  if(lat)ge("gpsInfo").textContent=`📍 ${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+  toast(`✅ Clocked in at ${timeStr}${isLate?" (Late)":""}!`,"ok");
+  if(btn)btn.disabled=false;
   checkTodayAttendance();
-  loadMyAttendance();
 };
 
-window.clockOut=async()=>{
-  const todayStr=today();
-  const snap=await getDocs(query(collection(db,"attendance"),
-    where("staffUid","==",CU.uid),where("date","==",todayStr)));
-  if(snap.empty){toast("No clock-in record found for today","err");return;}
-  const attDoc=snap.docs[0];
-  const att=attDoc.data();
-  if(att.clockOut){toast("Already clocked out today","err");return;}
+window.doClockOut=async(docId)=>{
+  const btn=ge("clockBtn");if(btn)btn.disabled=true;
   const now=new Date();
-  const clockOutTime=now.toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"});
-  // Calculate hours worked
-  const [inH,inM]=att.clockIn.split(":").map(Number);
-  const [outH,outM]=clockOutTime.split(":").map(Number);
-  const hoursWorked=((outH*60+outM)-(inH*60+inM))/60;
-  const gps=await getGPS();
-  await updateDoc(doc(db,"attendance",attDoc.id),{
-    clockOut:clockOutTime,
-    hoursWorked:hoursWorked.toFixed(1),
-    gpsOut:{lat:gps.lat,lng:gps.lng},
-    updatedAt:serverTimestamp()
+  const timeStr=now.toTimeString().slice(0,5);
+  // Get clock in time to calc hours
+  const snap=await getDoc(doc(db,"attendance",docId));
+  const rec=snap.data();
+  let hoursWorked=null;
+  if(rec.clockIn){
+    const [ih,im]=rec.clockIn.split(":").map(Number);
+    const [oh,om]=timeStr.split(":").map(Number);
+    hoursWorked=((oh*60+om)-(ih*60+im))/60;
+  }
+  const {lat,lng}=await getGPS();
+  await updateDoc(doc(db,"attendance",docId),{
+    clockOut:timeStr,hoursWorked,
+    clockOutLat:lat,clockOutLng:lng,
+    clockOutAt:serverTimestamp()
   });
-  toast(`✅ Clocked out at ${clockOutTime} — ${hoursWorked.toFixed(1)}h worked`,"ok");
+  if(lat)ge("gpsInfo").textContent=`📍 Out: ${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+  toast(`✅ Clocked out at ${timeStr} (${hoursWorked?hoursWorked.toFixed(1)+"h":"—"})!`,"ok");
+  if(btn)btn.disabled=false;
   checkTodayAttendance();
-  loadMyAttendance();
 };
 
 window.loadMyAttendance=async()=>{
   const el=ge("myAttList");if(!el)return;
   el.innerHTML='<div class="cr"><i class="fa fa-spinner fa-spin"></i></div>';
   const snap=await getDocs(query(collection(db,"attendance"),where("staffUid","==",CU.uid)));
-  const docs=[...snap.docs].sort((a,b)=>b.data().date.localeCompare(a.data().date)).slice(0,30);
-  if(!docs.length){el.innerHTML='<div class="en">No attendance records yet</div>';return;}
-  el.innerHTML=docs.map(d=>{
-    const r=d.data();
-    return`<div class="att-row">
-      <div style="flex:1">
-        <div style="font-weight:600;font-size:.87rem">${r.date}</div>
-        <div style="font-size:.78rem;color:var(--mu)">In: ${r.clockIn||"—"} | Out: ${r.clockOut||"Not yet"} | ${r.hoursWorked?r.hoursWorked+"h":""}</div>
-        ${r.gpsIn&&r.gpsIn.lat!=="N/A"?`<div style="font-size:.7rem;color:var(--mu)"><i class="fa fa-location-dot"></i> ${r.gpsIn.lat}, ${r.gpsIn.lng}</div>`:""}
-      </div>
-      <span class="att-status att-${(r.status||"present").toLowerCase()}">${r.status||"Present"}</span>
-    </div>`;
-  }).join("");
+  const rows=[...snap.docs].map(d=>({id:d.id,...d.data()})).sort((a,b)=>b.date.localeCompare(a.date)).slice(0,30);
+  if(!rows.length){el.innerHTML='<div class="en">No attendance records yet</div>';return;}
+  el.innerHTML=`<table class="dtab"><thead><tr><th>Date</th><th>In</th><th>Out</th><th>Hours</th><th>Status</th></tr></thead><tbody>`+
+    rows.map(r=>`<tr>
+      <td>${r.date}</td>
+      <td>${r.clockIn||"—"}</td>
+      <td>${r.clockOut||"—"}</td>
+      <td>${r.hoursWorked?r.hoursWorked.toFixed(1)+"h":"—"}</td>
+      <td><span class="att-status-${(r.status||"present").toLowerCase()}">${r.status||"—"}</span></td>
+    </tr>`).join("")+`</tbody></table>`;
 };
 
-// ═══════════════════════════════════════════════════════════════════════════
-// PAYROLL & SALARY SYSTEM
-// ═══════════════════════════════════════════════════════════════════════════
-function populateMonthDropdowns(){
+// ─── STAFF PAYSLIP (My Payslips) ────────────────────────────────────────────
+window.loadMyPayslips=async()=>{
+  const el=ge("myPayslipList");if(!el)return;
+  const monthStr=gv("myPayslipMonthSel");
+  if(!monthStr){el.innerHTML='<div class="en">Select a month above</div>';return;}
+  el.innerHTML='<div class="cr"><i class="fa fa-spinner fa-spin"></i></div>';
+  const payId=`${CU.uid}_${monthStr}`;
+  const snap=await getDoc(doc(db,"payroll",payId));
+  if(!snap.exists()){el.innerHTML='<div class="en">No payslip found for this month yet. Contact the Accountant.</div>';return;}
+  const p=snap.data();
+  el.innerHTML=buildPayslipHTML(p)+`<button class="bsm primary" style="width:100%;margin-top:10px" onclick="window._currentPayslip=window._myPayslip;printPayslip()"><i class="fa fa-print"></i> Print Payslip</button>`;
+  window._myPayslip=p;window._currentPayslip=p;
+};
+
+// ─── MONTH SELECT POPULATOR ──────────────────────────────────────────────────
+function populateMonthSelects(){
   const now=new Date();
   const months=[];
   for(let i=0;i<12;i++){
     const d=new Date(now.getFullYear(),now.getMonth()-i,1);
-    const val=d.toISOString().slice(0,7);
-    const lbl=d.toLocaleDateString("en-GB",{month:"long",year:"numeric"});
+    const val=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`;
+    const lbl=d.toLocaleDateString("en-GB",{year:"numeric",month:"long"});
     months.push({val,lbl});
   }
-  ["payrollMonth","allAttMonth","myPayslipMonth"].forEach(id=>{
+  ["payrollMonthSel","myPayslipMonthSel"].forEach(id=>{
     const el=ge(id);if(!el)return;
-    el.innerHTML=months.map((m,i)=>`<option value="${m.val}"${i===0?" selected":""}>${m.lbl}</option>`).join("");
+    const cur=el.value;
+    el.innerHTML='<option value="">Select Month…</option>'+months.map(m=>`<option value="${m.val}"${m.val===cur?" selected":""}>${m.lbl}</option>`).join("");
   });
 }
 
-async function loadAccountantStats(){
-  const[ss,ps]=await Promise.all([getDocs(collection(db,"staff")),getDocs(collection(db,"payroll"))]);
-  sv("acTotalStaff",ss.size);
-  const month=ge("payrollMonth")?(ge("payrollMonth").value||new Date().toISOString().slice(0,7)):new Date().toISOString().slice(0,7);
-  const monthPayslips=ps.docs.filter(d=>d.data().month===month);
-  const total=monthPayslips.reduce((a,d)=>a+d.data().netPay,0);
-  sv("acTotalPayroll","₦"+total.toLocaleString());
-  sv("acPayslips",monthPayslips.length);
-  // Attendance rate this month
-  const attSnap=await getDocs(collection(db,"attendance"));
-  const thisMonth=new Date().toISOString().slice(0,7);
-  const monthAtt=attSnap.docs.filter(d=>d.data().date&&d.data().date.startsWith(thisMonth));
-  const present=monthAtt.filter(d=>d.data().status==="Present"||d.data().status==="Late").length;
-  sv("acAttRate",monthAtt.length?Math.round(present/monthAtt.length*100)+"%":"—");
+
+
+// ════════════════════════════════════════════════════════════
+// PAYROLL MANAGEMENT SYSTEM — Full Implementation
+// ════════════════════════════════════════════════════════════
+
+let _allStaffSalary = [];  // cache for salary list
+let _currentPayslipData = null;
+
+// ── Helper: format money ──
+const fmtN = n => '₦' + Number(n||0).toLocaleString('en-NG',{minimumFractionDigits:0});
+// ── Helper: month label ──
+const monthLabel = m => { if(!m) return '—'; const [y,mo]=m.split('-'); return new Date(y,mo-1,1).toLocaleDateString('en-GB',{month:'long',year:'numeric'}); };
+// ── Helper: initials ──
+const initials = n => (n||'?').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+
+// ── Load module entry point ──
+window.loadPayrollModule = async () => {
+  populatePRMonthSelects();
+  loadPayrollOverview();
+  loadStaffSalaryList();
+  loadPayrollHistory();
+  loadBonusLoanList();
+  loadBLStaffDropdown();
+  // Update summary cards with current month
+  const now = new Date();
+  const ms = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+  sv('prMonth', monthLabel(ms));
+  updatePayrollSummaryCards(ms);
+};
+
+// ── Populate all month selects ──
+function populatePRMonthSelects(){
+  const now = new Date();
+  const opts = [];
+  for(let i=0;i<18;i++){
+    const d = new Date(now.getFullYear(), now.getMonth()-i, 1);
+    const v = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+    opts.push(`<option value="${v}">${monthLabel(v)}</option>`);
+  }
+  const html = '<option value="">Select month…</option>' + opts.join('');
+  ['prMonthSel','genPayMonth','blMonth'].forEach(id=>{
+    const el=ge(id); if(el){ el.innerHTML=html; }
+  });
+  // Set current month as default
+  const cur = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+  ['prMonthSel','genPayMonth','blMonth'].forEach(id=>{
+    const el=ge(id); if(el&&!el.value) el.value=cur;
+  });
 }
 
-window.showAcctTab=tab=>{
-  ["acctPayroll","acctSalary","acctAttendance"].forEach(id=>{
-    const el=ge(id);if(el)el.style.display="none";
+// ── Tab switcher ──
+window.switchPayrollTab = (tab, el) => {
+  ['overview','staff','history','bonuses'].forEach(t=>{
+    const c=ge(`pr-tab-${t}`); if(c) c.style.display = t===tab?'block':'none';
   });
-  const t={payroll:"acctPayroll",salary:"acctSalary",attendance:"acctAttendance"}[tab];
-  const el=ge(t);if(el)el.style.display="block";
-  if(tab==="salary") loadSalarySettings();
-  if(tab==="attendance") loadAllAttendance();
+  document.querySelectorAll('.ptab-row .ptab').forEach(t=>t.classList.remove('active'));
+  if(el) el.classList.add('active');
+  if(tab==='staff') loadStaffSalaryList();
+  if(tab==='history') loadPayrollHistory();
+  if(tab==='bonuses'){loadBonusLoanList();loadBLStaffDropdown();}
 };
 
-window.populatePayrollMonths=()=>{
-  const el=ge("payrollMonth");if(!el)return;
-  const now=new Date();
-  const months=[];
-  for(let i=0;i<12;i++){
-    const d=new Date(now.getFullYear(),now.getMonth()-i,1);
-    const val=d.toISOString().slice(0,7);
-    const lbl=d.toLocaleDateString("en-GB",{month:"long",year:"numeric"});
-    months.push({val,lbl});
-  }
-  el.innerHTML=months.map((m,i)=>`<option value="${m.val}"${i===0?" selected":""}>${m.lbl}</option>`).join("");
+window.switchSalaryTab = (tab, el) => {
+  ['earnings','deductions'].forEach(t=>{ const c=ge(`sal-tab-${t}`); if(c) c.style.display=t===tab?'block':'none'; });
+  document.querySelectorAll('#salarySetupModal .ptab').forEach(t=>t.classList.remove('active'));
+  if(el) el.classList.add('active');
 };
 
-window.loadSalarySettings=async()=>{
-  const el=ge("salarySettingsList");if(!el)return;
-  el.innerHTML='<div class="cr"><i class="fa fa-spinner fa-spin"></i></div>';
-  const snap=await getDocs(collection(db,"staff"));
-  if(snap.empty){el.innerHTML='<div class="en">No staff found</div>';return;}
-  el.innerHTML=snap.docs.map(d=>{
-    const r=d.data();
-    return`<div class="icard">
-      <div class="crow">
-        <span><b>${r.name}</b> <span class="badge role-${r.role.toLowerCase().replace(/\s/g,"-")}">${r.role}</span></span>
-        <button class="bsm outline" style="padding:5px 10px;font-size:.78rem" onclick="openSalaryModal('${d.id}','${r.name}','${r.role}')"><i class="fa fa-gear"></i> Set Salary</button>
-      </div>
-    </div>`;
-  }).join("");
-};
-
-window.openSalaryModal=async(uid,name,role)=>{
-  ge("salStaffName").textContent=name;
-  ge("salStaffRole").textContent=role;
-  ge("salStaffUid").value=uid;
-  // Load existing salary
-  const snap=await getDocs(query(collection(db,"salarySettings"),where("staffUid","==",uid)));
-  if(!snap.empty){
-    const s=snap.docs[0].data();
-    ge("salBasic").value=s.basic||0;
-    ge("salHousing").value=s.housing||0;
-    ge("salTransport").value=s.transport||0;
-    ge("salOther").value=s.otherAllowance||0;
-    ge("salTax").value=s.taxPct||0;
-    ge("salDeduct").value=s.otherDeduction||0;
-  } else {
-    ["salBasic","salHousing","salTransport","salOther","salTax","salDeduct"].forEach(id=>ge(id).value="");
-  }
-  openModal("salaryModal");
-};
-
-window.saveSalary=async()=>{
-  const uid=gv("salStaffUid");
-  if(!uid){toast("No staff selected","err");return;}
-  const data={
-    staffUid:uid,
-    basic:parseFloat(gv("salBasic"))||0,
-    housing:parseFloat(gv("salHousing"))||0,
-    transport:parseFloat(gv("salTransport"))||0,
-    otherAllowance:parseFloat(gv("salOther"))||0,
-    taxPct:parseFloat(gv("salTax"))||0,
-    otherDeduction:parseFloat(gv("salDeduct"))||0,
-    updatedBy:SP.name, updatedAt:serverTimestamp()
-  };
-  const snap=await getDocs(query(collection(db,"salarySettings"),where("staffUid","==",uid)));
-  if(snap.empty) await addDoc(collection(db,"salarySettings"),data);
-  else await updateDoc(doc(db,"salarySettings",snap.docs[0].id),data);
-  toast("Salary settings saved!","ok");
-  cModal("salaryModal");
-};
-
-window.genPayroll=async()=>{
-  const month=gv("payrollMonth");
-  if(!month){toast("Select a month","err");return;}
-  const el=ge("payrollList");
-  el.innerHTML='<div class="cr"><i class="fa fa-spinner fa-spin"></i> Generating payroll…</div>';
-  // Get all staff
-  const staffSnap=await getDocs(collection(db,"staff"));
-  // Get attendance for this month
-  const attSnap=await getDocs(query(collection(db,"attendance"),where("date",">=",month+"-01"),where("date","<=",month+"-31")));
-  const attByStaff={};
-  attSnap.docs.forEach(d=>{
-    const r=d.data();
-    if(!attByStaff[r.staffUid]) attByStaff[r.staffUid]={present:0,late:0,absent:0,hours:0};
-    if(r.status==="Present") attByStaff[r.staffUid].present++;
-    else if(r.status==="Late") attByStaff[r.staffUid].late++;
-    attByStaff[r.staffUid].hours+=parseFloat(r.hoursWorked||0);
-  });
-  // Working days in month (approx 22)
-  const workDays=22;
-  const rows=[];
-  for(const sd of staffSnap.docs){
-    const st=sd.data();
-    const salSnap=await getDocs(query(collection(db,"salarySettings"),where("staffUid","==",sd.id)));
-    const sal=salSnap.empty?{basic:0,housing:0,transport:0,otherAllowance:0,taxPct:0,otherDeduction:0}:salSnap.docs[0].data();
-    const att=attByStaff[sd.id]||{present:0,late:0,hours:0};
-    // Calculate
-    const grossBasic=sal.basic||0;
-    const daysPresent=att.present+(att.late*0.9); // late = 90% day
-    const attendancePct=workDays>0?Math.min(daysPresent/workDays,1):1;
-    const earnedBasic=Math.round(grossBasic*attendancePct);
-    const allowances=(sal.housing||0)+(sal.transport||0)+(sal.otherAllowance||0);
-    const gross=earnedBasic+allowances;
-    const taxAmt=Math.round(gross*(sal.taxPct||0)/100);
-    const deductions=taxAmt+(sal.otherDeduction||0);
-    const netPay=Math.max(0,gross-deductions);
-    // Save payslip
-    const payslipData={
-      staffUid:sd.id, staffName:st.name, staffRole:st.role,
-      month, basic:grossBasic, earnedBasic, housing:sal.housing||0,
-      transport:sal.transport||0, otherAllowance:sal.otherAllowance||0,
-      gross, taxPct:sal.taxPct||0, taxAmt, otherDeduction:sal.otherDeduction||0,
-      deductions, netPay, daysWorked:Math.round(daysPresent),
-      hoursWorked:att.hours.toFixed(1), attendancePct:Math.round(attendancePct*100),
-      generatedBy:SP.name, generatedAt:serverTimestamp()
-    };
-    // Upsert payslip
-    const existing=await getDocs(query(collection(db,"payroll"),where("staffUid","==",sd.id),where("month","==",month)));
-    if(existing.empty) await addDoc(collection(db,"payroll"),payslipData);
-    else await updateDoc(doc(db,"payroll",existing.docs[0].id),payslipData);
-    rows.push({...payslipData, docId:existing.empty?null:existing.docs[0].id});
-  }
-  // Display
-  el.innerHTML=`<div style="overflow-x:auto"><table class="dtab">
-    <thead><tr><th>Staff</th><th>Role</th><th>Days</th><th>Gross</th><th>Deductions</th><th>Net Pay</th><th></th></tr></thead>
-    <tbody>${rows.map(r=>`<tr>
-      <td><b>${r.staffName}</b></td>
-      <td><span class="badge role-${r.staffRole.toLowerCase().replace(/\s/g,"-")}">${r.staffRole}</span></td>
-      <td>${r.daysWorked}/${workDays}</td>
-      <td>₦${r.gross.toLocaleString()}</td>
-      <td style="color:var(--D)">₦${r.deductions.toLocaleString()}</td>
-      <td style="color:var(--A);font-weight:700">₦${r.netPay.toLocaleString()}</td>
-      <td><button class="bsm outline" style="padding:4px 8px;font-size:.75rem" onclick="viewPayslip(${JSON.stringify(r).replace(/"/g,'&quot;')})"><i class="fa fa-eye"></i></button></td>
-    </tr>`).join("")}</tbody>
-  </table></div>
-  <div style="background:var(--PL);border-radius:var(--rs);padding:12px;margin-top:12px;display:flex;justify-content:space-between">
-    <span style="font-weight:600">Total Payroll</span>
-    <span style="font-weight:700;color:var(--P)">₦${rows.reduce((a,r)=>a+r.netPay,0).toLocaleString()}</span>
-  </div>`;
-  toast(`✅ Payroll generated for ${rows.length} staff`,"ok");
-  loadAccountantStats();
-};
-
-window.viewPayslip=async(data)=>{
-  // data can be object or we fetch from DB
-  let r = typeof data==="string"?JSON.parse(data):data;
-  renderPayslip(r);
-  openModal("payslipModal");
-};
-
-function renderPayslip(r){
-  const el=ge("payslipContent");
-  el.innerHTML=`<div class="payslip">
-    <div class="payslip-header">
-      <div><div style="font-size:.75rem;opacity:.8">Loving Heart Hospital</div><div style="font-weight:700">${r.staffName}</div></div>
-      <div style="text-align:right"><div style="font-size:.75rem;opacity:.8">${r.month}</div><div><span class="badge role-${(r.staffRole||"").toLowerCase().replace(/\s/g,"-")}">${r.staffRole}</span></div></div>
-    </div>
-    <div class="payslip-row"><span>Basic Salary</span><span>₦${(r.basic||0).toLocaleString()}</span></div>
-    <div class="payslip-row" style="color:var(--mu);font-size:.82rem"><span>  Attendance (${r.attendancePct||100}% — ${r.daysWorked} days)</span><span>₦${(r.earnedBasic||r.basic||0).toLocaleString()}</span></div>
-    <div class="payslip-row"><span>Housing Allowance</span><span>₦${(r.housing||0).toLocaleString()}</span></div>
-    <div class="payslip-row"><span>Transport Allowance</span><span>₦${(r.transport||0).toLocaleString()}</span></div>
-    <div class="payslip-row"><span>Other Allowances</span><span>₦${(r.otherAllowance||0).toLocaleString()}</span></div>
-    <div class="payslip-row" style="font-weight:600"><span>Gross Pay</span><span>₦${(r.gross||0).toLocaleString()}</span></div>
-    <hr style="border:none;border-top:1px dashed var(--brd);margin:8px 0"/>
-    <div class="payslip-row" style="color:var(--D)"><span>Tax (${r.taxPct||0}%)</span><span>-₦${(r.taxAmt||0).toLocaleString()}</span></div>
-    <div class="payslip-row" style="color:var(--D)"><span>Other Deductions</span><span>-₦${(r.otherDeduction||0).toLocaleString()}</span></div>
-    <div class="payslip-total"><span>NET PAY</span><span>₦${(r.netPay||0).toLocaleString()}</span></div>
-    <div style="margin-top:12px;font-size:.75rem;color:var(--mu);text-align:center">Hours Worked: ${r.hoursWorked||0}h · Generated by ${r.generatedBy||"System"}</div>
-  </div>`;
-  // Store for printing
-  window._currentPayslip = r;
+// ── Summary cards ──
+async function updatePayrollSummaryCards(monthStr){
+  const snap = await getDocs(query(collection(db,'payroll'), where('month','==',monthStr)));
+  const rows = snap.docs.map(d=>d.data());
+  const net = rows.reduce((a,r)=>a+(r.netPay||0),0);
+  const ded = rows.reduce((a,r)=>a+(r.totalDeductions||0),0);
+  sv('prTotalNet', fmtN(net));
+  sv('prStaffPaid', rows.length + ' staff');
+  sv('prTotalDed', fmtN(ded));
 }
 
-window.printPayslip=()=>{
-  const r=window._currentPayslip;if(!r)return;
-  const w=window.open("","_blank","width=400,height=600");
-  w.document.write(`<!DOCTYPE html><html><head><title>Payslip</title><style>body{font-family:Arial;padding:20px;max-width:360px;margin:auto}.hdr{background:#0057b8;color:#fff;padding:14px;border-radius:6px 6px 0 0;display:flex;justify-content:space-between;margin-bottom:14px}.row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px dashed #ddd;font-size:13px}.tot{display:flex;justify-content:space-between;font-weight:700;font-size:1.1rem;padding:10px 0;color:#0057b8}h2{text-align:center;color:#0057b8}.footer{text-align:center;font-size:11px;color:#999;margin-top:14px}</style></head><body>
-  <h2>🏥 Loving Heart Hospital</h2>
-  <div class="hdr"><div><div style="font-size:11px;opacity:.8">PAYSLIP</div><b>${r.staffName}</b></div><div style="text-align:right"><div style="font-size:11px;opacity:.8">${r.month}</div><div>${r.staffRole}</div></div></div>
-  <div class="row"><span>Basic Salary</span><span>₦${(r.basic||0).toLocaleString()}</span></div>
-  <div class="row"><span>Attendance (${r.attendancePct||100}%)</span><span>₦${(r.earnedBasic||r.basic||0).toLocaleString()}</span></div>
-  <div class="row"><span>Housing Allowance</span><span>₦${(r.housing||0).toLocaleString()}</span></div>
-  <div class="row"><span>Transport Allowance</span><span>₦${(r.transport||0).toLocaleString()}</span></div>
-  <div class="row"><span>Other Allowances</span><span>₦${(r.otherAllowance||0).toLocaleString()}</span></div>
-  <div class="row"><b>Gross Pay</b><b>₦${(r.gross||0).toLocaleString()}</b></div>
-  <div class="row" style="color:red"><span>Tax (${r.taxPct||0}%)</span><span>-₦${(r.taxAmt||0).toLocaleString()}</span></div>
-  <div class="row" style="color:red"><span>Deductions</span><span>-₦${(r.otherDeduction||0).toLocaleString()}</span></div>
-  <div class="tot"><span>NET PAY</span><span>₦${(r.netPay||0).toLocaleString()}</span></div>
-  <div class="footer">Loving Heart Hospital Management Software<br>Hours: ${r.hoursWorked||0}h worked</div>
-  <script>setTimeout(()=>window.print(),300);<\/script></body></html>`);
-  w.document.close();
-};
+// ── OVERVIEW TAB ──
+window.loadPayrollOverview = async () => {
+  const el = ge('prOverviewContent'); if(!el) return;
+  const monthStr = gv('prMonthSel');
+  if(!monthStr){ el.innerHTML='<div class="en">Select a pay period to view overview</div>'; return; }
+  el.innerHTML = '<div class="cr"><i class="fa fa-spinner fa-spin"></i></div>';
+  sv('prMonth', monthLabel(monthStr));
+  updatePayrollSummaryCards(monthStr);
 
-window.loadMyPayslip=async()=>{
-  const el=ge("myPayslipContent");if(!el)return;
-  const monthEl=ge("myPayslipMonth");
-  const month=monthEl?monthEl.value:new Date().toISOString().slice(0,7);
-  el.innerHTML='<div class="cr"><i class="fa fa-spinner fa-spin"></i></div>';
-  const snap=await getDocs(query(collection(db,"payroll"),
-    where("staffUid","==",CU.uid),where("month","==",month)));
+  const snap = await getDocs(query(collection(db,'payroll'), where('month','==',monthStr)));
   if(snap.empty){
-    el.innerHTML='<div class="en">No payslip for this month yet.<br><small>Contact your Accountant to generate payroll.</small></div>';
-    return;
+    el.innerHTML = `<div style="text-align:center;padding:24px">
+      <i class="fa fa-file-circle-xmark" style="font-size:2rem;color:var(--mu);display:block;margin-bottom:10px;opacity:.4"></i>
+      <p style="font-weight:600;color:var(--mu)">No payroll for ${monthLabel(monthStr)}</p>
+      <p style="font-size:.82rem;color:var(--mu);margin:6px 0 14px">Click "Run Payroll" to generate salaries for this month</p>
+      <button class="bsm primary" onclick="openPayrollGenModal()"><i class="fa fa-cog"></i> Run Payroll Now</button>
+    </div>`; return;
   }
-  renderPayslip(snap.docs[0].data());
-  el.innerHTML=ge("payslipContent").innerHTML+
-    `<button class="bsm outline mt8" onclick="window._currentPayslip=${JSON.stringify(snap.docs[0].data()).replace(/"/g,"'")};printPayslip()"><i class="fa fa-print"></i> Print</button>`;
-};
 
-window.loadAllAttendance=async()=>{
-  const el=ge("allAttList");if(!el)return;
-  const monthEl=ge("allAttMonth");
-  const month=monthEl?monthEl.value:new Date().toISOString().slice(0,7);
-  el.innerHTML='<div class="cr"><i class="fa fa-spinner fa-spin"></i></div>';
-  const snap=await getDocs(collection(db,"attendance"));
-  const docs=[...snap.docs].filter(d=>d.data().date&&d.data().date.startsWith(month))
-    .sort((a,b)=>b.data().date.localeCompare(a.data().date));
-  if(!docs.length){el.innerHTML='<div class="en">No attendance for this month</div>';return;}
-  // Group by staff
-  const byStaff={};
-  docs.forEach(d=>{
-    const r=d.data();
-    if(!byStaff[r.staffName]) byStaff[r.staffName]={name:r.staffName,role:r.staffRole,present:0,late:0,records:[]};
-    if(r.status==="Present")byStaff[r.staffName].present++;
-    if(r.status==="Late")byStaff[r.staffName].late++;
-    byStaff[r.staffName].records.push(r);
-  });
-  el.innerHTML=Object.values(byStaff).map(s=>`
-    <div class="icard">
-      <div class="crow"><span><b>${s.name}</b> <span class="badge role-${(s.role||"").toLowerCase().replace(/\s/g,"-")}">${s.role}</span></span>
-        <span><span class="att-status att-present">${s.present}P</span> <span class="att-status att-late">${s.late}L</span></span>
+  const rows = snap.docs.map(d=>({id:d.id,...d.data()}));
+  rows.sort((a,b)=>(a.staffName||'').localeCompare(b.staffName||''));
+  const totalGross = rows.reduce((a,r)=>a+(r.grossSalary||0),0);
+  const totalNet   = rows.reduce((a,r)=>a+(r.netPay||0),0);
+  const totalDed   = rows.reduce((a,r)=>a+(r.totalDeductions||0),0);
+  const paid = rows.filter(r=>r.payStatus==='Paid').length;
+
+  el.innerHTML = `
+    <div class="pr-summary">
+      <div class="pr-summary-row">
+        <div><div class="pr-label">Total Gross Salary</div><div class="pr-big">${fmtN(totalGross)}</div></div>
+        <div style="text-align:right"><div class="pr-label">Total Deductions</div><div style="font-size:1.1rem;font-weight:700;opacity:.9">${fmtN(totalDed)}</div></div>
       </div>
-      ${s.records.slice(0,3).map(r=>`<div style="font-size:.78rem;color:var(--mu)">${r.date}: In ${r.clockIn||"—"} | Out ${r.clockOut||"—"} | ${r.hoursWorked||0}h</div>`).join("")}
-      ${s.records.length>3?`<div style="font-size:.75rem;color:var(--P)">+${s.records.length-3} more days</div>`:""}
-    </div>`).join("");
+      <div class="pr-summary-row">
+        <div><div class="pr-label">Net Payroll</div><div style="font-size:1.2rem;font-weight:700">${fmtN(totalNet)}</div></div>
+        <div style="text-align:right"><span class="pr-status-chip ${paid===rows.length?'pr-paid':'pr-pending'}">${paid}/${rows.length} Paid</span></div>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+      <button class="bsm outline" style="flex:1" onclick="exportPayrollCSV('${monthStr}')"><i class="fa fa-download"></i> Export CSV</button>
+      <button class="bsm success" style="flex:1" onclick="markAllPayrollPaid('${monthStr}')"><i class="fa fa-check-double"></i> Mark All Paid</button>
+    </div>` +
+    rows.map(r => {
+      const ini = initials(r.staffName);
+      const statusCls = r.payStatus==='Paid'?'pr-paid':r.payStatus==='Processing'?'pr-processing':'pr-pending';
+      const statusLabel = r.payStatus||'Pending';
+      return `<div class="staff-pay-card">
+        <div class="staff-pay-hdr">
+          <div class="staff-pay-av">${ini}</div>
+          <div class="staff-pay-info">
+            <div class="staff-pay-name">${r.staffName}</div>
+            <div class="staff-pay-role">${r.role} ${r.dept?'· '+r.dept:''}</div>
+          </div>
+          <span class="pr-status-chip ${statusCls}">${statusLabel}</span>
+        </div>
+        <div class="pay-breakdown">
+          <div class="pay-item"><div class="pay-item-label">Gross</div><div class="pay-item-val blue">${fmtN(r.grossSalary)}</div></div>
+          <div class="pay-item"><div class="pay-item-label">Deductions</div><div class="pay-item-val red">${fmtN(r.totalDeductions)}</div></div>
+          <div class="pay-item"><div class="pay-item-label">Net Pay</div><div class="pay-item-val green">${fmtN(r.netPay)}</div></div>
+          <div class="pay-item"><div class="pay-item-label">Attendance</div><div class="pay-item-val">${r.presentDays||0}/${r.workingDays||0} days</div></div>
+        </div>
+        <div style="display:flex;gap:7px;margin-top:8px">
+          <button class="bsm outline" style="flex:1;font-size:.76rem;padding:6px" onclick="viewStaffPayslip('${r.id}')"><i class="fa fa-eye"></i> Payslip</button>
+          <button class="bsm success" style="font-size:.76rem;padding:6px 10px" onclick="markOnePaid('${r.id}')"><i class="fa fa-check"></i></button>
+          <button class="bsm danger" style="font-size:.76rem;padding:6px 10px" onclick="deletePayrollEntry('${r.id}')"><i class="fa fa-trash"></i></button>
+        </div>
+      </div>`;
+    }).join('');
 };
 
-// Hook postInitSetup into initApp — run after existing initApp
-const _origInitAppFn = window.initApp;
-window.addEventListener("DOMContentLoaded",()=>{
-  // Slight delay to ensure SP is loaded
-  setTimeout(postInitSetup, 500);
+// ── STAFF SALARY LIST ──
+window.loadStaffSalaryList = async () => {
+  const el = ge('staffSalaryList'); if(!el) return;
+  el.innerHTML = '<div class="cr"><i class="fa fa-spinner fa-spin"></i></div>';
+  const snap = await getDocs(collection(db,'staff'));
+  _allStaffSalary = snap.docs.map(d=>({uid:d.id,...d.data()})).filter(d=>!d.deleted&&d.active!==false);
+  renderSalaryList(_allStaffSalary);
+};
+
+window.filterSalaryList = () => {
+  const q = gv('salSearchQ').toLowerCase();
+  const filtered = q ? _allStaffSalary.filter(s=>(s.name||'').toLowerCase().includes(q)||(s.role||'').toLowerCase().includes(q)) : _allStaffSalary;
+  renderSalaryList(filtered);
+};
+
+function renderSalaryList(list){
+  const el = ge('staffSalaryList'); if(!el) return;
+  if(!list.length){ el.innerHTML='<div class="en">No staff found</div>'; return; }
+  el.innerHTML = list.map(r => {
+    const gross = (r.basicSalary||0)+(r.housingAllowance||0)+(r.transportAllowance||0)+(r.medicalAllowance||0)+(r.otherAllowance||0);
+    const taxAmt = gross*(r.taxPercent||0)/100;
+    const penAmt = gross*(r.pensionPercent||0)/100;
+    const nhfAmt = gross*(r.nhfPercent||0)/100;
+    const estNet = Math.max(0, gross - taxAmt - penAmt - nhfAmt - (r.otherDeductions||0));
+    const hasConfig = !!r.basicSalary;
+    return `<div class="staff-pay-card">
+      <div class="staff-pay-hdr">
+        <div class="staff-pay-av">${initials(r.name)}</div>
+        <div class="staff-pay-info">
+          <div class="staff-pay-name">${r.name}</div>
+          <div class="staff-pay-role"><span class="badge role-${(r.role||'').toLowerCase().replace(/\s/g,'-')}">${r.role}</span> ${r.dept?'· '+r.dept:''}</div>
+        </div>
+        <span class="pr-status-chip ${hasConfig?'pr-paid':'pr-pending'}">${hasConfig?'Configured':'Not Set'}</span>
+      </div>
+      ${hasConfig ? `
+      <div class="pay-breakdown">
+        <div class="pay-item"><div class="pay-item-label">Basic</div><div class="pay-item-val blue">${fmtN(r.basicSalary)}</div></div>
+        <div class="pay-item"><div class="pay-item-label">Total Allowances</div><div class="pay-item-val green">${fmtN(gross-(r.basicSalary||0))}</div></div>
+        <div class="pay-item"><div class="pay-item-label">Gross</div><div class="pay-item-val blue">${fmtN(gross)}</div></div>
+        <div class="pay-item"><div class="pay-item-label">Est. Net</div><div class="pay-item-val green">${fmtN(estNet)}</div></div>
+      </div>` : `<div style="font-size:.8rem;color:var(--mu);padding:6px 0">Salary not configured — click Configure to set up</div>`}
+      <button class="bsm primary" style="width:100%;margin-top:8px;font-size:.8rem" onclick="openSalarySetup('${r.uid}')">
+        <i class="fa fa-${hasConfig?'edit':'plus'}"></i> ${hasConfig?'Edit Salary':'Configure Salary'}
+      </button>
+    </div>`;
+  }).join('');
+}
+
+// ── SALARY SETUP MODAL ──
+window.openSalarySetup = async (uid) => {
+  if(!isAdmin()&&!isAccountant()){toast('⛔ Admin/Accountant only','err');return;}
+  const snap = await getDoc(doc(db,'staff',uid));
+  if(!snap.exists()){toast('Staff not found','err');return;}
+  const r = snap.data();
+  ge('ss_uid').value = uid;
+  ge('salarySetupInfo').innerHTML = `<b>${r.name}</b> — <span class="badge role-${(r.role||'').toLowerCase().replace(/\s/g,'-')}">${r.role}</span>`;
+  ge('ss_basic').value    = r.basicSalary||'';
+  ge('ss_housing').value  = r.housingAllowance||'';
+  ge('ss_transport').value= r.transportAllowance||'';
+  ge('ss_medical').value  = r.medicalAllowance||'';
+  ge('ss_other').value    = r.otherAllowance||'';
+  ge('ss_tax').value      = r.taxPercent||'';
+  ge('ss_pension').value  = r.pensionPercent||'';
+  ge('ss_nhf').value      = r.nhfPercent||'';
+  ge('ss_otherded').value = r.otherDeductions||'';
+  updateSalaryLiveCalc();
+  // Reset to earnings tab
+  ge('sal-tab-earnings').style.display='block';
+  ge('sal-tab-deductions').style.display='none';
+  document.querySelectorAll('#salarySetupModal .ptab').forEach((t,i)=>t.classList.toggle('active',i===0));
+  openModal('salarySetupModal');
+};
+
+// Live calculation in salary modal
+['ss_basic','ss_housing','ss_transport','ss_medical','ss_other','ss_tax','ss_pension','ss_nhf','ss_otherded'].forEach(id=>{
+  document.addEventListener('input', e=>{ if(e.target&&e.target.id===id) updateSalaryLiveCalc(); });
 });
+
+function updateSalaryLiveCalc(){
+  const basic  = parseFloat(ge('ss_basic')?.value)||0;
+  const housing= parseFloat(ge('ss_housing')?.value)||0;
+  const trans  = parseFloat(ge('ss_transport')?.value)||0;
+  const med    = parseFloat(ge('ss_medical')?.value)||0;
+  const other  = parseFloat(ge('ss_other')?.value)||0;
+  const gross  = basic+housing+trans+med+other;
+  const tax    = gross*(parseFloat(ge('ss_tax')?.value)||0)/100;
+  const pen    = gross*(parseFloat(ge('ss_pension')?.value)||0)/100;
+  const nhf    = gross*(parseFloat(ge('ss_nhf')?.value)||0)/100;
+  const othded = parseFloat(ge('ss_otherded')?.value)||0;
+  const net    = Math.max(0, gross-tax-pen-nhf-othded);
+  const gv2 = ge('sal-gross-val'); if(gv2) gv2.textContent=fmtN(gross);
+  const nv = ge('sal-net-val'); if(nv) nv.textContent=fmtN(net);
+}
+
+window.saveSalarySetup = async () => {
+  const uid = ge('ss_uid')?.value;
+  if(!uid){toast('No staff selected','err');return;}
+  const data = {
+    basicSalary:      parseFloat(ge('ss_basic').value)||0,
+    housingAllowance: parseFloat(ge('ss_housing').value)||0,
+    transportAllowance:parseFloat(ge('ss_transport').value)||0,
+    medicalAllowance: parseFloat(ge('ss_medical').value)||0,
+    otherAllowance:   parseFloat(ge('ss_other').value)||0,
+    taxPercent:       parseFloat(ge('ss_tax').value)||0,
+    pensionPercent:   parseFloat(ge('ss_pension').value)||0,
+    nhfPercent:       parseFloat(ge('ss_nhf').value)||0,
+    otherDeductions:  parseFloat(ge('ss_otherded').value)||0,
+    salaryConfiguredAt: new Date().toISOString(),
+    salaryConfiguredBy: SP.name
+  };
+  if(!data.basicSalary){toast('Basic salary is required','err');return;}
+  await updateDoc(doc(db,'staff',uid), data);
+  toast('✅ Salary configured successfully!','ok');
+  cModal('salarySetupModal');
+  loadStaffSalaryList();
+  // Also refresh old salary settings if visible
+  if(typeof loadSalarySettings==='function') loadSalarySettings();
+};
+
+// ── PAYROLL GENERATION ──
+window.openPayrollGenModal = () => {
+  populatePRMonthSelects();
+  const now = new Date();
+  ge('genPayDate').value = now.toISOString().slice(0,10);
+  ge('genPayPreview').innerHTML = '';
+  openModal('payrollGenModal');
+};
+
+window.previewPayroll = async () => {
+  const monthStr = gv('genPayMonth');
+  if(!monthStr){toast('Select a month','err');return;}
+  const el = ge('genPayPreview');
+  el.innerHTML = '<div class="cr"><i class="fa fa-spinner fa-spin"></i> Calculating…</div>';
+  const snap = await getDocs(collection(db,'staff'));
+  const staffList = snap.docs.map(d=>({uid:d.id,...d.data()})).filter(d=>!d.deleted&&d.active!==false&&d.basicSalary);
+  if(!staffList.length){el.innerHTML='<div style="color:var(--D);font-size:.83rem;padding:8px">No staff with salary configured</div>';return;}
+  const [year,month] = monthStr.split('-').map(Number);
+  let rows=[], totalNet=0, totalGross=0;
+  for(const staff of staffList){
+    const attSnap=await getDocs(query(collection(db,'attendance'),where('staffUid','==',staff.uid),where('month','==',monthStr)));
+    const attRecs=attSnap.docs.map(d=>d.data());
+    // Bonuses/loans for this month
+    const blSnap=await getDocs(query(collection(db,'bonusLoan'),where('staffUid','==',staff.uid),where('month','==',monthStr)));
+    let bonusTotal=0,loanTotal=0,extraDed=0;
+    blSnap.docs.forEach(d=>{ const bd=d.data(); if(bd.type==='bonus')bonusTotal+=bd.amount||0; else if(bd.type==='loan')loanTotal+=bd.amount||0; else if(bd.type==='extra_deduction')extraDed+=bd.amount||0; });
+    const calc=calcPayroll(staff,attRecs,year,month,bonusTotal,loanTotal,extraDed);
+    rows.push({staff,calc}); totalNet+=calc.netPay; totalGross+=calc.grossSalary;
+  }
+  el.innerHTML = `<div style="background:var(--PL);border-radius:var(--rs);padding:10px;margin-bottom:8px">
+    <div style="font-size:.82rem;font-weight:600;color:var(--P)">Preview: ${rows.length} staff · Gross ${fmtN(totalGross)} · Net ${fmtN(totalNet)}</div>
+  </div>` +
+  rows.map(({staff,calc})=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px dashed var(--brd);font-size:.82rem">
+    <span><b>${staff.name}</b> <span style="color:var(--mu);font-size:.76rem">${staff.role}</span></span>
+    <span style="font-weight:700;color:var(--A)">${fmtN(calc.netPay)}</span>
+  </div>`).join('');
+};
+
+window.runPayroll = async () => {
+  if(!isAdmin()&&!isAccountant()){toast('⛔ Admin/Accountant only','err');return;}
+  const monthStr=gv('genPayMonth'),payDate=gv('genPayDate'),method=gv('genPayMethod'),note=gv('genPayNote');
+  if(!monthStr){toast('Select a month','err');return;}
+  const btn=ge('genPayBtn'); btn.disabled=true; btn.innerHTML='<i class="fa fa-spinner fa-spin"></i> Processing…';
+  try{
+    const snap=await getDocs(collection(db,'staff'));
+    const staffList=snap.docs.map(d=>({uid:d.id,...d.data()})).filter(d=>!d.deleted&&d.active!==false&&d.basicSalary);
+    const [year,month]=monthStr.split('-').map(Number);
+    let count=0;
+    for(const staff of staffList){
+      const attSnap=await getDocs(query(collection(db,'attendance'),where('staffUid','==',staff.uid),where('month','==',monthStr)));
+      const attRecs=attSnap.docs.map(d=>d.data());
+      const blSnap=await getDocs(query(collection(db,'bonusLoan'),where('staffUid','==',staff.uid),where('month','==',monthStr)));
+      let bonusTotal=0,loanTotal=0,extraDed=0;
+      blSnap.docs.forEach(d=>{ const bd=d.data(); if(bd.type==='bonus')bonusTotal+=bd.amount||0; else if(bd.type==='loan')loanTotal+=bd.amount||0; else if(bd.type==='extra_deduction')extraDed+=bd.amount||0; });
+      const calc=calcPayroll(staff,attRecs,year,month,bonusTotal,loanTotal,extraDed);
+      const pid=`${staff.uid}_${monthStr}`;
+      await setDoc(doc(db,'payroll',pid),{
+        staffUid:staff.uid,staffName:staff.name,role:staff.role,dept:staff.dept||'',
+        month:monthStr,year,monthNum:month,
+        ...calc,
+        bonusTotal,loanTotal,extraDed,
+        payDate,payMethod:method,payNote:note,
+        payStatus:'Pending',
+        generatedBy:SP.name,generatedAt:new Date().toISOString()
+      });
+      count++;
+    }
+    // Save payroll run record
+    await addDoc(collection(db,'payrollRuns'),{
+      month:monthStr,staffCount:count,generatedBy:SP.name,
+      payDate,payMethod:method,note,
+      runAt:serverTimestamp()
+    });
+    toast(`✅ Payroll generated for ${count} staff!`,'ok');
+    cModal('payrollGenModal');
+    loadPayrollOverview();
+    updatePayrollSummaryCards(monthStr);
+  }catch(e){toast('Error: '+e.message,'err');}
+  btn.disabled=false; btn.innerHTML='<i class="fa fa-play"></i> Generate & Confirm Payroll';
+};
+
+// ── Core salary calculation function ──
+function calcPayroll(staff, attRecs, year, month, bonusTotal=0, loanTotal=0, extraDed=0){
+  const basic=staff.basicSalary||0;
+  const housing=staff.housingAllowance||0;
+  const transport=staff.transportAllowance||0;
+  const medical=staff.medicalAllowance||0;
+  const otherAllow=staff.otherAllowance||0;
+  const grossBase=basic+housing+transport+medical+otherAllow;
+  const grossSalary=grossBase+bonusTotal;
+
+  // Working days
+  const daysInMonth=new Date(year,month,0).getDate();
+  let workingDays=0;
+  for(let d=1;d<=daysInMonth;d++){ const dow=new Date(year,month-1,d).getDay(); if(dow!==0&&dow!==6)workingDays++; }
+
+  let presentDays=0,absentDays=0,lateDays=0;
+  attRecs.forEach(a=>{ if(a.status==='Present'||a.status==='Late')presentDays++; if(a.status==='Late')lateDays++; if(a.status==='Absent')absentDays++; });
+
+  const dailyRate = workingDays>0?basic/workingDays:0;
+  const absentDeduction = dailyRate*absentDays;
+  const lateDeduction = (dailyRate*0.25)*lateDays;
+  const taxAmt = grossSalary*(staff.taxPercent||0)/100;
+  const pensionAmt = grossSalary*(staff.pensionPercent||0)/100;
+  const nhfAmt = grossSalary*(staff.nhfPercent||0)/100;
+  const otherDed = (staff.otherDeductions||0)+extraDed+loanTotal;
+  const totalDeductions=taxAmt+pensionAmt+nhfAmt+otherDed+absentDeduction+lateDeduction;
+  const netPay=Math.max(0,grossSalary-totalDeductions);
+  return{basic,housing,transport,medical,otherAllow,grossBase,grossSalary,bonusTotal,loanTotal,extraDed,taxAmt,pensionAmt,nhfAmt,otherDed,absentDeduction,lateDeduction,totalDeductions,netPay,presentDays,absentDays,lateDays,workingDays};
+}
+
+// ── VIEW INDIVIDUAL PAYSLIP ──
+window.viewStaffPayslip = async (payrollId) => {
+  const snap = await getDoc(doc(db,'payroll',payrollId));
+  if(!snap.exists()){toast('Payslip not found','err');return;}
+  const p = {...snap.data(), _id:snap.id};
+  _currentPayslipData = p;
+  ge('staffPayslipContent').innerHTML = buildFullPayslip(p);
+  openModal('staffPayslipModal');
+};
+
+window.printStaffPayslip = () => {
+  const p = _currentPayslipData; if(!p) return;
+  const w = window.open('','_blank','width=520,height=780');
+  w.document.write(buildPrintPayslip(p));
+  w.document.close();
+  setTimeout(()=>w.print(), 500);
+};
+
+window.markPayslipPaid = async () => {
+  if(!_currentPayslipData){return;}
+  await updateDoc(doc(db,'payroll',_currentPayslipData._id),{payStatus:'Paid',paidAt:new Date().toISOString(),paidBy:SP.name});
+  toast('✅ Marked as Paid','ok');
+  cModal('staffPayslipModal');
+  loadPayrollOverview();
+};
+
+window.markOnePaid = async (id) => {
+  await updateDoc(doc(db,'payroll',id),{payStatus:'Paid',paidAt:new Date().toISOString(),paidBy:SP.name});
+  toast('✅ Marked as Paid','ok');
+  loadPayrollOverview();
+};
+
+window.deletePayrollEntry = async (id) => {
+  if(!confirm('Delete this payroll entry?')) return;
+  await updateDoc(doc(db,'payroll',id),{deleted:true,deletedBy:'admin',deletedAt:new Date().toISOString()});
+  toast('Deleted','ok'); loadPayrollOverview();
+};
+
+window.markAllPayrollPaid = async (monthStr) => {
+  if(!confirm(`Mark ALL payroll for ${monthLabel(monthStr)} as Paid?`)) return;
+  const snap = await getDocs(query(collection(db,'payroll'),where('month','==',monthStr)));
+  await Promise.all(snap.docs.map(d=>updateDoc(doc(db,'payroll',d.id),{payStatus:'Paid',paidAt:new Date().toISOString(),paidBy:SP.name})));
+  toast(`✅ All ${snap.size} entries marked Paid!`,'ok');
+  loadPayrollOverview();
+};
+
+// ── BUILD PAYSLIP HTML (in-app view) ──
+function buildFullPayslip(p){
+  return`<div class="payslip-print">
+    <div class="payslip-print-hdr">
+      <div class="payslip-print-logo">
+        <div class="ico"><i class="fa fa-hospital"></i></div>
+        <div><div style="font-weight:700;font-size:.95rem">Loving Heart Hospital</div><div style="font-size:.72rem;color:var(--mu)">Management System</div></div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:.78rem;font-weight:700;color:var(--P)">PAYSLIP</div>
+        <div style="font-size:.7rem;color:var(--mu)">${monthLabel(p.month)}</div>
+      </div>
+    </div>
+    <div class="dgrid" style="margin-bottom:12px">
+      <div class="di"><span>Employee</span><strong>${p.staffName}</strong></div>
+      <div class="di"><span>Role</span><strong>${p.role}</strong></div>
+      <div class="di"><span>Department</span><strong>${p.dept||'—'}</strong></div>
+      <div class="di"><span>Pay Period</span><strong>${monthLabel(p.month)}</strong></div>
+      <div class="di"><span>Pay Date</span><strong>${p.payDate||'—'}</strong></div>
+      <div class="di"><span>Method</span><strong>${p.payMethod||'—'}</strong></div>
+      <div class="di"><span>Working Days</span><strong>${p.workingDays||0}</strong></div>
+      <div class="di"><span>Days Present</span><strong style="color:var(--A)">${p.presentDays||0}</strong></div>
+      <div class="di"><span>Days Absent</span><strong style="color:var(--D)">${p.absentDays||0}</strong></div>
+      <div class="di"><span>Status</span><strong><span class="pr-status-chip ${p.payStatus==='Paid'?'pr-paid':'pr-pending'}">${p.payStatus||'Pending'}</span></strong></div>
+    </div>
+    <div class="payslip-section-title earn">💰 Earnings</div>
+    <div class="payslip-line"><span>Basic Salary</span><span>${fmtN(p.basic)}</span></div>
+    <div class="payslip-line"><span>Housing Allowance</span><span>${fmtN(p.housing)}</span></div>
+    <div class="payslip-line"><span>Transport Allowance</span><span>${fmtN(p.transport)}</span></div>
+    <div class="payslip-line"><span>Medical Allowance</span><span>${fmtN(p.medical)}</span></div>
+    <div class="payslip-line"><span>Other Allowance</span><span>${fmtN(p.otherAllow)}</span></div>
+    ${p.bonusTotal?`<div class="payslip-line"><span>Bonus <span class="bonus-tag">BONUS</span></span><span style="color:var(--A)">${fmtN(p.bonusTotal)}</span></div>`:''}
+    <div class="payslip-line" style="font-weight:700"><span>Gross Salary</span><span>${fmtN(p.grossSalary)}</span></div>
+    <div class="payslip-section-title ded">📉 Deductions</div>
+    <div class="payslip-line"><span>Tax (PAYE)</span><span style="color:var(--D)">${fmtN(p.taxAmt)}</span></div>
+    <div class="payslip-line"><span>Pension</span><span style="color:var(--D)">${fmtN(p.pensionAmt)}</span></div>
+    <div class="payslip-line"><span>NHF</span><span style="color:var(--D)">${fmtN(p.nhfAmt||0)}</span></div>
+    <div class="payslip-line"><span>Absence Deduction</span><span style="color:var(--D)">${fmtN(p.absentDeduction)}</span></div>
+    <div class="payslip-line"><span>Late Deduction</span><span style="color:var(--D)">${fmtN(p.lateDeduction)}</span></div>
+    ${p.loanTotal?`<div class="payslip-line"><span>Loan/Advance <span class="loan-tag">LOAN</span></span><span style="color:var(--D)">${fmtN(p.loanTotal)}</span></div>`:''}
+    ${p.extraDed?`<div class="payslip-line"><span>Extra Deduction</span><span style="color:var(--D)">${fmtN(p.extraDed)}</span></div>`:''}
+    <div class="payslip-line" style="font-weight:700;color:var(--D)"><span>Total Deductions</span><span>${fmtN(p.totalDeductions)}</span></div>
+    <div class="payslip-net"><span>NET PAY</span><span>${fmtN(p.netPay)}</span></div>
+    <p style="font-size:.7rem;color:var(--mu);text-align:center;margin-top:10px">Generated by ${p.generatedBy||'System'} · ${p.generatedAt?p.generatedAt.slice(0,10):'—'}</p>
+  </div>`;
+}
+
+// ── PRINT PAYSLIP ──
+function buildPrintPayslip(p){
+  return`<!DOCTYPE html><html><head><title>Payslip - ${p.staffName}</title>
+  <style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:Arial,sans-serif;padding:28px;max-width:460px;margin:auto;color:#1a2740}
+  .hdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px;padding-bottom:14px;border-bottom:2px solid #0057b8}
+  .logo-ico{width:44px;height:44px;background:#0057b8;border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.1rem;margin-right:10px;flex-shrink:0}
+  .hdr-left{display:flex;align-items:center}.hdr-left h2{font-size:1rem;color:#0057b8}
+  .hdr-left p{font-size:.7rem;color:#6b7a99;margin-top:2px}
+  .hdr-right{text-align:right}.hdr-right .title{font-weight:700;color:#0057b8;font-size:.95rem}
+  .hdr-right .period{font-size:.75rem;color:#6b7a99}
+  .info-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:16px}
+  .info-item{background:#f0f4f8;border-radius:6px;padding:7px 10px}
+  .info-label{font-size:.65rem;text-transform:uppercase;letter-spacing:.3px;color:#6b7a99}
+  .info-val{font-size:.82rem;font-weight:600;margin-top:2px}
+  .sec-title{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;padding:6px 0;border-bottom:1px solid #dde4ed;margin:12px 0 6px}
+  .sec-title.earn{color:#00a878}.sec-title.ded{color:#e53935}
+  .row{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px dashed #eee;font-size:.8rem}
+  .row.bold{font-weight:700}.net{display:flex;justify-content:space-between;padding:10px 14px;background:linear-gradient(135deg,#00a878,#00876a);border-radius:8px;color:#fff;font-weight:700;font-size:1rem;margin-top:12px}
+  .status{display:inline-block;padding:2px 8px;border-radius:20px;font-size:.65rem;font-weight:700;background:${p.payStatus==='Paid'?'#e6f7ef':'#fff8e1'};color:${p.payStatus==='Paid'?'#1a7a4a':'#7a5e00'}}
+  .footer{text-align:center;margin-top:18px;font-size:.68rem;color:#aaa;border-top:1px solid #eee;padding-top:10px}
+  </style></head><body>
+  <div class="hdr">
+    <div class="hdr-left"><div class="logo-ico">🏥</div><div><h2>Loving Heart Hospital</h2><p>Hospital Management System</p></div></div>
+    <div class="hdr-right"><div class="title">PAYSLIP</div><div class="period">${monthLabel(p.month)}</div></div>
+  </div>
+  <div class="info-grid">
+    <div class="info-item"><div class="info-label">Employee</div><div class="info-val">${p.staffName}</div></div>
+    <div class="info-item"><div class="info-label">Role</div><div class="info-val">${p.role}</div></div>
+    <div class="info-item"><div class="info-label">Department</div><div class="info-val">${p.dept||'—'}</div></div>
+    <div class="info-item"><div class="info-label">Pay Period</div><div class="info-val">${monthLabel(p.month)}</div></div>
+    <div class="info-item"><div class="info-label">Pay Date</div><div class="info-val">${p.payDate||'—'}</div></div>
+    <div class="info-item"><div class="info-label">Status</div><div class="info-val"><span class="status">${p.payStatus||'Pending'}</span></div></div>
+    <div class="info-item"><div class="info-label">Working Days</div><div class="info-val">${p.workingDays||0}</div></div>
+    <div class="info-item"><div class="info-label">Present</div><div class="info-val">${p.presentDays||0} days</div></div>
+  </div>
+  <div class="sec-title earn">Earnings</div>
+  <div class="row"><span>Basic Salary</span><span>₦${Number(p.basic||0).toLocaleString()}</span></div>
+  <div class="row"><span>Housing Allowance</span><span>₦${Number(p.housing||0).toLocaleString()}</span></div>
+  <div class="row"><span>Transport Allowance</span><span>₦${Number(p.transport||0).toLocaleString()}</span></div>
+  <div class="row"><span>Medical Allowance</span><span>₦${Number(p.medical||0).toLocaleString()}</span></div>
+  <div class="row"><span>Other Allowance</span><span>₦${Number(p.otherAllow||0).toLocaleString()}</span></div>
+  ${p.bonusTotal?`<div class="row"><span>Bonus</span><span style="color:#00a878">₦${Number(p.bonusTotal||0).toLocaleString()}</span></div>`:''}
+  <div class="row bold"><span>Gross Salary</span><span>₦${Number(p.grossSalary||0).toLocaleString()}</span></div>
+  <div class="sec-title ded">Deductions</div>
+  <div class="row"><span>Tax (PAYE)</span><span style="color:#e53935">₦${Number(p.taxAmt||0).toLocaleString()}</span></div>
+  <div class="row"><span>Pension</span><span style="color:#e53935">₦${Number(p.pensionAmt||0).toLocaleString()}</span></div>
+  <div class="row"><span>NHF</span><span style="color:#e53935">₦${Number(p.nhfAmt||0).toLocaleString()}</span></div>
+  <div class="row"><span>Absence Deduction</span><span style="color:#e53935">₦${Number(p.absentDeduction||0).toLocaleString()}</span></div>
+  <div class="row"><span>Late Deduction</span><span style="color:#e53935">₦${Number(p.lateDeduction||0).toLocaleString()}</span></div>
+  ${p.loanTotal?`<div class="row"><span>Loan/Advance Repayment</span><span style="color:#e53935">₦${Number(p.loanTotal||0).toLocaleString()}</span></div>`:''}
+  ${p.extraDed?`<div class="row"><span>Extra Deduction</span><span style="color:#e53935">₦${Number(p.extraDed||0).toLocaleString()}</span></div>`:''}
+  <div class="row bold"><span>Total Deductions</span><span style="color:#e53935">₦${Number(p.totalDeductions||0).toLocaleString()}</span></div>
+  <div class="net"><span>NET PAY</span><span>₦${Number(p.netPay||0).toLocaleString()}</span></div>
+  <div class="footer">Generated by ${p.generatedBy||'System'} · ${p.generatedAt?p.generatedAt.slice(0,10):'—'} · Loving Heart Hospital Management System</div>
+  </body></html>`;
+}
+
+// ── PAYROLL HISTORY ──
+window.loadPayrollHistory = async () => {
+  const el = ge('payrollHistoryList'); if(!el) return;
+  el.innerHTML = '<div class="cr"><i class="fa fa-spinner fa-spin"></i></div>';
+  const snap = await getDocs(collection(db,'payrollRuns'));
+  if(snap.empty){ el.innerHTML='<div class="en">No payroll runs yet</div>'; return; }
+  const runs = snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(b.month||'').localeCompare(a.month||''));
+  el.innerHTML = runs.map(r=>`
+    <div class="icard">
+      <div class="crow">
+        <span style="font-weight:600">${monthLabel(r.month)}</span>
+        <span class="badge bg-ok">${r.staffCount||0} staff</span>
+      </div>
+      <div style="font-size:.8rem;color:var(--mu);margin:3px 0">
+        <i class="fa fa-calendar" style="margin-right:4px"></i>${r.payDate||'—'} ·
+        <i class="fa fa-credit-card" style="margin-left:4px;margin-right:4px"></i>${r.payMethod||'—'}
+      </div>
+      ${r.note?`<div style="font-size:.78rem;color:var(--mu)">${r.note}</div>`:''}
+      <div style="font-size:.72rem;color:var(--mu);margin-top:4px">Run by: ${r.generatedBy||'—'}</div>
+      <button class="bsm outline" style="margin-top:8px;font-size:.76rem" onclick="ge('prMonthSel').value='${r.month}';switchPayrollTab('overview',ge('ptab-overview'));loadPayrollOverview()">
+        <i class="fa fa-eye"></i> View Payroll
+      </button>
+    </div>`).join('');
+};
+
+// ── BONUSES & LOANS ──
+window.loadBLStaffDropdown = async () => {
+  const sel = ge('blStaff'); if(!sel) return;
+  const snap = await getDocs(collection(db,'staff'));
+  const staff = snap.docs.map(d=>({uid:d.id,...d.data()})).filter(d=>!d.deleted&&d.active!==false);
+  sel.innerHTML = '<option value="">Select staff…</option>' + staff.map(s=>`<option value="${s.uid}">${s.name} — ${s.role}</option>`).join('');
+};
+
+window.saveBonusLoan = async () => {
+  const staffUid=gv('blStaff'),type=gv('blType'),amount=parseFloat(gv('blAmount')),month=gv('blMonth'),note=gv('blNote');
+  if(!staffUid||!type||!amount||!month){toast('Fill all required fields','err');return;}
+  const staffDoc = await getDoc(doc(db,'staff',staffUid));
+  const staffName = staffDoc.exists()?staffDoc.data().name:'Unknown';
+  await addDoc(collection(db,'bonusLoan'),{staffUid,staffName,type,amount,month,note,createdBy:SP.name,createdAt:serverTimestamp()});
+  toast(`✅ ${type==='bonus'?'Bonus':'Loan/Deduction'} saved for ${staffName}`,'ok');
+  ge('blAmount').value=''; ge('blNote').value='';
+  loadBonusLoanList();
+};
+
+window.loadBonusLoanList = async () => {
+  const el = ge('bonusLoanList'); if(!el) return;
+  el.innerHTML = '<div class="cr"><i class="fa fa-spinner fa-spin"></i></div>';
+  const snap = await getDocs(collection(db,'bonusLoan'));
+  if(snap.empty){ el.innerHTML='<div class="en">No bonuses or loans recorded yet</div>'; return; }
+  const rows = snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(b.month||'').localeCompare(a.month||'')).slice(0,30);
+  const typeLabel={bonus:'🎁 Bonus',loan:'💳 Loan/Advance',extra_deduction:'📉 Extra Deduction'};
+  const typeCls={bonus:'bg-ok',loan:'bg-warn',extra_deduction:'bg-no'};
+  el.innerHTML=`<table class="dtab"><thead><tr><th>Staff</th><th>Type</th><th>Amount</th><th>Month</th><th>Note</th></tr></thead><tbody>`+
+  rows.map(r=>`<tr>
+    <td><b>${r.staffName}</b></td>
+    <td><span class="badge ${typeCls[r.type]||'bg-warn'}">${typeLabel[r.type]||r.type}</span></td>
+    <td style="font-weight:700;color:${r.type==='bonus'?'var(--A)':'var(--D)'}">${fmtN(r.amount)}</td>
+    <td>${monthLabel(r.month)}</td>
+    <td style="font-size:.76rem;color:var(--mu)">${r.note||'—'}</td>
+  </tr>`).join('')+`</tbody></table>`;
+};
+
+// ── EXPORT CSV ──
+window.exportPayrollCSV = async (monthStr) => {
+  const snap = await getDocs(query(collection(db,'payroll'),where('month','==',monthStr)));
+  if(snap.empty){toast('No payroll data to export','err');return;}
+  const rows = snap.docs.map(d=>d.data());
+  const headers = ['Name','Role','Dept','Gross Salary','Tax','Pension','NHF','Absent Deduction','Total Deductions','Net Pay','Status'];
+  const csv = [headers.join(','), ...rows.map(r=>[
+    `"${r.staffName}"`,r.role,r.dept||'',
+    r.grossSalary||0,r.taxAmt||0,r.pensionAmt||0,r.nhfAmt||0,r.absentDeduction||0,
+    r.totalDeductions||0,r.netPay||0,r.payStatus||'Pending'
+  ].join(','))].join('\n');
+  const blob = new Blob([csv],{type:'text/csv'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href=url; a.download=`Payroll_${monthStr}.csv`; a.click();
+  URL.revokeObjectURL(url);
+  toast('✅ CSV exported!','ok');
+};
+
+// ── STAFF: MY PAYSLIP (from attendance module) ──
+window.loadMyPayslips = async () => {
+  const el = ge('myPayslipList'); if(!el) return;
+  const monthStr = gv('myPayslipMonthSel');
+  if(!monthStr){el.innerHTML='<div class="en">Select a month above</div>';return;}
+  el.innerHTML='<div class="cr"><i class="fa fa-spinner fa-spin"></i></div>';
+  const pid=`${CU.uid}_${monthStr}`;
+  const snap=await getDoc(doc(db,'payroll',pid));
+  if(!snap.exists()){el.innerHTML='<div class="en">No payslip for this month yet. Contact Admin or HR.</div>';return;}
+  const p={...snap.data(),_id:snap.id};
+  _currentPayslipData=p;
+  el.innerHTML=buildFullPayslip(p)+`<button class="bsm primary" style="width:100%;margin-top:10px" onclick="printStaffPayslip()"><i class="fa fa-print"></i> Print Payslip</button>`;
+};
+
 
 // ─── TOAST ─────────────────────────────────────────────────────────────────
 window.toast=(msg,type="ok")=>{const t=document.createElement("div");t.className=`toast t-${type}`;t.innerHTML=`<i class="fa fa-${type==="ok"?"check-circle":"exclamation-circle"}"></i> ${msg}`;ge("toasts").appendChild(t);setTimeout(()=>t.classList.add("show"),10);setTimeout(()=>{t.classList.remove("show");setTimeout(()=>t.remove(),300);},3500);};
