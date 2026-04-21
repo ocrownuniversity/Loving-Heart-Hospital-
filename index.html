@@ -2580,10 +2580,14 @@ function buildDeptShiftTable(deptKey, deptRules, assignedShift){
       :`<span style="background:var(--bg);color:var(--mu);font-size:.68rem;font-weight:700;padding:2px 8px;border-radius:20px">Inactive</span>`;
     const assignBadge=isAssigned
       ?`<span style="background:var(--P);color:#fff;font-size:.65rem;font-weight:700;padding:2px 8px;border-radius:20px;margin-left:5px">My Shift</span>`:"";
+    const icon=key==="morning"?"🌅":key==="afternoon"?"☀️":"🌙";
     return`<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:${active?"#f0f7ff":isAssigned?"#f8fff8":"var(--bg)"};border-radius:var(--rs);margin-bottom:7px;border:1px solid ${active?"var(--P)":isAssigned?"var(--A)":"var(--brd)"}">
-      <div>
-        <div style="font-weight:600;font-size:.88rem">${label} Shift ${assignBadge}</div>
-        <div style="font-size:.78rem;color:var(--mu);margin-top:2px"><i class="fa fa-clock" style="margin-right:4px"></i>${fmtMins(start)} – ${fmtMins(end)}</div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="font-size:1.2rem">${icon}</span>
+        <div>
+          <div style="font-weight:600;font-size:.88rem">${label} Shift ${assignBadge}</div>
+          <div style="font-size:.78rem;color:var(--mu);margin-top:2px"><i class="fa fa-clock" style="margin-right:4px"></i>${fmtMins(start)} – ${fmtMins(end)}</div>
+        </div>
       </div>
       <div>${activeBadge}</div>
     </div>`;
@@ -2669,23 +2673,25 @@ async function checkTodayAttendance(){
     const dKey=Object.keys(SHIFT_RULES).find(k=>dept.toLowerCase().includes(k.toLowerCase()));
     deptRules=dKey?SHIFT_RULES[dKey]:null;
   }
-  // Generic fallback times
-  const fallback={morning:{label:"Morning",start:8*60,end:14*60},afternoon:{label:"Afternoon",start:14*60,end:20*60},night:{label:"Night",start:20*60,end:8*60}};
+  // Generic fallback if dept not in rules
+  const fallback={morning:{label:"Morning",start:8*60,end:14*60},afternoon:{label:"Afternoon",start:14*60,end:20*60}};
   const rules=deptRules||fallback;
-  const mEl=ge("shiftTimeMorning"),aEl=ge("shiftTimeAfternoon"),nEl=ge("shiftTimeNight");
-  if(mEl)mEl.textContent=rules.morning?`${fmtMins(rules.morning.start)}–${fmtMins(rules.morning.end)}`:"";
-  if(aEl)aEl.textContent=rules.afternoon?`${fmtMins(rules.afternoon.start)}–${fmtMins(rules.afternoon.end)}`:"N/A for dept";
-  if(nEl)nEl.textContent=rules.night?`${fmtMins(rules.night.start)}–${fmtMins(rules.night.end)}`:"N/A for dept";
-  // Grey out shift options not available for this dept
+
+  // Update time labels and enable/disable cards based on dept rules
   ["morning","afternoon","night"].forEach(s=>{
     const card=ge("shiftOpt"+s.charAt(0).toUpperCase()+s.slice(1));
+    const tEl=ge("shiftTime"+s.charAt(0).toUpperCase()+s.slice(1));
     if(!card)return;
-    if(!rules[s]){
-      card.style.opacity="0.4";card.style.pointerEvents="none";
-      const tEl=ge("shiftTime"+s.charAt(0).toUpperCase()+s.slice(1));
-      if(tEl)tEl.textContent="Not available";
+    if(rules[s]){
+      card.style.opacity="1";
+      card.style.pointerEvents="auto";
+      card.title="";
+      if(tEl)tEl.textContent=`${fmtMins(rules[s].start)}–${fmtMins(rules[s].end)}`;
     } else {
-      card.style.opacity="1";card.style.pointerEvents="auto";
+      card.style.opacity="0.35";
+      card.style.pointerEvents="none";
+      card.title="Not available for your department";
+      if(tEl)tEl.textContent="Not available";
     }
   });
 
@@ -2742,14 +2748,21 @@ async function getGPS(){
 // Each dept maps to available shifts. start/end in minutes from midnight.
 // Night shifts that cross midnight: end < start means it wraps to next day.
 const SHIFT_RULES = {
-  "Nursing":      { morning:{label:"Morning",start:8*60,end:18*60}, night:{label:"Night",start:18*60,end:8*60} },
-  "Pharmacy":     { morning:{label:"Morning",start:7*60+30,end:17*60+30}, afternoon:{label:"Afternoon",start:10*60,end:20*60} },
-  "Laboratory":   { morning:{label:"Morning",start:8*60,end:17*60}, afternoon:{label:"Afternoon",start:10*60,end:20*60} },
-  "Admin":        { morning:{label:"Morning",start:8*60,end:18*60}, afternoon:{label:"Afternoon",start:11*60,end:20*60} },
-  "HMO":          { morning:{label:"Morning",start:8*60,end:18*60}, afternoon:{label:"Afternoon",start:11*60,end:20*60} },
-  "Records":      { morning:{label:"Morning",start:8*60,end:18*60}, afternoon:{label:"Afternoon",start:11*60,end:20*60} },
-  "Orderly":      { morning:{label:"Morning",start:7*60,end:16*60}, afternoon:{label:"Afternoon",start:11*60,end:20*60} },
-  "Cleaning":     { morning:{label:"Morning",start:7*60,end:16*60}, afternoon:{label:"Afternoon",start:11*60,end:20*60} },
+  // Nursing: Morning 8am–6pm | Night 6pm–8am (crosses midnight)
+  "Nursing":    { morning:{label:"Morning",start:8*60,end:18*60}, night:{label:"Night",start:18*60,end:8*60} },
+  // Pharmacy: Morning 7:30am–5:30pm | Afternoon 10am–8pm
+  "Pharmacy":   { morning:{label:"Morning",start:7*60+30,end:17*60+30}, afternoon:{label:"Afternoon",start:10*60,end:20*60} },
+  // Laboratory: Morning 8am–5pm | Afternoon 10am–8pm
+  "Laboratory": { morning:{label:"Morning",start:8*60,end:17*60}, afternoon:{label:"Afternoon",start:10*60,end:20*60} },
+  // Admin: Morning 8am–6pm | Afternoon 11am–8pm
+  "Admin":      { morning:{label:"Morning",start:8*60,end:18*60}, afternoon:{label:"Afternoon",start:11*60,end:20*60} },
+  // HMO Officers: Morning 8am–6pm | Afternoon 11am–8pm
+  "HMO":        { morning:{label:"Morning",start:8*60,end:18*60}, afternoon:{label:"Afternoon",start:11*60,end:20*60} },
+  // Records: Morning 8am–6pm | Afternoon 11am–8pm
+  "Records":    { morning:{label:"Morning",start:8*60,end:18*60}, afternoon:{label:"Afternoon",start:11*60,end:20*60} },
+  // Orderly / Cleaning: Morning 7am–4pm | Afternoon 11am–8pm
+  "Orderly":    { morning:{label:"Morning",start:7*60,end:16*60}, afternoon:{label:"Afternoon",start:11*60,end:20*60} },
+  "Cleaning":   { morning:{label:"Morning",start:7*60,end:16*60}, afternoon:{label:"Afternoon",start:11*60,end:20*60} },
 };
 // Allow clock-in within 30 mins before shift start, and up to 60 mins after shift start (grace for late)
 const SHIFT_EARLY_BUFFER = 30; // mins before shift
