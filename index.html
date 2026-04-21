@@ -461,10 +461,30 @@ textarea.fi{resize:vertical;min-height:80px}
       <div class="mhdr"><h2><i class="fa fa-pills" style="color:var(--P)"></i> Pharmacy</h2><button class="bsm outline" onclick="loadRx()"><i class="fa fa-rotate"></i> Refresh</button></div>
       <div class="sc-mb"><h4 class="ssub">💊 Pending Prescriptions from Doctors</h4><div id="pharmRx"></div></div>
       <div class="sc-mb">
-        <h4 class="ssub">📦 Drug Stock</h4>
-        <div class="frow"><div class="fg"><label class="fl">Drug Name</label><input id="sdrug" class="fi" placeholder="Drug name"/></div><div class="fg"><label class="fl">Qty</label><input id="sqty" class="fi" type="number" placeholder="Qty"/></div></div>
-        <button class="bsm primary" onclick="addStock()"><i class="fa fa-plus"></i> Update Stock</button>
-        <h4 class="ssub">Current Stock</h4><div id="stockList"></div>
+        <h4 class="ssub">📦 Drug Stock & Batch Management</h4>
+        <!-- Expiry alerts banner -->
+        <div id="expiryAlertBanner" style="display:none;background:#fce8e8;border:1px solid var(--D);border-radius:var(--rs);padding:10px 13px;margin-bottom:12px;font-size:.82rem;color:var(--D)">
+          <i class="fa fa-triangle-exclamation" style="margin-right:6px"></i><span id="expiryAlertText"></span>
+        </div>
+        <div id="nearExpiryBanner" style="display:none;background:#fff8e1;border:1px solid var(--W);border-radius:var(--rs);padding:10px 13px;margin-bottom:12px;font-size:.82rem;color:#7a5e00">
+          <i class="fa fa-clock" style="margin-right:6px"></i><span id="nearExpiryText"></span>
+        </div>
+        <!-- Add stock form with batch fields -->
+        <div style="background:var(--bg);border-radius:var(--rs);padding:12px;margin-bottom:12px">
+          <div style="font-size:.78rem;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">Add / Restock Drug</div>
+          <div class="frow">
+            <div class="fg"><label class="fl">Drug Name *</label><input id="sdrug" class="fi" placeholder="Drug name"/></div>
+            <div class="fg"><label class="fl">Quantity *</label><input id="sqty" class="fi" type="number" placeholder="Qty" min="1"/></div>
+          </div>
+          <div class="frow">
+            <div class="fg"><label class="fl">Batch Number</label><input id="sbatch" class="fi" placeholder="e.g. BTH-2025-001"/></div>
+            <div class="fg"><label class="fl">Expiry Date</label><input id="sexpiry" class="fi" type="date"/></div>
+          </div>
+          <div class="fg"><label class="fl">Unit Price (₦)</label><input id="sprice" class="fi" type="number" placeholder="0.00" step="0.01"/></div>
+          <button class="bsm primary" onclick="addStock()"><i class="fa fa-plus"></i> Add to Stock</button>
+        </div>
+        <h4 class="ssub">Current Stock (FEFO Order)</h4>
+        <div id="stockList"></div>
       </div>
     </div>
 
@@ -808,18 +828,30 @@ textarea.fi{resize:vertical;min-height:80px}
 </div></div>
 
 <div id="billModal" class="movl"><div class="modal">
-  <div class="mhd"><h3><i class="fa fa-file-invoice-dollar" style="color:var(--P)"></i> Generate Bill</h3><button class="mcls" onclick="cModal('billModal')">✕</button></div>
-  <div class="fg"><label class="fl">Patient ID *</label><input id="bPid" class="fi" placeholder="MCH-0001"/></div>
-  <div class="frow"><div class="fg"><label class="fl">Service</label><input id="bDesc" class="fi" placeholder="e.g. Consultation"/></div><div class="fg"><label class="fl">Amount (₦)</label><input id="bAmt" class="fi" type="number" placeholder="0"/></div></div>
+  <div class="mhd"><h3><i class="fa fa-file-invoice-dollar" style="color:var(--P)"></i> Generate Bill / Receipt</h3><button class="mcls" onclick="cModal('billModal')">✕</button></div>
+  <div class="frow">
+    <div class="fg"><label class="fl">Patient / Customer Name *</label><input id="bCust" class="fi" placeholder="Full name"/></div>
+    <div class="fg"><label class="fl">Patient ID</label><input id="bPid" class="fi" placeholder="MCH-0001 (optional)"/></div>
+  </div>
+  <div class="frow"><div class="fg"><label class="fl">Item / Service *</label><input id="bDesc" class="fi" placeholder="e.g. Paracetamol 500mg"/></div><div class="fg"><label class="fl">Qty</label><input id="bQty" class="fi" type="number" placeholder="1" min="1" value="1"/></div></div>
+  <div class="fg"><label class="fl">Unit Price (₦) *</label><input id="bAmt" class="fi" type="number" placeholder="0"/></div>
   <button class="bsm outline" onclick="addBI()"><i class="fa fa-plus"></i> Add Item</button>
   <div id="billItems" style="margin:12px 0;min-height:24px"></div><hr class="dv"/>
-  <div class="frow"><div class="fg"><label class="fl">Method</label><select id="bMeth" class="fsel"><option>Cash</option><option>POS</option><option>Transfer</option></select></div><div class="fg"><label class="fl">Status</label><select id="bStat" class="fsel"><option>Paid</option><option>Unpaid</option><option>Partially Paid</option></select></div></div>
-  <button class="btnP" onclick="genBill()"><i class="fa fa-print"></i> Generate &amp; Print</button>
+  <div class="frow"><div class="fg"><label class="fl">Payment Method</label><select id="bMeth" class="fsel"><option>Cash</option><option>POS</option><option>Transfer</option></select></div><div class="fg"><label class="fl">Status</label><select id="bStat" class="fsel"><option>Paid</option><option>Unpaid</option><option>Partially Paid</option></select></div></div>
+  <button class="btnP" onclick="genBill()"><i class="fa fa-receipt"></i> Generate &amp; View Receipt</button>
 </div></div>
 
 
 
-<!-- PAYROLL GENERATE MODAL -->
+<!-- RECEIPT PREVIEW MODAL -->
+<div id="receiptModal" class="movl"><div class="modal" style="max-width:420px">
+  <div class="mhd"><h3><i class="fa fa-receipt" style="color:var(--P)"></i> Receipt</h3><button class="mcls" onclick="cModal('receiptModal')">✕</button></div>
+  <div id="receiptPreview"></div>
+  <div style="display:flex;gap:9px;margin-top:14px">
+    <button class="bsm outline" style="flex:1" onclick="cModal('receiptModal')">Close</button>
+    <button class="btnP" style="flex:1" onclick="printReceipt()"><i class="fa fa-print"></i> Print</button>
+  </div>
+</div></div>
 <div id="payrollGenModal" class="movl"><div class="modal">
   <div class="mhd"><h3><i class="fa fa-cog" style="color:var(--P)"></i> Run Monthly Payroll</h3><button class="mcls" onclick="cModal('payrollGenModal')">✕</button></div>
   <div style="background:var(--PL);border-radius:var(--rs);padding:12px;margin-bottom:14px;font-size:.84rem;color:var(--P)">
@@ -1514,123 +1546,320 @@ window.loadRx=async()=>{
 };
 window.dispense=async(id,drug,pid,dosage)=>{
   if(!canDo("dispense")){toast("⛔ Only Pharmacists can dispense drugs","err");return;}
+
   // 1. Mark prescription as dispensed
   await updateDoc(doc(db,"prescriptions",id),{dispensed:true,dispensedBy:SP.name,dispensedAt:serverTimestamp()});
 
-  // 2. Deduct from drug stock automatically
-  // Try to match drug name (strip dosage like "500mg" from end for matching)
-  const drugBaseName = drug.trim();
-  const stockSnap = await getDocs(collection(db,"drugStock"));
-  let stockDeducted = false;
-  let stockMsg = "";
-  let lowStockWarn = false;
+  // 2. FEFO deduction — find earliest expiring batch with qty > 0
+  const drugBaseName=drug.trim();
+  const batchSnap=await getDocs(query(collection(db,"drugBatches"),where("active","==",true)));
+  const today_=new Date();today_.setHours(0,0,0,0);
 
-  // Find best matching stock item (case-insensitive partial match)
-  const match = stockSnap.docs.find(d => {
-    const sName = (d.data().name||"").toLowerCase();
-    const dName = drugBaseName.toLowerCase();
-    return sName===dName || sName.includes(dName) || dName.includes(sName);
+  // Match batches for this drug (case-insensitive partial)
+  let matchedBatches=batchSnap.docs.filter(d=>{
+    const n=(d.data().name||"").toLowerCase();
+    const dn=drugBaseName.toLowerCase();
+    return(n===dn||n.includes(dn)||dn.includes(n))&&(d.data().qty||0)>0;
   });
 
-  if(match){
-    const currentQty = match.data().qty || 0;
-    const newQty = Math.max(0, currentQty - 1); // deduct 1 unit dispensed
-    await updateDoc(doc(db,"drugStock",match.id),{
-      qty: newQty,
-      lastDispensed: drug,
-      lastDispensedAt: serverTimestamp(),
-      lastDispensedBy: SP.name
-    });
-    stockDeducted = true;
-    stockMsg = ` | Stock: ${currentQty} → ${newQty}`;
-    // Warn if stock is low (5 or less)
-    if(newQty <= 5){
-      lowStockWarn = true;
-      await sendNotif(["Admin","Pharmacist"],"rx",
-        `⚠️ Low Stock Alert: ${drug}`,
-        `Only ${newQty} unit(s) of ${drug} remaining in stock. Please restock soon.`,"");
+  // Sort FEFO — earliest expiry first, no-expiry batches last
+  matchedBatches.sort((a,b)=>{
+    const ae=a.data().expiry,be=b.data().expiry;
+    if(!ae&&!be)return 0;if(!ae)return 1;if(!be)return -1;
+    return new Date(ae)-new Date(be);
+  });
+
+  let stockDeducted=false,stockMsg="",lowStockWarn=false,expiredWarn=false,batchUsed=null;
+
+  if(matchedBatches.length>0){
+    const batch=matchedBatches[0];
+    const bd=batch.data();
+    const newQty=Math.max(0,(bd.qty||0)-1);
+    batchUsed=bd.batchNo||"—";
+
+    // Check if batch is expired — allow usage but notify
+    if(bd.expiry){
+      const expDate=new Date(bd.expiry);
+      if(expDate<today_){
+        expiredWarn=true;
+        await sendNotif(["Admin","Pharmacist"],"rx",
+          `🚨 Expired Batch Dispensed: ${drug}`,
+          `Batch ${batchUsed} of ${drug} is EXPIRED (${bd.expiry}). Dispensed for patient ${pid} by ${SP.name}. Please review.`,"");
+      }
     }
-    // Warn if out of stock
-    if(newQty === 0){
-      await sendNotif(["Admin","Pharmacist"],"rx",
-        `🚨 OUT OF STOCK: ${drug}`,
-        `${drug} is now completely out of stock! Immediate restocking required.`,"");
+
+    await updateDoc(doc(db,"drugBatches",batch.id),{
+      qty:newQty,lastDispensedAt:serverTimestamp(),lastDispensedBy:SP.name
+    });
+    stockDeducted=true;
+    stockMsg=` | Batch: ${batchUsed} | Stock: ${bd.qty}→${newQty}`;
+
+    // Update legacy drugStock total
+    const legSnap=await getDocs(query(collection(db,"drugStock"),where("name","==",bd.name)));
+    if(!legSnap.empty){
+      const legQty=legSnap.docs[0].data().qty||0;
+      const legNew=Math.max(0,legQty-1);
+      await updateDoc(doc(db,"drugStock",legSnap.docs[0].id),{qty:legNew,updatedAt:serverTimestamp()});
+      if(legNew<=5){
+        lowStockWarn=true;
+        await sendNotif(["Admin","Pharmacist"],"rx",`⚠️ Low Stock: ${drug}`,`Only ${legNew} unit(s) of ${drug} remaining. Restock soon.`,"");
+      }
+      if(legNew===0)await sendNotif(["Admin","Pharmacist"],"rx",`🚨 OUT OF STOCK: ${drug}`,`${drug} is now completely out of stock!`,"");
     }
   } else {
-    stockMsg = " | ⚠️ Not found in stock records";
+    stockMsg=" | ⚠️ No batch found in stock";
   }
 
-  // 3. Send notification to doctor and nurse
+  // 3. Notify doctor/nurse/admin
   await sendNotif(["Doctor","Nurse","Admin"],"rx","✅ Prescription Dispensed",
     `${drug} dispensed for patient ${pid} by ${SP.name} (Pharmacy)${stockMsg}`,pid);
 
   // 4. Add to patient record
   await addDoc(collection(db,"records"),{
     pid,type:"rx",tag:"Prescription Dispensed",role:"pharmacy",
-    body:`💊 ${drug} — Dispensed by ${SP.name} (Pharmacy)\n${dosage||""}${stockDeducted?("\nStock deducted automatically"+stockMsg):"\n⚠️ Drug not found in stock inventory"}`,
+    body:`💊 ${drug} — Dispensed by ${SP.name}\n${dosage||""}${batchUsed?"\nBatch: "+batchUsed:""}${stockDeducted?"\nFEFO deduction applied"+stockMsg:"\n⚠️ Not found in batch inventory"}${expiredWarn?"\n🚨 WARNING: Expired batch used!":""}`,
     by:SP.name,byRole:SP.role,ts:serverTimestamp()
   });
 
-  if(lowStockWarn) toast(`⚠️ Low stock alert sent for ${drug}!`,"err");
-  else toast(drug+" dispensed & stock updated!","ok");
-  loadRx();
-  loadStock(); // refresh stock display
+  if(expiredWarn)toast(`⚠️ Dispensed from EXPIRED batch ${batchUsed}! Admin notified.`,"err");
+  else if(lowStockWarn)toast(`⚠️ Low stock alert for ${drug}!`,"err");
+  else toast(`${drug} dispensed (Batch: ${batchUsed||"—"})!`,"ok");
+  loadRx();loadStock();
 };
 window.addStock=async()=>{
   if(!canDo("manageStock")){toast("⛔ Only Pharmacists can manage drug stock","err");return;}
   const name=gv("sdrug"),qty=parseInt(gv("sqty"));
+  const batchNo=gv("sbatch")||("BTH-"+Date.now().toString(36).toUpperCase());
+  const expiry=gv("sexpiry")||"";
+  const price=parseFloat(gv("sprice"))||0;
   if(!name||isNaN(qty)||qty<=0){toast("Enter drug name and a valid quantity","err");return;}
+
+  // Add as a new batch document under drugBatches collection (FEFO)
+  await addDoc(collection(db,"drugBatches"),{
+    name,qty,batchNo,expiry,price,
+    addedBy:SP.name,addedAt:serverTimestamp(),
+    active:true
+  });
+
+  // Also update the legacy drugStock total for backward compat
   const q2=query(collection(db,"drugStock"),where("name","==",name));
   const s=await getDocs(q2);
   if(s.empty){
     await addDoc(collection(db,"drugStock"),{name,qty,updatedAt:serverTimestamp(),addedBy:SP.name});
-    toast(`✅ ${name} added to stock — Qty: ${qty}`,"ok");
   } else {
     const oldQty=s.docs[0].data().qty||0;
-    const newQty=oldQty+qty;
-    await updateDoc(doc(db,"drugStock",s.docs[0].id),{qty:newQty,updatedAt:serverTimestamp(),lastRestockedBy:SP.name});
-    toast(`✅ ${name} restocked — ${oldQty} + ${qty} = ${newQty} units`,"ok");
+    await updateDoc(doc(db,"drugStock",s.docs[0].id),{qty:oldQty+qty,updatedAt:serverTimestamp(),lastRestockedBy:SP.name});
   }
-  ge("sdrug").value="";ge("sqty").value="";
+
+  toast(`✅ ${name} — ${qty} units added (Batch: ${batchNo}${expiry?" | Expiry: "+expiry:""})`, "ok");
+  ge("sdrug").value="";ge("sqty").value="";ge("sbatch").value="";ge("sexpiry").value="";ge("sprice").value="";
   loadStock();
 };
 window.loadStock=async()=>{
   const el=ge("stockList");if(!el)return;
-  const s=await getDocs(collection(db,"drugStock"));
-  if(s.empty){el.innerHTML='<div class="en">No stock records<br><small>Add drugs using the form above</small></div>';return;}
-  const rows=s.docs.map(d=>d.data()).sort((a,b)=>a.qty-b.qty); // show lowest stock first
-  el.innerHTML=`<table class="dtab"><thead><tr><th>Drug / Item</th><th>In Stock</th><th>Status</th></tr></thead><tbody>`+
-    rows.map(r=>{
+  el.innerHTML='<div class="cr"><i class="fa fa-spinner fa-spin"></i></div>';
+
+  // Load all active batches
+  const batchSnap=await getDocs(query(collection(db,"drugBatches"),where("active","==",true)));
+  const today_=new Date();today_.setHours(0,0,0,0);
+  const soon=new Date(today_);soon.setDate(soon.getDate()+30);
+
+  let expiredDrugs=[],nearExpDrugs=[];
+
+  // Group by drug name, sort batches FEFO (earliest expiry first)
+  const byName={};
+  batchSnap.docs.forEach(d=>{
+    const r={id:d.id,...d.data()};
+    if(!byName[r.name])byName[r.name]=[];
+    byName[r.name].push(r);
+  });
+  Object.keys(byName).forEach(name=>{
+    byName[name].sort((a,b)=>{
+      if(!a.expiry&&!b.expiry)return 0;
+      if(!a.expiry)return 1;
+      if(!b.expiry)return -1;
+      return new Date(a.expiry)-new Date(b.expiry);
+    });
+  });
+
+  if(!Object.keys(byName).length){
+    el.innerHTML='<div class="en">No stock records<br><small>Add drugs using the form above</small></div>';
+    ge("expiryAlertBanner").style.display="none";
+    ge("nearExpiryBanner").style.display="none";
+    return;
+  }
+
+  let html='<table class="dtab"><thead><tr><th>Drug</th><th>Batch</th><th>Qty</th><th>Expiry</th><th>Status</th></tr></thead><tbody>';
+  Object.entries(byName).forEach(([name,batches])=>{
+    batches.forEach(r=>{
       const qty=r.qty||0;
-      let status="",color="";
-      if(qty===0){status="OUT OF STOCK";color="var(--D)";}
-      else if(qty<=5){status="⚠️ Low Stock";color="var(--W)";}
-      else if(qty<=10){status="Running Low";color="#f57c00";}
-      else{status="✓ Available";color="var(--A)";}
-      return`<tr>
-        <td><b>${r.name}</b></td>
-        <td style="font-size:1.1rem;font-weight:700;color:${qty===0?"var(--D)":qty<=5?"var(--W)":"var(--tx)"}">${qty}</td>
-        <td><span style="font-size:.75rem;font-weight:700;color:${color}">${status}</span></td>
+      let expiryStr="—",expiryStatus="",rowStyle="",expiryColor="";
+      if(r.expiry){
+        const expDate=new Date(r.expiry);
+        const daysLeft=Math.ceil((expDate-today_)/(1000*60*60*24));
+        expiryStr=expDate.toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric"});
+        if(daysLeft<=0){
+          expiryStatus=`<span style="background:#fce8e8;color:var(--D);font-size:.7rem;font-weight:700;padding:2px 8px;border-radius:20px">🚨 EXPIRED</span>`;
+          rowStyle="background:#fff5f5";expiryColor="var(--D)";
+          expiredDrugs.push(`${name} (${r.batchNo||"—"}) expired ${Math.abs(daysLeft)}d ago`);
+        } else if(daysLeft<=30){
+          expiryStatus=`<span style="background:#fff8e1;color:#7a5e00;font-size:.7rem;font-weight:700;padding:2px 8px;border-radius:20px">⚠️ ${daysLeft}d left</span>`;
+          rowStyle="background:#fffdf0";expiryColor="#b45309";
+          nearExpDrugs.push(`${name} (${r.batchNo||"—"}) expires in ${daysLeft} days`);
+        } else {
+          expiryStatus=`<span style="background:#e6f7ef;color:#1a7a4a;font-size:.7rem;font-weight:700;padding:2px 8px;border-radius:20px">✓ Good</span>`;
+        }
+      }
+      let qtyStatus="";
+      if(qty===0)qtyStatus=`<br><span style="font-size:.68rem;color:var(--D);font-weight:700">OUT OF STOCK</span>`;
+      else if(qty<=5)qtyStatus=`<br><span style="font-size:.68rem;color:var(--W);font-weight:700">⚠️ Low</span>`;
+      html+=`<tr style="${rowStyle}">
+        <td><b>${name}</b>${r.price?`<br><small style="color:var(--mu)">₦${Number(r.price).toLocaleString()}/unit</small>`:""}${qtyStatus}</td>
+        <td style="font-size:.75rem;color:var(--mu)">${r.batchNo||"—"}</td>
+        <td style="font-weight:700;color:${qty===0?"var(--D)":qty<=5?"var(--W)":"var(--tx)"}">${qty}</td>
+        <td style="font-size:.78rem;color:${expiryColor||"var(--tx)"}">${expiryStr}</td>
+        <td>${expiryStatus||`<span style="background:var(--bg);color:var(--mu);font-size:.7rem;font-weight:600;padding:2px 8px;border-radius:20px">${qty===0?"Empty":qty<=5?"Low":"OK"}</span>`}</td>
       </tr>`;
-    }).join("")+`</tbody></table>
-    <p style="font-size:.75rem;color:var(--mu);margin-top:8px"><i class="fa fa-circle-info"></i> Stock is automatically deducted when pharmacy dispenses drugs</p>`;
+    });
+  });
+  html+='</tbody></table><p style="font-size:.74rem;color:var(--mu);margin-top:8px"><i class="fa fa-circle-info"></i> FEFO order — earliest expiry batches dispensed first</p>';
+  el.innerHTML=html;
+
+  // Show expiry banners
+  const expBanner=ge("expiryAlertBanner"),nearBanner=ge("nearExpiryBanner");
+  if(expiredDrugs.length&&expBanner){
+    expBanner.style.display="block";
+    ge("expiryAlertText").textContent=`${expiredDrugs.length} expired batch(es): ${expiredDrugs.slice(0,3).join("; ")}${expiredDrugs.length>3?" & more":""}. Usage allowed but notify admin.`;
+  } else if(expBanner){expBanner.style.display="none";}
+  if(nearExpDrugs.length&&nearBanner){
+    nearBanner.style.display="block";
+    ge("nearExpiryText").textContent=`${nearExpDrugs.length} batch(es) near expiry: ${nearExpDrugs.slice(0,3).join("; ")}${nearExpDrugs.length>3?" & more":""}.`;
+  } else if(nearBanner){nearBanner.style.display="none";}
 };
 
 // ─── BILLING ──────────────────────────────────────────────────────────────
-window.addBI=()=>{const desc=gv("bDesc"),amt=parseFloat(gv("bAmt"));if(!desc||isNaN(amt)){toast("Enter description and amount","err");return;}BI.push({desc,amount:amt});renderBI();ge("bDesc").value="";ge("bAmt").value="";};
+window.addBI=()=>{
+  const desc=gv("bDesc"),qty=parseInt(ge("bQty")?.value)||1,unitAmt=parseFloat(gv("bAmt"));
+  if(!desc||isNaN(unitAmt)){toast("Enter item and unit price","err");return;}
+  const amount=unitAmt*qty;
+  BI.push({desc,qty,unitAmt,amount});
+  renderBI();
+  ge("bDesc").value="";ge("bAmt").value="";
+  if(ge("bQty"))ge("bQty").value="1";
+};
 window.remBI=i=>{BI.splice(i,1);renderBI();};
-function renderBI(){const el=ge("billItems");const tot=BI.reduce((a,b)=>a+b.amount,0);el.innerHTML=BI.map((b,i)=>`<div class="birow"><span style="flex:1">${b.desc}</span><span>₦${b.amount.toLocaleString()}</span><button class="btn-ic danger" onclick="remBI(${i})"><i class="fa fa-times"></i></button></div>`).join("")+(BI.length?`<div class="btotal">Total: <strong>₦${tot.toLocaleString()}</strong></div>`:"");}
+function renderBI(){
+  const el=ge("billItems");
+  const tot=BI.reduce((a,b)=>a+b.amount,0);
+  el.innerHTML=BI.map((b,i)=>`<div class="birow">
+    <span style="flex:1"><b>${b.desc}</b> <span style="color:var(--mu);font-size:.8rem">${b.qty||1} × ₦${(b.unitAmt||b.amount).toLocaleString()}</span></span>
+    <span style="font-weight:600">₦${b.amount.toLocaleString()}</span>
+    <button class="btn-ic danger" onclick="remBI(${i})"><i class="fa fa-times"></i></button>
+  </div>`).join("")+(BI.length?`<div class="btotal" style="margin-top:8px;font-size:.95rem">Total: <strong>₦${tot.toLocaleString()}</strong></div>`:"");
+}
 window.genBill=async()=>{
   if(!canDo("bill")){toast("⛔ Only Receptionists can generate bills","err");return;}
-  const pid=gv("bPid"),meth=gv("bMeth"),stat=gv("bStat");if(!pid||!BI.length){toast("Enter patient ID and add items","err");return;}
+  const cust=gv("bCust"),pid=gv("bPid"),meth=gv("bMeth"),stat=gv("bStat");
+  if(!cust||!BI.length){toast("Enter customer name and add items","err");return;}
   const tot=BI.reduce((a,b)=>a+b.amount,0);
   const rNo="RCP-"+Date.now().toString(36).toUpperCase();
-  const bd={receiptNo:rNo,patientId:pid,items:[...BI],total:tot,method:meth,status:stat,createdBy:SP.name,date:today(),createdAt:serverTimestamp()};
-  await addDoc(collection(db,"bills"),bd);toast("Bill: "+rNo,"ok");
-  BI=[];renderBI();ge("bPid").value="";printR(bd);cModal("billModal");loadBills();
+  const bd={receiptNo:rNo,customerName:cust,patientId:pid||"",items:[...BI],total:tot,method:meth,status:stat,createdBy:SP.name,date:today(),createdAt:serverTimestamp()};
+  await addDoc(collection(db,"bills"),bd);
+  BI=[];renderBI();ge("bCust").value="";ge("bPid").value="";
+  cModal("billModal");
+  showReceipt(bd);
+  loadBills();
 };
-function printR(b){const w=window.open("","_blank","width=420,height=600");w.document.write(`<!DOCTYPE html><html><head><title>Receipt</title><style>*{box-sizing:border-box}body{font-family:Arial;padding:24px;max-width:340px;margin:auto}h2{text-align:center;color:#0057b8}.row{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px dashed #ddd;font-size:14px}.tot{font-weight:700;display:flex;justify-content:space-between;margin-top:8px}.info{font-size:13px;margin:4px 0}hr{border:none;border-top:2px solid #0057b8;margin:12px 0}.footer{text-align:center;margin-top:20px;font-size:12px;color:#999}</style></head><body><h2>Loving Heart Hospital</h2><hr/><p class="info"><b>Receipt:</b> ${b.receiptNo}</p><p class="info"><b>Patient:</b> ${b.patientId}</p><p class="info"><b>Date:</b> ${b.date}</p><p class="info"><b>Payment:</b> ${b.method} - ${b.status}</p><hr/>${b.items.map(i=>`<div class="row"><span>${i.desc}</span><span>N${i.amount.toLocaleString()}</span></div>`).join("")}<div class="tot"><span>TOTAL</span><span>N${b.total.toLocaleString()}</span></div><div class="footer">Thank you - Loving Heart Hospital</div></body></html>`);w.document.close();}
-window.loadBills=async()=>{const el=ge("billBody");if(!el)return;const s=await getDocs(query(collection(db,"bills"),orderBy("createdAt","desc"),limit(60)));if(s.empty){el.innerHTML='<tr><td colspan="6" class="cr">No bills</td></tr>';return;}el.innerHTML=s.docs.map(d=>{const b=d.data();return`<tr><td><span class="pid">${b.receiptNo}</span></td><td>${b.patientId}</td><td>₦${b.total.toLocaleString()}</td><td>${b.method}</td><td><span class="badge st-${b.status.toLowerCase().replace(/\s/g,"-")}">${b.status}</span></td><td>${b.date}</td></tr>`;}).join("");};
+
+// ─── RECEIPT UI (matches attached image design) ───────────────────────────
+function buildReceiptHTML(b){
+  const now=new Date();
+  const dateStr=b.createdAt?.toDate?b.createdAt.toDate().toLocaleString("en-GB",{day:"numeric",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"}):now.toLocaleString("en-GB",{day:"numeric",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"});
+  const itemCount=b.items.reduce((a,i)=>a+(i.qty||1),0);
+  // Simple barcode-style visual (SVG bars)
+  const barcode=`<svg width="180" height="40" viewBox="0 0 180 40" xmlns="http://www.w3.org/2000/svg">${
+    Array.from({length:60},(_,i)=>`<rect x="${i*3}" y="${Math.random()>0.5?2:0}" width="${Math.random()>0.3?2:1}" height="${40-(Math.random()>0.5?2:0)}" fill="#222"/>`).join("")
+  }</svg>`;
+  return`<div style="font-family:'Courier New',monospace;max-width:320px;margin:0 auto;background:#fff;padding:20px 18px;border:1px solid #e5e7eb;border-radius:12px">
+    <!-- Header -->
+    <div style="text-align:center;margin-bottom:16px">
+      <div style="font-size:1.05rem;font-weight:700;letter-spacing:1px">Loving Heart Hospital</div>
+      <div style="font-size:.72rem;color:#666;margin-top:3px;line-height:1.5">Hospital Management System</div>
+      <div style="font-size:.7rem;color:#888;margin-top:2px">Receipt #${b.receiptNo}</div>
+    </div>
+    <div style="border-top:1px dashed #ccc;margin:10px 0"></div>
+    <!-- Items header -->
+    <div style="display:flex;justify-content:space-between;font-size:.68rem;font-weight:700;color:#999;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">
+      <span>ITEM</span><span>AMOUNT</span>
+    </div>
+    <!-- Items -->
+    ${b.items.map(i=>`<div style="margin-bottom:10px">
+      <div style="font-weight:700;font-size:.88rem">${i.desc}</div>
+      <div style="display:flex;justify-content:space-between;font-size:.82rem;color:#555;margin-top:2px">
+        <span>${i.qty||1} × ₦${(i.unitAmt||i.amount).toLocaleString()}</span>
+        <span>₦${i.amount.toLocaleString()}</span>
+      </div>
+    </div>`).join("")}
+    <div style="border-top:1px dashed #ccc;margin:10px 0"></div>
+    <!-- Total -->
+    <div style="display:flex;justify-content:space-between;font-weight:700;font-size:1rem;margin-bottom:14px">
+      <span>TOTAL</span><span>₦${b.total.toLocaleString()}</span>
+    </div>
+    <div style="border-top:1px dashed #ccc;margin:10px 0"></div>
+    <!-- Meta -->
+    <div style="font-size:.78rem;color:#555;line-height:2">
+      <div style="display:flex;justify-content:space-between"><span>Payment</span><span style="font-weight:600;text-transform:uppercase">${b.method}</span></div>
+      <div style="display:flex;justify-content:space-between"><span>Status</span><span style="font-weight:600">${b.status}</span></div>
+      <div style="display:flex;justify-content:space-between"><span>Items</span><span>${itemCount} product${itemCount!==1?"s":""}</span></div>
+      <div style="display:flex;justify-content:space-between"><span>Cashier</span><span>${b.createdBy||"—"}</span></div>
+      <div style="display:flex;justify-content:space-between"><span>Customer</span><span>${b.customerName||b.patientId||"—"}</span></div>
+      ${b.patientId?`<div style="display:flex;justify-content:space-between"><span>Patient ID</span><span>${b.patientId}</span></div>`:""}
+      <div style="display:flex;justify-content:space-between"><span>Date</span><span>${dateStr}</span></div>
+    </div>
+    <!-- Barcode -->
+    <div style="text-align:center;margin:14px 0 6px">${barcode}</div>
+    <!-- Footer -->
+    <div style="text-align:center;font-size:.72rem;color:#aaa;font-family:'Courier New',monospace;line-height:1.7">
+      Thank you for your visit!<br>Loving Heart Hospital
+    </div>
+  </div>`;
+}
+
+let _currentReceipt=null;
+window.showReceipt=(b)=>{
+  _currentReceipt=b;
+  const el=ge("receiptPreview");
+  if(el)el.innerHTML=buildReceiptHTML(b);
+  openModal("receiptModal");
+};
+window.printReceipt=()=>{
+  if(!_currentReceipt)return;
+  const w=window.open("","_blank","width=420,height=700");
+  w.document.write(`<!DOCTYPE html><html><head><title>Receipt ${_currentReceipt.receiptNo}</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Courier New',monospace;background:#fff;display:flex;justify-content:center;padding:20px}
+    @media print{body{padding:0}@page{size:80mm auto;margin:4mm}}
+  </style></head><body>${buildReceiptHTML(_currentReceipt)}</body></html>`);
+  w.document.close();
+  setTimeout(()=>w.print(),400);
+};
+// Legacy printR kept for backward compat — redirects to new receipt UI
+function printR(b){showReceipt(b);}
+
+window.loadBills=async()=>{
+  const el=ge("billBody");if(!el)return;
+  const s=await getDocs(query(collection(db,"bills"),orderBy("createdAt","desc"),limit(60)));
+  if(s.empty){el.innerHTML='<tr><td colspan="6" class="cr">No bills</td></tr>';return;}
+  el.innerHTML=s.docs.map(d=>{const b=d.data();return`<tr>
+    <td><span class="pid" style="cursor:pointer" onclick='showReceipt(${JSON.stringify(b).replace(/'/g,"\\'")})'>${b.receiptNo}</span></td>
+    <td>${b.customerName||b.patientId||"—"}</td>
+    <td>₦${b.total.toLocaleString()}</td>
+    <td>${b.method}</td>
+    <td><span class="badge st-${b.status.toLowerCase().replace(/\s/g,"-")}">${b.status}</span></td>
+    <td>${b.date}</td>
+  </tr>`;}).join("");
+};
 
 // ─── ADMIN ─────────────────────────────────────────────────────────────────
 window.loadAdminStats=async()=>{
@@ -2521,38 +2750,46 @@ function validateShiftClockIn(){
 window.doClockIn=async()=>{
   const btn=ge("clockBtn");if(btn)btn.disabled=true;
   const todayStr=today();
-  // Check already clocked in
   const existing=await getDocs(query(collection(db,"attendance"),where("staffUid","==",CU.uid),where("date","==",todayStr)));
   if(!existing.empty){toast("Already clocked in today!","err");if(btn)btn.disabled=false;return;}
-  // Shift validation
+
+  // Shift validation — WARN ONLY, never block attendance
   const validation=validateShiftClockIn();
+  const alertBox=ge("shiftAlertBox");
+  if(alertBox)alertBox.innerHTML="";
   if(!validation.allowed){
-    toast(validation.msg,"err");
-    if(btn)btn.disabled=false;
-    const alertBox=ge("shiftAlertBox");
-    if(alertBox)alertBox.innerHTML=`<div class="clock-block-box"><i class="fa fa-ban" style="margin-top:2px;flex-shrink:0"></i><span>${validation.msg}</span></div>`;
-    return;
-  }
-  // Warn if early or late but allow
-  if(validation.msg){
-    const alertBox=ge("shiftAlertBox");
+    // Show warning but still allow clock-in
+    if(alertBox)alertBox.innerHTML=`<div class="clock-warn-box"><i class="fa fa-triangle-exclamation" style="margin-top:2px;flex-shrink:0"></i><span>${validation.msg} — Clocking in outside shift hours (recorded for admin review).</span></div>`;
+  } else if(validation.msg){
     if(alertBox)alertBox.innerHTML=`<div class="clock-warn-box"><i class="fa fa-triangle-exclamation" style="margin-top:2px;flex-shrink:0"></i><span>${validation.msg}</span></div>`;
   }
+
   const now=new Date();
   const timeStr=now.toTimeString().slice(0,5);
   const {lat,lng}=await getGPS();
   const month=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}`;
+  // Status: OutOfShift records as Late so payroll can flag it
+  const finalStatus=validation.allowed?validation.status:"Late";
+  const outOfShift=!validation.allowed;
+
   await addDoc(collection(db,"attendance"),{
     staffUid:CU.uid,staffName:SP.name,role:SP.role,dept:SP.dept||"",
     shift:SP.shift||"",shiftLabel:validation.shiftDef?validation.shiftDef.label:"",
     date:todayStr,month,clockIn:timeStr,clockOut:null,
-    status:validation.status,
+    status:finalStatus,outOfShift,
     lat,lng,hoursWorked:null,
     createdAt:serverTimestamp()
   });
+
+  // Notify admin if staff clocked outside shift
+  if(outOfShift){
+    await sendNotif(["Admin","Super Admin"],"note","⚠️ Out-of-Shift Clock-In",
+      `${SP.name} (${SP.dept||SP.role}) clocked in at ${timeStr} outside their ${validation.shiftDef?validation.shiftDef.label:SP.shift||""} shift.`,"");
+  }
+
   if(lat)ge("gpsInfo").textContent=`📍 ${lat.toFixed(4)}, ${lng.toFixed(4)}`;
-  const statusMsg=validation.status==="Late"?" (Late)":validation.status==="Present"?" ✅":"";
-  toast(`Clocked in at ${timeStr}${statusMsg}!`,"ok");
+  const statusMsg=outOfShift?" ⚠️ (Outside Shift)":finalStatus==="Late"?" (Late)":"";
+  toast(`Clocked in at ${timeStr}${statusMsg}!`,outOfShift?"err":"ok");
   if(btn)btn.disabled=false;
   checkTodayAttendance();
 };
