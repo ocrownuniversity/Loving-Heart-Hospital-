@@ -759,8 +759,34 @@ textarea.fi{resize:vertical;min-height:80px}
       <!-- CLOCK IN/OUT CARD -->
       <div class="sc-mb" id="clockCard">
         <h4 class="ssub">⏱ Today's Clock</h4>
-        <div id="clockStatus" style="text-align:center;padding:10px 0;font-size:.85rem;color:var(--mu)">Checking status…</div>
-        <button id="clockBtn" class="clock-btn clock-in-btn" onclick="doClockIn()" style="margin-top:8px"><i class="fa fa-play"></i> Clock In</button>
+
+        <!-- SHIFT SELECTOR — shown only before clock-in -->
+        <div id="shiftSelectorBox">
+          <p style="font-size:.82rem;color:var(--mu);margin-bottom:10px">Select your shift for today before clocking in:</p>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px">
+            <div id="shiftOptMorning" onclick="selectDailyShift('morning')" class="shift-opt" style="border:2px solid var(--brd);border-radius:var(--rs);padding:12px 8px;text-align:center;cursor:pointer;transition:.18s">
+              <div style="font-size:1.3rem">🌅</div>
+              <div style="font-weight:700;font-size:.85rem;margin-top:4px">Morning</div>
+              <div id="shiftTimeMorning" style="font-size:.7rem;color:var(--mu);margin-top:2px">—</div>
+            </div>
+            <div id="shiftOptAfternoon" onclick="selectDailyShift('afternoon')" class="shift-opt" style="border:2px solid var(--brd);border-radius:var(--rs);padding:12px 8px;text-align:center;cursor:pointer;transition:.18s">
+              <div style="font-size:1.3rem">☀️</div>
+              <div style="font-weight:700;font-size:.85rem;margin-top:4px">Afternoon</div>
+              <div id="shiftTimeAfternoon" style="font-size:.7rem;color:var(--mu);margin-top:2px">—</div>
+            </div>
+            <div id="shiftOptNight" onclick="selectDailyShift('night')" class="shift-opt" style="border:2px solid var(--brd);border-radius:var(--rs);padding:12px 8px;text-align:center;cursor:pointer;transition:.18s">
+              <div style="font-size:1.3rem">🌙</div>
+              <div style="font-weight:700;font-size:.85rem;margin-top:4px">Night</div>
+              <div id="shiftTimeNight" style="font-size:.7rem;color:var(--mu);margin-top:2px">—</div>
+            </div>
+          </div>
+          <div id="selectedShiftInfo" style="display:none;background:var(--PL);border-radius:var(--rs);padding:9px 12px;font-size:.83rem;color:var(--P);margin-bottom:10px;font-weight:600">
+            <i class="fa fa-check-circle" style="margin-right:6px"></i><span id="selectedShiftText">—</span>
+          </div>
+        </div>
+
+        <div id="clockStatus" style="text-align:center;padding:8px 0;font-size:.85rem;color:var(--mu)">Checking status…</div>
+        <button id="clockBtn" class="clock-btn clock-in-btn" onclick="doClockIn()" style="margin-top:8px;display:none"><i class="fa fa-play"></i> Clock In</button>
         <div id="gpsInfo" style="text-align:center;font-size:.75rem;color:var(--mu);margin-top:6px"></div>
       </div>
       <!-- Today's Record -->
@@ -2634,31 +2660,67 @@ async function checkTodayAttendance(){
   const todayStr=today();
   const snap=await getDocs(query(collection(db,"attendance"),where("staffUid","==",CU.uid),where("date","==",todayStr)));
   const todayEl=ge("todayAtt");
+  const selectorBox=ge("shiftSelectorBox");
+
+  // Populate shift time hints on the selector cards
+  const dept=(SP.dept||"").trim();
+  let deptRules=SHIFT_RULES[dept];
+  if(!deptRules){
+    const dKey=Object.keys(SHIFT_RULES).find(k=>dept.toLowerCase().includes(k.toLowerCase()));
+    deptRules=dKey?SHIFT_RULES[dKey]:null;
+  }
+  // Generic fallback times
+  const fallback={morning:{label:"Morning",start:8*60,end:14*60},afternoon:{label:"Afternoon",start:14*60,end:20*60},night:{label:"Night",start:20*60,end:8*60}};
+  const rules=deptRules||fallback;
+  const mEl=ge("shiftTimeMorning"),aEl=ge("shiftTimeAfternoon"),nEl=ge("shiftTimeNight");
+  if(mEl)mEl.textContent=rules.morning?`${fmtMins(rules.morning.start)}–${fmtMins(rules.morning.end)}`:"";
+  if(aEl)aEl.textContent=rules.afternoon?`${fmtMins(rules.afternoon.start)}–${fmtMins(rules.afternoon.end)}`:"N/A for dept";
+  if(nEl)nEl.textContent=rules.night?`${fmtMins(rules.night.start)}–${fmtMins(rules.night.end)}`:"N/A for dept";
+  // Grey out shift options not available for this dept
+  ["morning","afternoon","night"].forEach(s=>{
+    const card=ge("shiftOpt"+s.charAt(0).toUpperCase()+s.slice(1));
+    if(!card)return;
+    if(!rules[s]){
+      card.style.opacity="0.4";card.style.pointerEvents="none";
+      const tEl=ge("shiftTime"+s.charAt(0).toUpperCase()+s.slice(1));
+      if(tEl)tEl.textContent="Not available";
+    } else {
+      card.style.opacity="1";card.style.pointerEvents="auto";
+    }
+  });
+
   if(snap.empty){
-    el.innerHTML='<i class="fa fa-circle" style="color:var(--D);margin-right:5px"></i> Not clocked in today';
+    // Not clocked in — show selector
+    if(selectorBox)selectorBox.style.display="block";
+    el.innerHTML='<i class="fa fa-circle" style="color:var(--D);margin-right:5px"></i> Not clocked in today — select your shift above';
     btn.className="clock-btn clock-in-btn";
     btn.innerHTML='<i class="fa fa-play"></i> Clock In';
+    btn.style.display="none"; // hidden until shift selected
     btn.onclick=()=>doClockIn();
-    if(todayEl)todayEl.innerHTML='<div class="en">You have not clocked in today</div>';
+    if(todayEl)todayEl.innerHTML='<div class="en">Select your shift and clock in</div>';
   }else{
     const rec=snap.docs[0].data();
+    // Hide shift selector — already clocked in
+    if(selectorBox)selectorBox.style.display="none";
     if(!rec.clockOut){
-      el.innerHTML=`<i class="fa fa-circle" style="color:var(--A);margin-right:5px"></i> Clocked in at <b>${rec.clockIn}</b>`;
+      el.innerHTML=`<i class="fa fa-circle" style="color:var(--A);margin-right:5px"></i> Clocked in at <b>${rec.clockIn}</b> — <span style="background:var(--PL);color:var(--P);padding:2px 8px;border-radius:20px;font-size:.8rem;font-weight:600">${rec.shiftLabel||rec.shift||""} Shift</span>`;
       btn.className="clock-btn clock-out-btn";
       btn.innerHTML='<i class="fa fa-stop"></i> Clock Out';
+      btn.style.display="flex";
       btn.onclick=()=>doClockOut(snap.docs[0].id);
     }else{
-      el.innerHTML=`<i class="fa fa-circle-check" style="color:var(--A);margin-right:5px"></i> Done for today — ${rec.hoursWorked?rec.hoursWorked.toFixed(1)+"h worked":"Clocked out"}`;
+      el.innerHTML=`<i class="fa fa-circle-check" style="color:var(--A);margin-right:5px"></i> Done for today — ${rec.hoursWorked?rec.hoursWorked.toFixed(1)+"h worked":"Clocked out"} <span style="background:var(--PL);color:var(--P);padding:2px 8px;border-radius:20px;font-size:.8rem;font-weight:600">${rec.shiftLabel||rec.shift||""} Shift</span>`;
       btn.style.display="none";
     }
     if(todayEl){
       todayEl.innerHTML=`<div class="att-card">
         <div class="payslip-row"><span>Date</span><strong>${rec.date}</strong></div>
+        <div class="payslip-row"><span>Shift</span><strong>${rec.shiftLabel||rec.shift||"—"}</strong></div>
         <div class="payslip-row"><span>Clock In</span><strong>${rec.clockIn||"—"}</strong></div>
         <div class="payslip-row"><span>Clock Out</span><strong>${rec.clockOut||"—"}</strong></div>
         <div class="payslip-row"><span>Hours Worked</span><strong>${rec.hoursWorked?rec.hoursWorked.toFixed(2)+"h":"In progress"}</strong></div>
         <div class="payslip-row"><span>Status</span><strong><span class="att-status-${(rec.status||"present").toLowerCase()}">${rec.status||"Present"}</span></strong></div>
-        ${rec.lat?`<div class="payslip-row"><span>GPS Location</span><small style="color:var(--mu)">${Number(rec.lat).toFixed(5)}, ${Number(rec.lng).toFixed(5)}</small></div>`:""}
+        ${rec.lat?`<div class="payslip-row"><span>GPS</span><small style="color:var(--mu)">${Number(rec.lat).toFixed(5)}, ${Number(rec.lng).toFixed(5)}</small></div>`:""}
       </div>`;
     }
   }
@@ -2695,16 +2757,61 @@ const SHIFT_LATE_GRACE   = 60; // mins after shift start still allowed (marked L
 
 function getStaffShiftDef(){
   const dept=(SP.dept||"").trim();
-  const shiftKey=(SP.shift||"morning").toLowerCase();
-  // Try exact dept match first, then partial
+  // Use daily selected shift first, fall back to profile shift
+  const shiftKey=(window._dailyShift||SP.shift||"morning").toLowerCase();
   let deptRules=SHIFT_RULES[dept];
   if(!deptRules){
     const dKey=Object.keys(SHIFT_RULES).find(k=>dept.toLowerCase().includes(k.toLowerCase()));
     deptRules=dKey?SHIFT_RULES[dKey]:null;
   }
-  if(!deptRules) return null; // dept not in rules — no restriction
+  // If dept has no rules, return a generic shift based on selection
+  if(!deptRules){
+    const generic={
+      morning:{label:"Morning",start:8*60,end:14*60},
+      afternoon:{label:"Afternoon",start:14*60,end:20*60},
+      night:{label:"Night",start:20*60,end:8*60}
+    };
+    return generic[shiftKey]||generic.morning;
+  }
   return deptRules[shiftKey]||deptRules[Object.keys(deptRules)[0]]||null;
 }
+
+// ─── DAILY SHIFT SELECTOR ──────────────────────────────────────────────────
+window._dailyShift = null;
+
+window.selectDailyShift=(shiftKey)=>{
+  window._dailyShift=shiftKey;
+  // Update card styles
+  ["morning","afternoon","night"].forEach(s=>{
+    const el=ge("shiftOpt"+s.charAt(0).toUpperCase()+s.slice(1));
+    if(el){
+      if(s===shiftKey){
+        el.style.border="2px solid var(--P)";
+        el.style.background="var(--PL)";
+      } else {
+        el.style.border="2px solid var(--brd)";
+        el.style.background="#fff";
+      }
+    }
+  });
+  // Show selected shift info and clock-in button
+  const shiftDef=getStaffShiftDef();
+  const infoEl=ge("selectedShiftInfo");
+  const infoText=ge("selectedShiftText");
+  const btn=ge("clockBtn");
+  if(infoEl&&shiftDef){
+    infoEl.style.display="block";
+    if(infoText)infoText.textContent=`${shiftDef.label} Shift selected — ${fmtMins(shiftDef.start)} to ${fmtMins(shiftDef.end)}`;
+  }
+  if(btn){btn.style.display="flex";}
+  // Re-run validation to update alert
+  const alertBox=ge("shiftAlertBox");if(alertBox)alertBox.innerHTML="";
+  const v=validateShiftClockIn();
+  if(v.msg&&alertBox){
+    const cls=v.allowed?"clock-warn-box":"clock-warn-box";
+    alertBox.innerHTML=`<div class="${cls}"><i class="fa fa-triangle-exclamation" style="margin-top:2px;flex-shrink:0"></i><span>${v.msg}</span></div>`;
+  }
+};
 
 function timeToMins(h,m){return h*60+m;}
 
@@ -2748,6 +2855,11 @@ function validateShiftClockIn(){
 }
 
 window.doClockIn=async()=>{
+  // Must select shift first
+  if(!window._dailyShift){
+    toast("Please select your shift (Morning / Afternoon / Night) first","err");
+    return;
+  }
   const btn=ge("clockBtn");if(btn)btn.disabled=true;
   const todayStr=today();
   const existing=await getDocs(query(collection(db,"attendance"),where("staffUid","==",CU.uid),where("date","==",todayStr)));
@@ -2758,8 +2870,7 @@ window.doClockIn=async()=>{
   const alertBox=ge("shiftAlertBox");
   if(alertBox)alertBox.innerHTML="";
   if(!validation.allowed){
-    // Show warning but still allow clock-in
-    if(alertBox)alertBox.innerHTML=`<div class="clock-warn-box"><i class="fa fa-triangle-exclamation" style="margin-top:2px;flex-shrink:0"></i><span>${validation.msg} — Clocking in outside shift hours (recorded for admin review).</span></div>`;
+    if(alertBox)alertBox.innerHTML=`<div class="clock-warn-box"><i class="fa fa-triangle-exclamation" style="margin-top:2px;flex-shrink:0"></i><span>${validation.msg} — Recorded for admin review.</span></div>`;
   } else if(validation.msg){
     if(alertBox)alertBox.innerHTML=`<div class="clock-warn-box"><i class="fa fa-triangle-exclamation" style="margin-top:2px;flex-shrink:0"></i><span>${validation.msg}</span></div>`;
   }
@@ -2768,29 +2879,30 @@ window.doClockIn=async()=>{
   const timeStr=now.toTimeString().slice(0,5);
   const {lat,lng}=await getGPS();
   const month=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}`;
-  // Status: OutOfShift records as Late so payroll can flag it
   const finalStatus=validation.allowed?validation.status:"Late";
   const outOfShift=!validation.allowed;
+  const shiftDef=getStaffShiftDef();
 
   await addDoc(collection(db,"attendance"),{
     staffUid:CU.uid,staffName:SP.name,role:SP.role,dept:SP.dept||"",
-    shift:SP.shift||"",shiftLabel:validation.shiftDef?validation.shiftDef.label:"",
+    shift:window._dailyShift,
+    shiftLabel:shiftDef?shiftDef.label:(window._dailyShift.charAt(0).toUpperCase()+window._dailyShift.slice(1)),
     date:todayStr,month,clockIn:timeStr,clockOut:null,
-    status:finalStatus,outOfShift,
+    status:finalStatus,outOfShift:outOfShift||false,
     lat,lng,hoursWorked:null,
     createdAt:serverTimestamp()
   });
 
-  // Notify admin if staff clocked outside shift
   if(outOfShift){
     await sendNotif(["Admin","Super Admin"],"note","⚠️ Out-of-Shift Clock-In",
-      `${SP.name} (${SP.dept||SP.role}) clocked in at ${timeStr} outside their ${validation.shiftDef?validation.shiftDef.label:SP.shift||""} shift.`,"");
+      `${SP.name} (${SP.dept||SP.role}) clocked in at ${timeStr} on ${shiftDef?shiftDef.label:window._dailyShift} shift outside expected hours.`,"");
   }
 
   if(lat)ge("gpsInfo").textContent=`📍 ${lat.toFixed(4)}, ${lng.toFixed(4)}`;
   const statusMsg=outOfShift?" ⚠️ (Outside Shift)":finalStatus==="Late"?" (Late)":"";
   toast(`Clocked in at ${timeStr}${statusMsg}!`,outOfShift?"err":"ok");
   if(btn)btn.disabled=false;
+  window._dailyShift=null;
   checkTodayAttendance();
 };
 
