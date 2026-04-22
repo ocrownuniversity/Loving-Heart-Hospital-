@@ -593,10 +593,20 @@ textarea.fi{resize:vertical;min-height:80px}
           <button class="bsm outline" onclick="loadPriceList()"><i class="fa fa-rotate"></i></button>
         </div>
         <div style="background:var(--bg);border-radius:var(--rs);padding:12px;margin-bottom:12px">
-          <p style="font-size:.8rem;color:var(--mu);margin-bottom:10px"><i class="fa fa-circle-info" style="margin-right:5px"></i>Upload an Excel (.xlsx) file with columns: <b>itemCode, itemName, category, price</b>. Price changes only apply to new bills.</p>
-          <label for="priceExcelFile" class="bsm primary" style="cursor:pointer;display:inline-flex"><i class="fa fa-file-excel"></i> Upload Price List (Excel)</label>
-          <input type="file" id="priceExcelFile" accept=".xlsx,.xls" style="display:none" onchange="importPriceListExcel(this)"/>
+          <p style="font-size:.8rem;color:var(--mu);margin-bottom:10px"><i class="fa fa-circle-info" style="margin-right:5px"></i>Upload any Excel (.xlsx) or CSV file. The system will auto-detect your columns — any format accepted.</p>
+          <label for="priceExcelFile" class="bsm primary" style="cursor:pointer;display:inline-flex"><i class="fa fa-file-excel"></i> Upload Price List (Excel / CSV)</label>
+          <input type="file" id="priceExcelFile" accept=".xlsx,.xls,.csv" style="display:none" onchange="importPriceListExcel(this)"/>
           <div id="priceImportStatus" style="margin-top:9px;font-size:.82rem"></div>
+          <!-- Column mapping UI — shown when auto-detect needs confirmation -->
+          <div id="colMappingBox" style="display:none;margin-top:12px;background:#fff;border:2px solid var(--P);border-radius:var(--rs);padding:14px">
+            <div style="font-size:.85rem;font-weight:700;color:var(--P);margin-bottom:10px"><i class="fa fa-sliders" style="margin-right:6px"></i>Map Your Columns</div>
+            <p style="font-size:.78rem;color:var(--mu);margin-bottom:12px">We detected these columns in your file. Match each field below:</p>
+            <div id="colMappingFields"></div>
+            <div style="display:flex;gap:8px;margin-top:12px">
+              <button class="bsm primary" style="flex:1" onclick="confirmColumnMapping()"><i class="fa fa-check"></i> Confirm & Import</button>
+              <button class="bsm outline" onclick="cancelMapping()"><i class="fa fa-times"></i> Cancel</button>
+            </div>
+          </div>
         </div>
         <div style="position:relative;margin-bottom:10px">
           <i class="fa fa-search" style="position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--mu);font-size:.85rem"></i>
@@ -4025,47 +4035,196 @@ window.savePriceEdit=async()=>{
   loadPriceList();
 };
 
+// ─── PRICE LIST SMART IMPORT ─────────────────────────────────────────────────
+let _plRows=[], _plFileInput=null;
+
+// Normalize a string for fuzzy matching
+function _plNorm(s){return String(s||'').toLowerCase().replace(/[\s_\-\/\.]/g,'');}
+
+// Auto-detect which column maps to which field
+function _plDetectCol(cols, candidates){
+  // Direct match first
+  for(const c of cols){
+    for(const k of candidates){
+      if(_plNorm(c)===_plNorm(k)) return c;
+    }
+  }
+  // Partial/contains match
+  for(const c of cols){
+    for(const k of candidates){
+      const nc=_plNorm(c), nk=_plNorm(k);
+      if(nc.includes(nk)||nk.includes(nc)) return c;
+    }
+  }
+  return null;
+}
+
+// Parse price string like "₦2,500.00" or "2500" to number
+function _plParsePrice(val){
+  if(val===null||val===undefined||val==='') return 0;
+  const s=String(val).replace(/[₦,\s]/g,'').trim();
+  const n=parseFloat(s);
+  return isNaN(n)?0:n;
+}
+
 window.importPriceListExcel=async(input)=>{
-  const file=input.files[0];if(!file)return;
+  const file=input.files[0]; if(!file) return;
+  _plFileInput=input;
   const statusEl=ge('priceImportStatus');
+  const mapBox=ge('colMappingBox');
   statusEl.innerHTML='<i class="fa fa-spinner fa-spin"></i> Reading file…';
+  mapBox.style.display='none';
   try{
     const data=await file.arrayBuffer();
-    const wb=XLSX.read(data,{type:'array'});
-    const ws=wb.Sheets[wb.SheetNames[0]];
-    const rows=XLSX.utils.sheet_to_json(ws,{defval:''});
-    if(!rows.length){statusEl.innerHTML='<span style="color:var(--D)">❌ No rows found in the Excel file.</span>';return;}
-    // Validate columns
-    const required=['itemCode','itemName','category','price'];
-    const keys=Object.keys(rows[0]);
-    const missing=required.filter(k=>!keys.includes(k));
-    if(missing.length){statusEl.innerHTML=`<span style="color:var(--D)">❌ Missing columns: ${missing.join(', ')}. Check your Excel headers.</span>`;return;}
-    statusEl.innerHTML=`<i class="fa fa-spinner fa-spin"></i> Importing ${rows.length} items…`;
-    let created=0,updated=0,errors=0;
-    for(const row of rows){
-      const code=String(row.itemCode||'').trim();
-      const name=String(row.itemName||'').trim();
-      const cat=String(row.category||'').trim();
-      const price=parseFloat(row.price)||0;
-      if(!code||!name){errors++;continue;}
-      // Check if exists
-      const snap=await getDocs(query(collection(db,'priceList'),where('itemCode','==',code)));
-      if(!snap.empty){
-        await updateDoc(doc(db,'priceList',snap.docs[0].id),{price,updatedAt:serverTimestamp()});
-        updated++;
-      } else {
-        await addDoc(collection(db,'priceList'),{itemCode:code,itemName:name,category:cat,price,updatedAt:serverTimestamp()});
-        created++;
-      }
+    let rows;
+    if(file.name.toLowerCase().endsWith('.csv')){
+      const text=new TextDecoder().decode(data);
+      const wb=XLSX.read(text,{type:'string'});
+      rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:''});
+    } else {
+      const wb=XLSX.read(data,{type:'array'});
+      rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:''});
     }
-    statusEl.innerHTML=`<span style="color:var(--A)">✅ Price list imported successfully. Created: ${created}, Updated: ${updated}${errors?`, Skipped: ${errors}`:''}.</span>`;
-    loadPriceList();
-    input.value='';
+    if(!rows||!rows.length){statusEl.innerHTML='<span style="color:var(--D)">❌ No data rows found in the file.</span>';return;}
+    _plRows=rows;
+    const cols=Object.keys(rows[0]);
+
+    // Define candidate synonyms for each required field
+    const synonyms={
+      itemName: ['items','item','itemname','item name','productname','product name','description','desc','drugname','drug name','service','servicename','test','testname','name'],
+      price:    ['per tab / unit','pertab','pertabunit','price','amount','cost','rate','unitprice','unit price','fee','charge','tariff','value'],
+      itemCode: ['s/no','sno','serial','serialno','no','number','code','itemcode','item code','productcode','product code','id','ref','reference','sku'],
+      category: ['category','cat','type','group','class','section','department','classification','productcategory','product category'],
+    };
+
+    // Auto-detect
+    const mapping={};
+    for(const [field,candidates] of Object.entries(synonyms)){
+      mapping[field]=_plDetectCol(cols,candidates);
+    }
+
+    // itemName and price are REQUIRED — itemCode and category are optional
+    const confidence={
+      itemName: !!mapping.itemName,
+      price:    !!mapping.price,
+      itemCode: !!mapping.itemCode,
+      category: !!mapping.category,
+    };
+
+    // Preview 3 rows
+    const preview=rows.slice(0,3);
+
+    // If both required fields are confidently detected, skip mapping UI and import directly
+    if(confidence.itemName && confidence.price){
+      // Show what was detected and proceed
+      statusEl.innerHTML=`<div style="background:#e6f7ef;border-radius:var(--rs);padding:10px;margin-bottom:8px;font-size:.8rem">
+        <b style="color:#1a7a4a"><i class="fa fa-check-circle"></i> Columns detected automatically:</b><br>
+        ${mapping.itemName?`• Item Name → <b>${mapping.itemName}</b><br>`:''}
+        ${mapping.price?`• Price → <b>${mapping.price}</b><br>`:''}
+        ${mapping.itemCode?`• Item Code → <b>${mapping.itemCode}</b><br>`:'• Item Code → Auto-generated<br>'}
+        ${mapping.category?`• Category → <b>${mapping.category}</b><br>`:'• Category → Not found (will be blank)<br>'}
+      </div><i class="fa fa-spinner fa-spin"></i> Importing ${rows.length} items…`;
+      await _plDoImport(rows, mapping);
+      input.value='';
+    } else {
+      // Show mapping UI
+      statusEl.innerHTML=`<div style="background:#fff8e1;border-radius:var(--rs);padding:9px;font-size:.8rem;color:#7a5e00"><i class="fa fa-triangle-exclamation" style="margin-right:5px"></i>Some columns could not be auto-detected. Please confirm the mapping below.</div>`;
+      const optionsHTML='<option value="">— Not in file —</option>'+cols.map(c=>`<option value="${c}">${c}</option>`).join('');
+      const fields=[
+        {key:'itemName',label:'Item Name <span style="color:var(--D)">*</span>',required:true},
+        {key:'price',label:'Price <span style="color:var(--D)">*</span>',required:true},
+        {key:'itemCode',label:'Item Code / S.No (optional)',required:false},
+        {key:'category',label:'Category (optional)',required:false},
+      ];
+      let html=`<div style="font-size:.75rem;color:var(--mu);margin-bottom:10px">File columns: <b>${cols.join(', ')}</b></div>`;
+      // Preview table
+      html+=`<div style="overflow-x:auto;margin-bottom:12px"><table class="dtab" style="font-size:.75rem"><thead><tr>${cols.map(c=>`<th>${c}</th>`).join('')}</tr></thead><tbody>`;
+      preview.forEach(r=>{html+=`<tr>${cols.map(c=>`<td>${r[c]||''}</td>`).join('')}</tr>`;});
+      html+=`</tbody></table></div>`;
+      fields.forEach(f=>{
+        const sel=`<select id="plmap_${f.key}" class="fsel" style="margin-top:4px;font-size:.82rem">${optionsHTML}</select>`;
+        html+=`<div class="fg"><label class="fl">${f.label}</label>${sel}</div>`;
+      });
+      ge('colMappingFields').innerHTML=html;
+      // Pre-select detected values
+      for(const [field,col] of Object.entries(mapping)){
+        const el=ge(`plmap_${field}`);
+        if(el&&col) el.value=col;
+      }
+      mapBox.style.display='block';
+    }
   }catch(e){
     console.error(e);
-    statusEl.innerHTML=`<span style="color:var(--D)">❌ Error reading file: ${e.message}</span>`;
+    ge('priceImportStatus').innerHTML=`<span style="color:var(--D)">❌ Error reading file: ${e.message}</span>`;
   }
 };
+
+window.confirmColumnMapping=async()=>{
+  const mapping={
+    itemName: ge('plmap_itemName')?.value||'',
+    price:    ge('plmap_price')?.value||'',
+    itemCode: ge('plmap_itemCode')?.value||'',
+    category: ge('plmap_category')?.value||'',
+  };
+  if(!mapping.itemName||!mapping.price){
+    toast('Item Name and Price columns are required','err'); return;
+  }
+  ge('colMappingBox').style.display='none';
+  ge('priceImportStatus').innerHTML=`<i class="fa fa-spinner fa-spin"></i> Importing ${_plRows.length} items…`;
+  await _plDoImport(_plRows, mapping);
+  if(_plFileInput) _plFileInput.value='';
+};
+
+window.cancelMapping=()=>{
+  ge('colMappingBox').style.display='none';
+  ge('priceImportStatus').innerHTML='';
+  _plRows=[]; if(_plFileInput) _plFileInput.value='';
+};
+
+async function _plDoImport(rows, mapping){
+  const statusEl=ge('priceImportStatus');
+  let created=0,updated=0,skipped=0,autoCodeCount=0;
+  for(let i=0;i<rows.length;i++){
+    const row=rows[i];
+    const name=String(row[mapping.itemName]||'').trim();
+    const priceRaw=row[mapping.price];
+    const price=_plParsePrice(priceRaw);
+    const cat=mapping.category?String(row[mapping.category]||'').trim():'';
+    // Generate itemCode from S/No or index if not mapped
+    let code='';
+    if(mapping.itemCode && row[mapping.itemCode]!==undefined && row[mapping.itemCode]!==''){
+      code=String(row[mapping.itemCode]).trim();
+    } else {
+      code=`ITEM-${String(i+1).padStart(4,'0')}`;
+      autoCodeCount++;
+    }
+    if(!name){skipped++;continue;}
+    if(price===0 && String(priceRaw).trim()!=='0'){skipped++;continue;}
+    try{
+      const snap=await getDocs(query(collection(db,'priceList'),where('itemCode','==',code)));
+      if(!snap.empty){
+        await updateDoc(doc(db,'priceList',snap.docs[0].id),{itemName:name,category:cat,price,updatedAt:serverTimestamp()});
+        updated++;
+      } else {
+        // Also check by name to avoid duplicates
+        const nameSnap=await getDocs(query(collection(db,'priceList'),where('itemName','==',name)));
+        if(!nameSnap.empty){
+          await updateDoc(doc(db,'priceList',nameSnap.docs[0].id),{price,category:cat,updatedAt:serverTimestamp()});
+          updated++;
+        } else {
+          await addDoc(collection(db,'priceList'),{itemCode:code,itemName:name,category:cat,price,updatedAt:serverTimestamp()});
+          created++;
+        }
+      }
+    }catch(e){skipped++;console.error('Row error:',e);}
+  }
+  const autoMsg=autoCodeCount?` (${autoCodeCount} codes auto-generated)`:'';
+  statusEl.innerHTML=`<div style="background:#e6f7ef;border-radius:var(--rs);padding:10px;font-size:.82rem">
+    <b style="color:#1a7a4a"><i class="fa fa-check-circle"></i> Import complete${autoMsg}</b><br>
+    ✅ Added: <b>${created}</b> &nbsp;|&nbsp; 🔄 Updated: <b>${updated}</b>${skipped?` &nbsp;|&nbsp; ⚠️ Skipped: <b>${skipped}</b>`:''}
+  </div>`;
+  loadPriceList();
+}
 
 // ─── TOAST ───────────────────────────────────────────────────────────────────
 window.toast=(msg,type="ok")=>{const t=document.createElement("div");t.className=`toast t-${type}`;t.innerHTML=`<i class="fa fa-${type==="ok"?"check-circle":"exclamation-circle"}"></i> ${msg}`;ge("toasts").appendChild(t);setTimeout(()=>t.classList.add("show"),10);setTimeout(()=>{t.classList.remove("show");setTimeout(()=>t.remove(),300);},3500);};
