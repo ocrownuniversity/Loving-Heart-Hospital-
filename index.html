@@ -483,7 +483,7 @@ textarea.fi{resize:vertical;min-height:80px}
       <div class="mhdr"><h2><i class="fa fa-pills" style="color:var(--P)"></i> Pharmacy</h2><button class="bsm outline" onclick="loadRx()"><i class="fa fa-rotate"></i> Refresh</button></div>
       <div class="sc-mb"><h4 class="ssub">💊 Pending Prescriptions from Doctors</h4><div id="pharmRx"></div></div>
       <div class="sc-mb">
-        <h4 class="ssub">📦 Drug Stock & Batch Management</h4>
+        <h4 class="ssub">📦 Drug Stock Inventory</h4>
         <!-- Expiry alerts banner -->
         <div id="expiryAlertBanner" style="display:none;background:#fce8e8;border:1px solid var(--D);border-radius:var(--rs);padding:10px 13px;margin-bottom:12px;font-size:.82rem;color:var(--D)">
           <i class="fa fa-triangle-exclamation" style="margin-right:6px"></i><span id="expiryAlertText"></span>
@@ -491,9 +491,31 @@ textarea.fi{resize:vertical;min-height:80px}
         <div id="nearExpiryBanner" style="display:none;background:#fff8e1;border:1px solid var(--W);border-radius:var(--rs);padding:10px 13px;margin-bottom:12px;font-size:.82rem;color:#7a5e00">
           <i class="fa fa-clock" style="margin-right:6px"></i><span id="nearExpiryText"></span>
         </div>
-        <!-- Add stock form with batch fields -->
+        <!-- Note: Stock is for quantity tracking only. Prices come from Admin Price List in Billing -->
+        <div style="background:#e8f1fb;border-radius:var(--rs);padding:9px 12px;font-size:.79rem;color:var(--P);margin-bottom:12px;display:flex;gap:7px;align-items:center">
+          <i class="fa fa-circle-info"></i><span><b>Inventory only.</b> Drug pricing is managed separately via the Admin Price List in the Billing module.</span>
+        </div>
+        <!-- Excel Upload -->
         <div style="background:var(--bg);border-radius:var(--rs);padding:12px;margin-bottom:12px">
-          <div style="font-size:.78rem;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">Add / Restock Drug</div>
+          <div style="font-size:.78rem;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">📥 Bulk Upload Stock (Excel / CSV)</div>
+          <p style="font-size:.79rem;color:var(--mu);margin-bottom:10px">Upload any Excel or CSV file — any column format accepted. System will auto-detect drug name and quantity columns.</p>
+          <label for="stockExcelFile" class="bsm primary" style="cursor:pointer;display:inline-flex"><i class="fa fa-file-excel"></i> Upload Stock File</label>
+          <input type="file" id="stockExcelFile" accept=".xlsx,.xls,.csv" style="display:none" onchange="importStockExcel(this)"/>
+          <div id="stockImportStatus" style="margin-top:9px;font-size:.82rem"></div>
+          <!-- Column mapping box -->
+          <div id="stockColMappingBox" style="display:none;margin-top:12px;background:#fff;border:2px solid var(--P);border-radius:var(--rs);padding:14px">
+            <div style="font-size:.85rem;font-weight:700;color:var(--P);margin-bottom:8px"><i class="fa fa-sliders" style="margin-right:6px"></i>Map Your Columns</div>
+            <p style="font-size:.78rem;color:var(--mu);margin-bottom:10px">Match each required field to your file's column:</p>
+            <div id="stockColMappingFields"></div>
+            <div style="display:flex;gap:8px;margin-top:12px">
+              <button class="bsm primary" style="flex:1" onclick="confirmStockMapping()"><i class="fa fa-check"></i> Confirm & Import</button>
+              <button class="bsm outline" onclick="cancelStockMapping()"><i class="fa fa-times"></i> Cancel</button>
+            </div>
+          </div>
+        </div>
+        <!-- Manual Add form -->
+        <div style="background:var(--bg);border-radius:var(--rs);padding:12px;margin-bottom:12px">
+          <div style="font-size:.78rem;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">Add / Restock Drug Manually</div>
           <div class="frow">
             <div class="fg"><label class="fl">Drug Name *</label><input id="sdrug" class="fi" placeholder="Drug name"/></div>
             <div class="fg"><label class="fl">Quantity *</label><input id="sqty" class="fi" type="number" placeholder="Qty" min="1"/></div>
@@ -502,7 +524,6 @@ textarea.fi{resize:vertical;min-height:80px}
             <div class="fg"><label class="fl">Batch Number</label><input id="sbatch" class="fi" placeholder="e.g. BTH-2025-001"/></div>
             <div class="fg"><label class="fl">Expiry Date</label><input id="sexpiry" class="fi" type="date"/></div>
           </div>
-          <div class="fg"><label class="fl">Unit Price (₦)</label><input id="sprice" class="fi" type="number" placeholder="0.00" step="0.01"/></div>
           <button class="bsm primary" onclick="addStock()"><i class="fa fa-plus"></i> Add to Stock</button>
         </div>
         <h4 class="ssub">Current Stock (FEFO Order)</h4>
@@ -920,9 +941,35 @@ textarea.fi{resize:vertical;min-height:80px}
     <div class="fg"><label class="fl">Patient / Customer Name *</label><input id="bCust" class="fi" placeholder="Full name"/></div>
     <div class="fg"><label class="fl">Patient ID</label><input id="bPid" class="fi" placeholder="MCH-0001 (optional)"/></div>
   </div>
-  <div class="frow"><div class="fg"><label class="fl">Item / Service *</label><input id="bDesc" class="fi" placeholder="e.g. Paracetamol 500mg"/></div><div class="fg"><label class="fl">Qty</label><input id="bQty" class="fi" type="number" placeholder="1" min="1" value="1"/></div></div>
-  <div class="fg"><label class="fl">Unit Price (₦) *</label><input id="bAmt" class="fi" type="number" placeholder="0"/></div>
-  <button class="bsm outline" onclick="addBI()"><i class="fa fa-plus"></i> Add Item</button>
+  <!-- Price list search -->
+  <div style="background:var(--bg);border-radius:var(--rs);padding:12px;margin-bottom:12px">
+    <div style="font-size:.78rem;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">Add Item from Price List</div>
+    <div class="fg" style="position:relative;margin-bottom:8px">
+      <label class="fl">Search Item / Service</label>
+      <input id="bSearch" class="fi" placeholder="Type to search price list…" autocomplete="off" oninput="searchBillItem()" onfocus="searchBillItem()"/>
+      <div id="bSearchDrop" style="display:none;position:absolute;z-index:999;background:#fff;border:1px solid var(--brd);border-radius:var(--rs);width:100%;max-height:220px;overflow-y:auto;box-shadow:0 4px 16px rgba(0,0,0,.12);top:100%;left:0"></div>
+    </div>
+    <div id="bSelectedItem" style="display:none;background:#e6f7ef;border-radius:var(--rs);padding:10px 12px;margin-bottom:10px;font-size:.85rem">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div><b id="bSelName">—</b><br><span style="font-size:.75rem;color:var(--mu)" id="bSelCat">—</span></div>
+        <div style="text-align:right"><div style="font-size:1rem;font-weight:700;color:var(--A)" id="bSelPrice">₦0</div><div style="font-size:.72rem;color:var(--mu)">Unit Price</div></div>
+      </div>
+    </div>
+    <div class="frow">
+      <div class="fg"><label class="fl">Quantity</label><input id="bQty" class="fi" type="number" placeholder="1" min="1" value="1" oninput="updateBillSubtotal()"/></div>
+      <div class="fg"><label class="fl">Subtotal</label><input id="bSubtotal" class="fi" readonly style="background:var(--bg);color:var(--A);font-weight:700" placeholder="₦0"/></div>
+    </div>
+    <button class="bsm success" onclick="addBI()"><i class="fa fa-plus"></i> Add to Bill</button>
+  </div>
+  <!-- Also allow free-text items (consultation, procedures not in price list) -->
+  <details style="margin-bottom:10px">
+    <summary style="font-size:.78rem;font-weight:600;color:var(--mu);cursor:pointer;padding:6px 0">＋ Add custom item / service not in price list</summary>
+    <div style="padding-top:10px">
+      <div class="frow"><div class="fg"><label class="fl">Description *</label><input id="bDescCustom" class="fi" placeholder="e.g. Consultation fee"/></div><div class="fg"><label class="fl">Qty</label><input id="bQtyCustom" class="fi" type="number" placeholder="1" min="1" value="1"/></div></div>
+      <div class="fg"><label class="fl">Unit Price (₦) *</label><input id="bAmtCustom" class="fi" type="number" placeholder="0"/></div>
+      <button class="bsm outline" onclick="addBICustom()"><i class="fa fa-plus"></i> Add Custom Item</button>
+    </div>
+  </details>
   <div id="billItems" style="margin:12px 0;min-height:24px"></div><hr class="dv"/>
   <div class="frow"><div class="fg"><label class="fl">Payment Method</label><select id="bMeth" class="fsel"><option>Cash</option><option>POS</option><option>Transfer</option></select></div><div class="fg"><label class="fl">Status</label><select id="bStat" class="fsel"><option>Paid</option><option>Unpaid</option><option>Partially Paid</option></select></div></div>
   <button class="btnP" onclick="genBill()"><i class="fa fa-receipt"></i> Generate &amp; View Receipt</button>
@@ -1287,7 +1334,7 @@ window.showMod=mod=>{
   if(mod==="appointments")loadAppts();
   if(mod==="lab")         loadLabQ();
   if(mod==="pharmacy")    {loadRx();loadStock();}
-  if(mod==="billing")     loadBills();
+  if(mod==="billing")     {loadBills();loadBillPriceList();}
   if(mod==="messages")    loadThreads();
   if(mod==="profile")     loadProf();
   if(mod==="admin")       {loadAdminStats();loadStaff();loadApprovalQueue();loadPriceList();}
@@ -1299,7 +1346,19 @@ window.showMod=mod=>{
 };
 window.tSB=()=>ge("sidebar").classList.toggle("open");
 window.cSB=()=>ge("sidebar").classList.remove("open");
-window.openModal=id=>ge(id).style.display="flex";
+window.openModal=id=>{
+  ge(id).style.display="flex";
+  if(id==='billModal'){
+    loadBillPriceList();
+    _selectedBillItem=null;
+    BI=[];renderBI();
+    if(ge('bSearch'))ge('bSearch').value='';
+    if(ge('bSelectedItem'))ge('bSelectedItem').style.display='none';
+    if(ge('bSearchDrop'))ge('bSearchDrop').style.display='none';
+    if(ge('bSubtotal'))ge('bSubtotal').value='';
+    if(ge('bQty'))ge('bQty').value='1';
+  }
+};
 window.cModal=id=>ge(id).style.display="none";
 
 // ─── DASHBOARD ─────────────────────────────────────────────────────────────
@@ -1940,17 +1999,15 @@ window.addStock=async()=>{
   const name=gv("sdrug"),qty=parseInt(gv("sqty"));
   const batchNo=gv("sbatch")||("BTH-"+Date.now().toString(36).toUpperCase());
   const expiry=gv("sexpiry")||"";
-  const price=parseFloat(gv("sprice"))||0;
   if(!name||isNaN(qty)||qty<=0){toast("Enter drug name and a valid quantity","err");return;}
 
-  // Add as a new batch document under drugBatches collection (FEFO)
   await addDoc(collection(db,"drugBatches"),{
-    name,qty,batchNo,expiry,price,
+    name,qty,batchNo,expiry,
     addedBy:SP.name,addedAt:serverTimestamp(),
     active:true
   });
 
-  // Also update the legacy drugStock total for backward compat
+  // Update legacy drugStock total
   const q2=query(collection(db,"drugStock"),where("name","==",name));
   const s=await getDocs(q2);
   if(s.empty){
@@ -1961,7 +2018,7 @@ window.addStock=async()=>{
   }
 
   toast(`✅ ${name} — ${qty} units added (Batch: ${batchNo}${expiry?" | Expiry: "+expiry:""})`, "ok");
-  ge("sdrug").value="";ge("sqty").value="";ge("sbatch").value="";ge("sexpiry").value="";ge("sprice").value="";
+  ge("sdrug").value="";ge("sqty").value="";ge("sbatch").value="";ge("sexpiry").value="";
   loadStock();
 };
 window.loadStock=async()=>{
@@ -2024,7 +2081,7 @@ window.loadStock=async()=>{
       else if(qty<=5)qtyStatus=`<br><span style="font-size:.68rem;color:var(--W);font-weight:700">⚠️ Low</span>`;
       const canDelDrug=canDo("deleteDrug")||isStrictAdmin();
       html+=`<tr style="${rowStyle}">
-        <td><b>${name}</b>${r.price?`<br><small style="color:var(--mu)">₦${Number(r.price).toLocaleString()}/unit</small>`:""}${qtyStatus}</td>
+        <td><b>${name}</b>${qtyStatus}</td>
         <td style="font-size:.75rem;color:var(--mu)">${r.batchNo||"—"}</td>
         <td style="font-weight:700;color:${qty===0?"var(--D)":qty<=5?"var(--W)":"var(--tx)"}">${qty}</td>
         <td style="font-size:.78rem;color:${expiryColor||"var(--tx)"}">${expiryStr}</td>
@@ -2048,16 +2105,173 @@ window.loadStock=async()=>{
   } else if(nearBanner){nearBanner.style.display="none";}
 };
 
-// ─── BILLING ──────────────────────────────────────────────────────────────
-window.addBI=()=>{
-  const desc=gv("bDesc"),qty=parseInt(ge("bQty")?.value)||1,unitAmt=parseFloat(gv("bAmt"));
-  if(!desc||isNaN(unitAmt)){toast("Enter item and unit price","err");return;}
-  const amount=unitAmt*qty;
-  BI.push({desc,qty,unitAmt,amount});
-  renderBI();
-  ge("bDesc").value="";ge("bAmt").value="";
-  if(ge("bQty"))ge("bQty").value="1";
+// ─── PHARMACY STOCK EXCEL IMPORT ─────────────────────────────────────────────
+let _stockRows=[], _stockFileInput=null;
+
+function _stNorm(s){return String(s||'').toLowerCase().replace(/[\s_\-\/\.]/g,'');}
+function _stDetect(cols,candidates){
+  for(const c of cols) for(const k of candidates) if(_stNorm(c)===_stNorm(k)) return c;
+  for(const c of cols) for(const k of candidates){const nc=_stNorm(c),nk=_stNorm(k);if(nc.includes(nk)||nk.includes(nc)) return c;}
+  return null;
+}
+function _stParseQty(v){const n=parseInt(String(v||'').replace(/[^\d]/g,''));return isNaN(n)?0:n;}
+
+window.importStockExcel=async(input)=>{
+  const file=input.files[0];if(!file)return;
+  _stockFileInput=input;
+  const statusEl=ge('stockImportStatus'),mapBox=ge('stockColMappingBox');
+  statusEl.innerHTML='<i class="fa fa-spinner fa-spin"></i> Reading file…';
+  mapBox.style.display='none';
+  try{
+    const data=await file.arrayBuffer();
+    let rows;
+    if(file.name.toLowerCase().endsWith('.csv')){
+      const wb=XLSX.read(new TextDecoder().decode(data),{type:'string'});
+      rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:''});
+    } else {
+      const wb=XLSX.read(data,{type:'array'});
+      rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:''});
+    }
+    if(!rows||!rows.length){statusEl.innerHTML='<span style="color:var(--D)">❌ No data found in file.</span>';return;}
+    _stockRows=rows;
+    const cols=Object.keys(rows[0]);
+    const synName=['items','item','drugname','drug name','productname','product name','description','desc','medicine','name','drug','medication'];
+    const synQty=['qty','quantity','stock','units','count','packs','amount','available','instock','in stock','total','number'];
+    const synBatch=['batch','batchno','batchnumber','batch no','batch number','lot','lotnumber','lot number'];
+    const synExpiry=['expiry','expirydate','expiry date','exp','expdate','exp date','expires','expirationdate','expiration'];
+    const mapping={
+      drugName:_stDetect(cols,synName),
+      qty:_stDetect(cols,synQty),
+      batchNo:_stDetect(cols,synBatch),
+      expiry:_stDetect(cols,synExpiry),
+    };
+    if(mapping.drugName&&mapping.qty){
+      statusEl.innerHTML=`<div style="background:#e6f7ef;border-radius:var(--rs);padding:10px;font-size:.8rem">
+        <b style="color:#1a7a4a"><i class="fa fa-check-circle"></i> Columns detected:</b><br>
+        • Drug Name → <b>${mapping.drugName}</b><br>• Quantity → <b>${mapping.qty}</b>
+        ${mapping.batchNo?`<br>• Batch → <b>${mapping.batchNo}</b>`:''}
+        ${mapping.expiry?`<br>• Expiry → <b>${mapping.expiry}</b>`:''}
+      </div><br><i class="fa fa-spinner fa-spin"></i> Importing ${rows.length} items…`;
+      await _stDoImport(rows,mapping);
+      input.value='';
+    } else {
+      statusEl.innerHTML='<div style="background:#fff8e1;border-radius:var(--rs);padding:9px;font-size:.8rem;color:#7a5e00"><i class="fa fa-triangle-exclamation"></i> Could not auto-detect columns. Please map them below.</div>';
+      const opts='<option value="">— Not in file —</option>'+cols.map(c=>`<option value="${c}">${c}</option>`).join('');
+      const preview=rows.slice(0,3);
+      let html=`<div style="font-size:.75rem;color:var(--mu);margin-bottom:10px">File columns: <b>${cols.join(', ')}</b></div>`;
+      html+=`<div style="overflow-x:auto;margin-bottom:12px"><table class="dtab" style="font-size:.75rem"><thead><tr>${cols.map(c=>`<th>${c}</th>`).join('')}</tr></thead><tbody>`;
+      preview.forEach(r=>{html+=`<tr>${cols.map(c=>`<td>${r[c]||''}</td>`).join('')}</tr>`;});
+      html+=`</tbody></table></div>`;
+      [
+        {key:'drugName',label:'Drug Name <span style="color:var(--D)">*</span>'},
+        {key:'qty',label:'Quantity <span style="color:var(--D)">*</span>'},
+        {key:'batchNo',label:'Batch Number (optional)'},
+        {key:'expiry',label:'Expiry Date (optional)'},
+      ].forEach(f=>{html+=`<div class="fg"><label class="fl">${f.label}</label><select id="stmap_${f.key}" class="fsel" style="margin-top:4px;font-size:.82rem">${opts}</select></div>`;});
+      ge('stockColMappingFields').innerHTML=html;
+      for(const [k,v] of Object.entries(mapping)){const el=ge(`stmap_${k}`);if(el&&v)el.value=v;}
+      mapBox.style.display='block';
+    }
+  }catch(e){console.error(e);ge('stockImportStatus').innerHTML=`<span style="color:var(--D)">❌ Error: ${e.message}</span>`;}
 };
+
+window.confirmStockMapping=async()=>{
+  const mapping={drugName:ge('stmap_drugName')?.value,qty:ge('stmap_qty')?.value,batchNo:ge('stmap_batchNo')?.value,expiry:ge('stmap_expiry')?.value};
+  if(!mapping.drugName||!mapping.qty){toast('Drug Name and Quantity columns are required','err');return;}
+  ge('stockColMappingBox').style.display='none';
+  ge('stockImportStatus').innerHTML=`<i class="fa fa-spinner fa-spin"></i> Importing ${_stockRows.length} items…`;
+  await _stDoImport(_stockRows,mapping);
+  if(_stockFileInput)_stockFileInput.value='';
+};
+window.cancelStockMapping=()=>{ge('stockColMappingBox').style.display='none';ge('stockImportStatus').innerHTML='';_stockRows=[];if(_stockFileInput)_stockFileInput.value='';};
+
+async function _stDoImport(rows,mapping){
+  let added=0,updated=0,skipped=0;
+  for(const row of rows){
+    const name=String(row[mapping.drugName]||'').trim();
+    const qty=_stParseQty(row[mapping.qty]);
+    const batchNo=mapping.batchNo?String(row[mapping.batchNo]||'').trim():'';
+    const expiry=mapping.expiry?String(row[mapping.expiry]||'').trim():'';
+    if(!name||qty<=0){skipped++;continue;}
+    try{
+      const bn=batchNo||('BTH-'+Date.now().toString(36).toUpperCase()+'-'+added);
+      await addDoc(collection(db,'drugBatches'),{name,qty,batchNo:bn,expiry,addedBy:SP.name,addedAt:serverTimestamp(),active:true,importedFromExcel:true});
+      const s=await getDocs(query(collection(db,'drugStock'),where('name','==',name)));
+      if(s.empty){await addDoc(collection(db,'drugStock'),{name,qty,updatedAt:serverTimestamp(),addedBy:SP.name});added++;}
+      else{const old=s.docs[0].data().qty||0;await updateDoc(doc(db,'drugStock',s.docs[0].id),{qty:old+qty,updatedAt:serverTimestamp()});updated++;}
+    }catch(e){skipped++;console.error(e);}
+  }
+  ge('stockImportStatus').innerHTML=`<div style="background:#e6f7ef;border-radius:var(--rs);padding:10px;font-size:.82rem"><b style="color:#1a7a4a"><i class="fa fa-check-circle"></i> Stock import complete</b><br>✅ New: <b>${added}</b> &nbsp;|&nbsp; 🔄 Restocked: <b>${updated}</b>${skipped?` &nbsp;|&nbsp; ⚠️ Skipped: <b>${skipped}</b>`:''}</div>`;
+  loadStock();
+}
+
+// ─── BILLING — Price List Driven ─────────────────────────────────────────────
+let _priceListCache=[], _selectedBillItem=null;
+
+window.loadBillPriceList=async()=>{
+  if(_priceListCache.length) return; // already loaded
+  const snap=await getDocs(collection(db,'priceList'));
+  _priceListCache=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(a.itemName||'').localeCompare(b.itemName||''));
+};
+
+window.searchBillItem=()=>{
+  const q=(ge('bSearch')?.value||'').toLowerCase().trim();
+  const drop=ge('bSearchDrop');if(!drop)return;
+  if(!q||!_priceListCache.length){drop.style.display='none';return;}
+  const hits=_priceListCache.filter(it=>(it.itemName||'').toLowerCase().includes(q)||(it.category||'').toLowerCase().includes(q)||(it.itemCode||'').toLowerCase().includes(q)).slice(0,15);
+  if(!hits.length){drop.innerHTML='<div style="padding:12px;font-size:.83rem;color:var(--mu)">No matching items found</div>';drop.style.display='block';return;}
+  drop.innerHTML=hits.map(it=>`<div onclick="selectBillItem('${it.id}')" style="padding:11px 13px;cursor:pointer;border-bottom:1px solid var(--brd);font-size:.85rem;transition:background .15s" onmouseover="this.style.background='var(--PL)'" onmouseout="this.style.background='#fff'">
+    <div style="font-weight:600">${it.itemName}</div>
+    <div style="display:flex;justify-content:space-between;margin-top:2px">
+      <span style="font-size:.73rem;color:var(--mu)">${it.category||'—'} ${it.itemCode?'· '+it.itemCode:''}</span>
+      <span style="font-weight:700;color:var(--A)">₦${Number(it.price||0).toLocaleString()}</span>
+    </div>
+  </div>`).join('');
+  drop.style.display='block';
+};
+
+window.selectBillItem=(id)=>{
+  const item=_priceListCache.find(i=>i.id===id);if(!item)return;
+  _selectedBillItem=item;
+  ge('bSearch').value=item.itemName;
+  ge('bSearchDrop').style.display='none';
+  ge('bSelName').textContent=item.itemName;
+  ge('bSelCat').textContent=(item.category||'')+(item.itemCode?' · '+item.itemCode:'');
+  ge('bSelPrice').textContent='₦'+Number(item.price||0).toLocaleString();
+  ge('bSelectedItem').style.display='block';
+  if(ge('bQty'))ge('bQty').value='1';
+  updateBillSubtotal();
+};
+
+window.updateBillSubtotal=()=>{
+  if(!_selectedBillItem)return;
+  const qty=parseInt(ge('bQty')?.value)||1;
+  const total=qty*(parseFloat(_selectedBillItem.price)||0);
+  if(ge('bSubtotal'))ge('bSubtotal').value='₦'+total.toLocaleString();
+};
+
+window.addBI=()=>{
+  if(!_selectedBillItem){toast('Search and select an item from the price list first','err');return;}
+  const qty=parseInt(ge('bQty')?.value)||1;
+  const unitAmt=parseFloat(_selectedBillItem.price)||0;
+  const amount=unitAmt*qty;
+  BI.push({desc:_selectedBillItem.itemName,qty,unitAmt,amount,itemCode:_selectedBillItem.itemCode||''});
+  renderBI();
+  // Reset
+  _selectedBillItem=null;
+  ge('bSearch').value='';ge('bSelectedItem').style.display='none';
+  if(ge('bQty'))ge('bQty').value='1';
+  if(ge('bSubtotal'))ge('bSubtotal').value='';
+};
+
+window.addBICustom=()=>{
+  const desc=gv('bDescCustom'),qty=parseInt(ge('bQtyCustom')?.value)||1,unitAmt=parseFloat(gv('bAmtCustom'));
+  if(!desc||isNaN(unitAmt)||unitAmt<=0){toast('Enter description and price for custom item','err');return;}
+  BI.push({desc,qty,unitAmt,amount:unitAmt*qty});
+  renderBI();
+  ge('bDescCustom').value='';ge('bAmtCustom').value='';if(ge('bQtyCustom'))ge('bQtyCustom').value='1';
+};
+
 window.remBI=i=>{BI.splice(i,1);renderBI();};
 function renderBI(){
   const el=ge("billItems");
@@ -4225,6 +4439,12 @@ async function _plDoImport(rows, mapping){
   </div>`;
   loadPriceList();
 }
+
+// Close bill search dropdown on outside click
+document.addEventListener('click',e=>{
+  const drop=ge('bSearchDrop'),search=ge('bSearch');
+  if(drop&&search&&!drop.contains(e.target)&&e.target!==search){drop.style.display='none';}
+});
 
 // ─── TOAST ───────────────────────────────────────────────────────────────────
 window.toast=(msg,type="ok")=>{const t=document.createElement("div");t.className=`toast t-${type}`;t.innerHTML=`<i class="fa fa-${type==="ok"?"check-circle":"exclamation-circle"}"></i> ${msg}`;ge("toasts").appendChild(t);setTimeout(()=>t.classList.add("show"),10);setTimeout(()=>{t.classList.remove("show");setTimeout(()=>t.remove(),300);},3500);};
