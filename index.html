@@ -560,7 +560,7 @@ textarea.fi{resize:vertical;min-height:80px}
 
     <!-- ADMIN -->
     <div id="mod-admin" class="mod">
-      <div class="mhdr"><h2><i class="fa fa-user-shield" style="color:var(--P)"></i> Admin Panel</h2><button class="bsm primary" onclick="openModal('staffModal')"><i class="fa fa-user-plus"></i> Add Staff</button></div>
+      <div class="mhdr"><h2><i class="fa fa-user-shield" style="color:var(--P)"></i> Admin Panel</h2><button class="bsm primary" id="addStaffBtn" onclick="openModal('staffModal')" style="display:none"><i class="fa fa-user-plus"></i> Add Staff</button></div>
       <div class="sgrid" style="grid-template-columns:1fr 1fr">
         <div class="scard"><div class="iw ib"><i class="fa fa-users"></i></div><div class="sv2" id="aTP">—</div><div class="sl">Total Patients</div></div>
         <div class="scard"><div class="iw ig"><i class="fa fa-naira-sign"></i></div><div class="sv2" id="aRev">—</div><div class="sl">Revenue Today</div></div>
@@ -1028,6 +1028,8 @@ textarea.fi{resize:vertical;min-height:80px}
 </div></div>
 
 
+<!-- EDIT STAFF MODAL (Super Admin) -->
+<div id="editStaffModal" class="movl"><div class="modal">
   <div class="mhd"><h3><i class="fa fa-user-edit" style="color:var(--P)"></i> Edit Staff</h3><button class="mcls" onclick="cModal('editStaffModal')">✕</button></div>
   <div class="fg"><label class="fl">Full Name</label><input id="esName" class="fi"/></div>
   <div class="fg"><label class="fl">Role</label>
@@ -2181,6 +2183,16 @@ window.loadAdminStats=async()=>{
     if(rb){rb.innerHTML='<div style="background:#fce8e8;border-radius:var(--rs);padding:14px;text-align:center;color:var(--D);font-weight:600"><i class="fa fa-lock" style="margin-right:6px"></i>Access Denied – Admin Only</div>';}
     const aq=ge("approvalQueueBlock");if(aq)aq.style.display="none";
   }
+  // Show/hide Add Staff button and price list management — Admin & Super Admin only
+  const addBtn=ge("addStaffBtn");
+  const plBlock=ge("priceListAdminBlock");
+  if(isSuperAdmin()||SP.role==="Admin"){
+    if(addBtn)addBtn.style.display="inline-flex";
+    if(plBlock)plBlock.style.display="block";
+  } else {
+    if(addBtn)addBtn.style.display="none";
+    if(plBlock)plBlock.style.display="none";
+  }
 };
 window.createStaff=async()=>{
   const name=gv("sName"),email=gv("sEmail"),pass=gv("sPass"),role=gv("sRole"),dept=gv("sDept"),shift=gv("sShift");
@@ -2198,9 +2210,11 @@ window.loadStaff=async()=>{
   el.innerHTML='<tr><td colspan="5" class="cr"><i class="fa fa-spinner fa-spin"></i></td></tr>';
   const s=await getDocs(collection(db,"staff"));
   if(s.empty){el.innerHTML='<tr><td colspan="5" class="cr">No staff</td></tr>';return;}
-  const canEdit=isSuperAdmin()||isAdmin();
+  const canEdit=isSuperAdmin()||SP.role==="Admin";
   const canDelete=isSuperAdmin();
-  el.innerHTML=s.docs.map(d=>{const r=d.data(),uid=d.id;
+  const activeDocs=s.docs.filter(d=>d.data().deleted!==true);
+  if(!activeDocs.length){el.innerHTML='<tr><td colspan="5" class="cr">No active staff</td></tr>';return;}
+  el.innerHTML=activeDocs.map(d=>{const r=d.data(),uid=d.id;
     const shiftBadge=r.shift?`<span style="background:#e8f1fb;color:var(--P);font-size:.7rem;font-weight:700;padding:2px 8px;border-radius:20px;text-transform:capitalize">${r.shift}</span>`:"<span style=\"color:var(--mu);font-size:.72rem\">—</span>";
     // Don't show delete for self
     const isSelf=uid===CU.uid;
