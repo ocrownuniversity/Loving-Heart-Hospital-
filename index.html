@@ -99,7 +99,7 @@ textarea.fi{resize:vertical;min-height:80px}
 .cr{text-align:center;color:var(--mu);padding:18px!important}
 .badge{display:inline-block;padding:2px 9px;border-radius:20px;font-size:.7rem;font-weight:600;text-transform:uppercase}
 .bg-ok{background:#e6f7ef;color:#1a7a4a}.bg-no{background:#fce8e8;color:var(--D)}.bg-warn{background:#fff8e1;color:#7a5e00}
-.role-admin{background:#ede7f6;color:#5e35b1}.role-doctor{background:var(--PL);color:var(--P)}.role-nurse{background:#e8f5e9;color:#388e3c}.role-receptionist{background:#fff3e0;color:#ef6c00}.role-lab-technician{background:#e0f7fa;color:#00838f}.role-pharmacist{background:#fce4ec;color:#c2185b}.role-accountant{background:#e8f5e9;color:#1b5e20}.role-super-admin{background:#4a148c;color:#fff}
+.role-admin{background:#ede7f6;color:#5e35b1}.role-doctor{background:var(--PL);color:var(--P)}.role-nurse{background:#e8f5e9;color:#388e3c}.role-receptionist{background:#fff3e0;color:#ef6c00}.role-lab-technician{background:#e0f7fa;color:#00838f}.role-chief-lab-technician{background:#b2ebf2;color:#006064;font-weight:700}.role-pharmacist{background:#fce4ec;color:#c2185b}.role-accountant{background:#e8f5e9;color:#1b5e20}.role-super-admin{background:#4a148c;color:#fff}.role-assistant-admin{background:#e8eaf6;color:#3949ab;font-weight:700}
 .st-paid{background:#e6f7ef;color:#1a7a4a}.st-unpaid{background:#fce8e8;color:var(--D)}.st-partially-paid{background:#fff8e1;color:#7a5e00}
 .pid{background:var(--PL);color:var(--P);font-size:.73rem;font-weight:700;padding:2px 7px;border-radius:5px;font-family:monospace;letter-spacing:.5px}
 .bsm{padding:8px 14px;font-size:.82rem;font-weight:600;border:none;border-radius:var(--rs);cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:.17s}
@@ -168,7 +168,13 @@ textarea.fi{resize:vertical;min-height:80px}
 .notif-empty{text-align:center;padding:30px;color:var(--mu);font-size:.85rem}
 .notif-markall{width:100%;padding:10px;background:none;border:none;border-top:1px solid var(--brd);color:var(--P);font-size:.82rem;font-weight:600;cursor:pointer;font-family:"DM Sans",sans-serif}
 .notif-markall:hover{background:var(--PL)}
-/* PWA Install Button */
+.rec-block.injection{border-color:#7b1fa2}
+.dot-injection{background:#7b1fa2}
+.tag-injection{background:#f3e5f5;color:#7b1fa2}
+/* APPROVAL STATUS */
+.approval-pending{background:#fff8e1;border:1px solid var(--W);border-radius:var(--rs);padding:10px 13px;font-size:.83rem;color:#7a5e00;margin-bottom:10px;display:flex;gap:9px;align-items:center}
+.approval-pending i{flex-shrink:0}
+/* INSTALL BANNER */
 #installBtn{
   display:none;position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
   background:var(--A);color:#fff;border:none;border-radius:30px;padding:13px 28px;
@@ -397,7 +403,7 @@ textarea.fi{resize:vertical;min-height:80px}
       </div>
       <div class="sgrid">
         <div class="scard"><div class="iw ib"><i class="fa fa-users"></i></div><div class="sv2" id="dPat">—</div><div class="sl">Patients</div></div>
-        <div class="scard"><div class="iw ig"><i class="fa fa-naira-sign"></i></div><div class="sv2" id="dRev">—</div><div class="sl">Revenue Today</div></div>
+        <div id="dRevCard" class="scard"><div class="iw ig"><i class="fa fa-naira-sign"></i></div><div class="sv2" id="dRev">—</div><div class="sl">Revenue Today</div></div>
         <div class="scard"><div class="iw io"><i class="fa fa-calendar-check"></i></div><div class="sv2" id="dApt">—</div><div class="sl">Appts Today</div></div>
         <div class="scard"><div class="iw ir"><i class="fa fa-flask"></i></div><div class="sv2" id="dLab">—</div><div class="sl">Pending Labs</div></div>
       </div>
@@ -452,6 +458,20 @@ textarea.fi{resize:vertical;min-height:80px}
     <!-- LAB -->
     <div id="mod-lab" class="mod">
       <div class="mhdr"><h2><i class="fa fa-flask" style="color:var(--P)"></i> Laboratory</h2><button class="bsm outline" onclick="loadLabQ()"><i class="fa fa-rotate"></i> Refresh</button></div>
+      <!-- Chief Lab Technician management panel -->
+      <div id="chiefLabPanel" style="display:none">
+        <div class="sc-mb" style="background:linear-gradient(135deg,#e0f7fa,#b2ebf2);border:1px solid #00838f;border-radius:var(--r);padding:14px">
+          <h4 style="color:#00838f;font-size:.9rem;margin-bottom:8px"><i class="fa fa-star" style="margin-right:6px"></i>Chief Lab Technician Panel</h4>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="bsm outline" style="font-size:.79rem" onclick="loadAllLabResults()"><i class="fa fa-list"></i> All Lab Reports</button>
+            <button class="bsm outline" style="font-size:.79rem" onclick="loadLabStaffList()"><i class="fa fa-users"></i> Lab Staff</button>
+          </div>
+        </div>
+        <div id="allLabResultsList" style="display:none" class="sc-mb">
+          <h4 class="ssub">📋 All Lab Reports</h4>
+          <div id="allLabResultsContent"><div class="en">Click "All Lab Reports" to load</div></div>
+        </div>
+      </div>
       <p class="muted" style="margin-bottom:12px">Upload results for pending test requests from doctors</p>
       <div id="labQ"><div class="cr"><i class="fa fa-spinner fa-spin"></i></div></div>
     </div>
@@ -545,16 +565,24 @@ textarea.fi{resize:vertical;min-height:80px}
         <div class="scard"><div class="iw io"><i class="fa fa-calendar-day"></i></div><div class="sv2" id="aTodP">—</div><div class="sl">New Today</div></div>
         <div class="scard"><div class="iw ip"><i class="fa fa-id-badge"></i></div><div class="sv2" id="aStaff">—</div><div class="sl">Staff Count</div></div>
       </div>
-      <div class="sc-mb"><h4 class="ssub">💰 Revenue Breakdown</h4>
+      <div id="adminRevBlock" class="sc-mb"><h4 class="ssub">💰 Revenue Breakdown</h4>
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px;margin-top:8px">
           <div style="text-align:center;background:var(--bg);border-radius:9px;padding:12px"><div style="font-size:1rem;font-weight:700;color:var(--P)" id="aCash">—</div><div style="font-size:.72rem;color:var(--mu)">Cash</div></div>
           <div style="text-align:center;background:var(--bg);border-radius:9px;padding:12px"><div style="font-size:1rem;font-weight:700;color:var(--A)" id="aPOS">—</div><div style="font-size:.72rem;color:var(--mu)">POS</div></div>
           <div style="text-align:center;background:var(--bg);border-radius:9px;padding:12px"><div style="font-size:1rem;font-weight:700;color:var(--W)" id="aTrf">—</div><div style="font-size:.72rem;color:var(--mu)">Transfer</div></div>
         </div>
       </div>
+      <!-- APPROVAL QUEUE — Admin only -->
+      <div class="sc-mb" id="approvalQueueBlock">
+        <div class="mhdr" style="margin-bottom:10px">
+          <h4 style="font-size:.93rem">⏳ Pending Approvals</h4>
+          <button class="bsm outline" onclick="loadApprovalQueue()"><i class="fa fa-rotate"></i></button>
+        </div>
+        <div id="approvalQueueList"><div class="en">Loading…</div></div>
+      </div>
       <div class="sc-mb">
         <div class="mhdr" style="margin-bottom:10px"><h4 style="font-size:.93rem">👥 All Staff</h4><button class="bsm outline" onclick="loadStaff()"><i class="fa fa-rotate"></i></button></div>
-        <div class="twrap"><table class="dtab"><thead><tr><th>Name</th><th>Role</th><th>Salary</th><th>Status</th><th>Actions</th></tr></thead><tbody id="staffBody"></tbody></table></div>
+        <div class="twrap"><table class="dtab"><thead><tr><th>Name</th><th>Role</th><th>Shift</th><th>Status</th><th>Actions</th></tr></thead><tbody id="staffBody"></tbody></table></div>
       </div>
     </div>
 
@@ -973,8 +1001,8 @@ textarea.fi{resize:vertical;min-height:80px}
   <div class="fg"><label class="fl">Full Name</label><input id="esName" class="fi"/></div>
   <div class="fg"><label class="fl">Role</label>
     <select id="esRole" class="fsel">
-      <option>Admin</option><option>Super Admin</option><option>Doctor</option><option>Nurse</option>
-      <option>Receptionist</option><option>Lab Technician</option><option>Pharmacist</option><option>Accountant</option>
+      <option>Admin</option><option>Super Admin</option><option>Assistant Admin</option><option>Doctor</option><option>Nurse</option>
+      <option>Receptionist</option><option>Lab Technician</option><option>Chief Lab Technician</option><option>Pharmacist</option><option>Accountant</option>
     </select>
   </div>
   <div class="fg"><label class="fl">Department</label><input id="esDept" class="fi"/></div>
@@ -1008,7 +1036,7 @@ textarea.fi{resize:vertical;min-height:80px}
   <div class="fg"><label class="fl">Full Name *</label><input id="sName" class="fi" placeholder="Staff full name"/></div>
   <div class="fg"><label class="fl">Email *</label><input id="sEmail" class="fi" type="email" placeholder="staff@hospital.org"/></div>
   <div class="fg"><label class="fl">Password *</label><input id="sPass" class="fi" type="password" placeholder="Min 6 characters"/></div>
-  <div class="frow"><div class="fg"><label class="fl">Role *</label><select id="sRole" class="fsel"><option value="">Select…</option><option>Admin</option><option>Super Admin</option><option>Doctor</option><option>Nurse</option><option>Receptionist</option><option>Lab Technician</option><option>Pharmacist</option><option>Accountant</option></select></div><div class="fg"><label class="fl">Department</label><input id="sDept" class="fi" placeholder="e.g. Nursing"/></div></div>
+  <div class="frow"><div class="fg"><label class="fl">Role *</label><select id="sRole" class="fsel"><option value="">Select…</option><option>Admin</option><option>Super Admin</option><option>Assistant Admin</option><option>Doctor</option><option>Nurse</option><option>Receptionist</option><option>Lab Technician</option><option>Chief Lab Technician</option><option>Pharmacist</option><option>Accountant</option></select></div><div class="fg"><label class="fl">Department</label><input id="sDept" class="fi" placeholder="e.g. Nursing"/></div></div>
   <div class="fg"><label class="fl">Assigned Shift</label>
     <select id="sShift" class="fsel">
       <option value="">Select shift…</option>
@@ -1065,6 +1093,12 @@ const ADMIN_EMAILS=["oladejiridwanopeyemi@gmail.com","admin@lovinghearthospital.
 // We also check Firestore role = "Admin"
 
 function isAdmin(){
+  if(!CU||!SP)return false;
+  if(SP.role==="Admin"||SP.role==="Super Admin"||SP.role==="Assistant Admin")return true;
+  if(CU.email&&ADMIN_EMAILS.includes(CU.email.toLowerCase()))return true;
+  return false;
+}
+function isStrictAdmin(){
   if(!CU||!SP)return false;
   if(SP.role==="Admin"||SP.role==="Super Admin")return true;
   if(CU.email&&ADMIN_EMAILS.includes(CU.email.toLowerCase()))return true;
@@ -1129,26 +1163,32 @@ window.doLogout=async()=>{await signOut(auth);toast("Logged out","ok");};
 
 // ── STRICT ROLE PERMISSIONS ────────────────────────────────────────────────
 const ROLE_MODULES={
-  "Super Admin":    ["dashboard","patients","appointments","lab","pharmacy","billing","messages","profile","admin","payroll","accountant","attendance","notifications"],
-  "Admin":          ["dashboard","patients","appointments","lab","pharmacy","billing","messages","profile","admin","payroll","accountant","attendance","notifications"],
-  "Doctor":         ["dashboard","patients","appointments","messages","profile","attendance","notifications"],
-  "Nurse":          ["dashboard","patients","appointments","messages","profile","attendance","notifications"],
-  "Receptionist":   ["dashboard","patients","appointments","billing","messages","profile","attendance","notifications"],
-  "Lab Technician": ["dashboard","lab","patients","messages","profile","attendance","notifications"],
-  "Pharmacist":     ["dashboard","pharmacy","patients","messages","profile","attendance","notifications"],
-  "Accountant":     ["dashboard","payroll","accountant","messages","profile","attendance","notifications"]
+  "Super Admin":      ["dashboard","patients","appointments","lab","pharmacy","billing","messages","profile","admin","payroll","accountant","attendance","notifications"],
+  "Admin":            ["dashboard","patients","appointments","lab","pharmacy","billing","messages","profile","admin","payroll","accountant","attendance","notifications"],
+  "Assistant Admin":  ["dashboard","patients","appointments","lab","pharmacy","billing","messages","profile","admin","attendance","notifications"],
+  "Doctor":           ["dashboard","patients","appointments","messages","profile","attendance","notifications"],
+  "Nurse":            ["dashboard","patients","appointments","messages","profile","attendance","notifications"],
+  "Receptionist":     ["dashboard","patients","appointments","billing","messages","profile","attendance","notifications"],
+  "Lab Technician":   ["dashboard","lab","patients","messages","profile","attendance","notifications"],
+  "Chief Lab Technician": ["dashboard","lab","patients","messages","profile","attendance","notifications"],
+  "Pharmacist":       ["dashboard","pharmacy","patients","messages","profile","attendance","notifications"],
+  "Accountant":       ["dashboard","payroll","accountant","messages","profile","attendance","notifications"]
 };
 const ROLE_ACTIONS={
-  "Super Admin":    ["register","dispense","uploadLab","manageStock","viewPatient","book","bill","addRecord","viewRecord","managePayroll","manageStaff"],
-  "Admin":          ["register","dispense","uploadLab","manageStock","viewPatient","book","bill","addRecord","viewRecord","managePayroll","manageStaff"],
-  "Doctor":         ["viewPatient","addRecord","viewRecord","book"],
-  "Nurse":          ["register","viewPatient","addRecord","viewRecord","book"],
-  "Receptionist":   ["register","viewPatient","book","bill","viewRecord"],
-  "Lab Technician": ["uploadLab","viewPatient","viewRecord"],
-  "Pharmacist":     ["dispense","manageStock","viewPatient","viewRecord"],
-  "Accountant":     ["managePayroll","viewRecord"]
+  "Super Admin":      ["register","dispense","uploadLab","manageStock","viewPatient","book","bill","addRecord","viewRecord","managePayroll","manageStaff","deleteStaff","deleteDrug","manageLabStaff","reviewLabResults"],
+  "Admin":            ["register","dispense","uploadLab","manageStock","viewPatient","book","bill","addRecord","viewRecord","managePayroll","manageStaff","deleteStaff","deleteDrug","approveDispense","approveLabTest"],
+  "Assistant Admin":  ["register","dispense","uploadLab","manageStock","viewPatient","book","bill","addRecord","viewRecord","manageStaff"],
+  "Doctor":           ["viewPatient","addRecord","viewRecord","book"],
+  "Nurse":            ["register","viewPatient","addRecord","viewRecord","book"],
+  "Receptionist":     ["register","viewPatient","book","bill","viewRecord"],
+  "Lab Technician":   ["uploadLab","viewPatient","viewRecord"],
+  "Chief Lab Technician": ["uploadLab","viewPatient","viewRecord","manageLabStaff","reviewLabResults"],
+  "Pharmacist":       ["dispense","manageStock","deleteDrug","viewPatient","viewRecord"],
+  "Accountant":       ["managePayroll","viewRecord"]
 };
 function canDo(action){return(ROLE_ACTIONS[SP.role]||[]).includes(action);}
+function isAssistantAdmin(){if(!SP)return false;return SP.role==="Assistant Admin";}
+function isChiefLabTech(){if(!SP)return false;return SP.role==="Chief Lab Technician";}
 
 function initApp(){
   sv("staffName",SP.name);
@@ -1160,17 +1200,21 @@ function initApp(){
   });
   // Register button
   if(ge("regBtn"))ge("regBtn").style.display=canDo("register")?"inline-flex":"none";
-  // Admin panel
+  // Admin panel — all admins see it, but Assistant Admin sees restricted view
   if(isAdmin()){
     if(ge("adminNav"))ge("adminNav").style.display="flex";
     if(ge("adminBanner"))ge("adminBanner").style.display="flex";
   }
+  // Payroll only for strict Admin/Super Admin and Accountant — NOT Assistant Admin
   if(isAccountant()){
     if(ge("accountantNav"))ge("accountantNav").style.display="flex";
     if(ge("payrollNav"))ge("payrollNav").style.display="flex";
-  } else if(isAdmin()){
+  } else if(isStrictAdmin()){
     if(ge("payrollNav"))ge("payrollNav").style.display="flex";
   }
+  // Daily Revenue card in dashboard — only strict Admin/Super Admin
+  const revCard=ge("dRevCard");
+  if(revCard){revCard.style.display=isStrictAdmin()?"block":"none";}
   // Attendance is available to all
   if(ge("attendanceNav"))ge("attendanceNav").style.display="flex";
   showMod("dashboard");
@@ -1186,6 +1230,7 @@ function initApp(){
 window.showMod=mod=>{
   // Guard all modules by role
   if(mod==="admin"&&!isAdmin()){toast("⛔ Admin access only","err");return;}
+  if(mod==="payroll"&&!isStrictAdmin()&&!isAccountant()){toast("⛔ Admin/Accountant access only","err");return;}
   if(mod==="accountant"&&!isAccountant()){toast("⛔ Accountant/Admin access only","err");return;}
   const allowed=ROLE_MODULES[SP&&SP.role]||["dashboard","messages","profile"];
   if(!allowed.includes(mod)&&mod!=="dashboard"){
@@ -1202,7 +1247,7 @@ window.showMod=mod=>{
   if(mod==="billing")     loadBills();
   if(mod==="messages")    loadThreads();
   if(mod==="profile")     loadProf();
-  if(mod==="admin")       {loadAdminStats();loadStaff();}
+  if(mod==="admin")       {loadAdminStats();loadStaff();loadApprovalQueue();}
   if(mod==="accountant")  {loadAccountantDash();}
   if(mod==="attendance")  {loadAttendanceModule();}
   if(mod==="notifications"){loadNotifPage();}
@@ -1279,7 +1324,14 @@ async function loadDashCards(){
     getDocs(query(collection(db,"labRequests"),where("status","==","Pending")))
   ]);
   sv("dPat",ps.size);
-  sv("dRev","₦"+bs.docs.filter(d=>d.data().status==="Paid").reduce((a,d)=>a+d.data().total,0).toLocaleString());
+  // Daily Revenue — ONLY strict Admin/Super Admin
+  if(isStrictAdmin()){
+    const rev=bs.docs.filter(d=>d.data().status==="Paid").reduce((a,d)=>a+d.data().total,0);
+    sv("dRev","₦"+rev.toLocaleString());
+    const rc=ge("dRevCard");if(rc)rc.style.display="";
+  } else {
+    const rc=ge("dRevCard");if(rc)rc.style.display="none";
+  }
   sv("dApt",as.size);sv("dLab",ls.size);
 }
 
@@ -1340,12 +1392,15 @@ async function renderRec(){
 
   // What can this role add?
   const roleActions={
-    "Admin":         [{v:"vitals",l:"❤️ Vital Signs"},{v:"diag",l:"🩺 Diagnosis"},{v:"rx",l:"💊 Prescription"},{v:"labReq",l:"🔬 Lab Request"},{v:"labRes",l:"🧪 Lab Result"},{v:"note",l:"👩‍⚕️ Note"},{v:"referral",l:"📨 Note to Dept"}],
-    "Doctor":        [{v:"diag",l:"🩺 Diagnosis"},{v:"rx",l:"💊 Prescription → Pharmacy"},{v:"labReq",l:"🔬 Lab Request → Lab"},{v:"vitals",l:"❤️ Vital Signs"},{v:"referral",l:"📨 Note to Dept"}],
-    "Nurse":         [{v:"vitals",l:"❤️ Vital Signs"},{v:"note",l:"👩‍⚕️ Nurse Note"},{v:"labReq",l:"🔬 Lab Request → Lab"},{v:"referral",l:"📨 Note to Dept"}],
-    "Lab Technician":[{v:"labRes",l:"🧪 Upload Lab Result"}],
-    "Pharmacist":    [],
-    "Receptionist":  []
+    "Admin":              [{v:"vitals",l:"❤️ Vital Signs"},{v:"diag",l:"🩺 Diagnosis"},{v:"rx",l:"💊 Prescription"},{v:"labReq",l:"🔬 Lab Request"},{v:"labRes",l:"🧪 Lab Result"},{v:"note",l:"👩‍⚕️ Note"},{v:"referral",l:"📨 Note to Dept"},{v:"injection",l:"💉 Injection"}],
+    "Super Admin":        [{v:"vitals",l:"❤️ Vital Signs"},{v:"diag",l:"🩺 Diagnosis"},{v:"rx",l:"💊 Prescription"},{v:"labReq",l:"🔬 Lab Request"},{v:"labRes",l:"🧪 Lab Result"},{v:"note",l:"👩‍⚕️ Note"},{v:"referral",l:"📨 Note to Dept"},{v:"injection",l:"💉 Injection"}],
+    "Assistant Admin":    [{v:"vitals",l:"❤️ Vital Signs"},{v:"diag",l:"🩺 Diagnosis"},{v:"rx",l:"💊 Prescription"},{v:"labReq",l:"🔬 Lab Request"},{v:"labRes",l:"🧪 Lab Result"},{v:"note",l:"👩‍⚕️ Note"},{v:"referral",l:"📨 Note to Dept"},{v:"injection",l:"💉 Injection"}],
+    "Doctor":             [{v:"diag",l:"🩺 Diagnosis"},{v:"rx",l:"💊 Prescription → Pharmacy"},{v:"labReq",l:"🔬 Lab Request → Lab"},{v:"vitals",l:"❤️ Vital Signs"},{v:"referral",l:"📨 Note to Dept"},{v:"injection",l:"💉 Injection"}],
+    "Nurse":              [{v:"vitals",l:"❤️ Vital Signs"},{v:"note",l:"👩‍⚕️ Nurse Note"},{v:"labReq",l:"🔬 Lab Request → Lab"},{v:"referral",l:"📨 Note to Dept"},{v:"injection",l:"💉 Injection"}],
+    "Lab Technician":     [{v:"labRes",l:"🧪 Upload Lab Result"}],
+    "Chief Lab Technician":[{v:"labRes",l:"🧪 Upload Lab Result"}],
+    "Pharmacist":         [],
+    "Receptionist":       []
   };
   const acts=roleActions[SP.role]||[];
   const addBtns=acts.length>0?`<div class="flex" style="flex-wrap:wrap;gap:7px;margin-top:12px">${acts.map(a=>`<button class="bsm outline" style="font-size:.76rem;padding:6px 10px" onclick="openAddRec('${a.v}','${a.l}')">${a.l}</button>`).join("")}</div>`:"";
@@ -1361,8 +1416,8 @@ async function renderRec(){
     <div class="di full"><span>Medical History / Allergies</span><strong>${p.history||"None stated"}</strong></div>
   </div>${addBtns}`;
 
-  const colorMap={reg:"reg",vitals:"vitals",diag:"doctor",rx:"pharmacy",labReq:"lab",labRes:"lab",note:"nurse",referral:"doctor"};
-  const tagMap={reg:"📋 Registration",vitals:"❤️ Vitals",diag:"🩺 Diagnosis",rx:"💊 Prescription",labReq:"🔬 Lab Request",labRes:"🧪 Lab Result",note:"👩‍⚕️ Nurse Note",referral:"📨 Dept Note"};
+  const colorMap={reg:"reg",vitals:"vitals",diag:"doctor",rx:"pharmacy",labReq:"lab",labRes:"lab",note:"nurse",referral:"doctor",injection:"injection"};
+  const tagMap={reg:"📋 Registration",vitals:"❤️ Vitals",diag:"🩺 Diagnosis",rx:"💊 Prescription",labReq:"🔬 Lab Request",labRes:"🧪 Lab Result",note:"👩‍⚕️ Nurse Note",referral:"📨 Dept Note",injection:"💉 Injection"};
 
   let tl="";
   if(!recs.length){
@@ -1377,6 +1432,7 @@ async function renderRec(){
           v.bp?`<div class="vcard"><div class="vval">${v.bp}</div><div class="vlbl">Blood Pressure</div></div>`:"",
           v.temp?`<div class="vcard"><div class="vval">${v.temp}</div><div class="vlbl">Temperature</div></div>`:"",
           v.pulse?`<div class="vcard"><div class="vval">${v.pulse}</div><div class="vlbl">Pulse</div></div>`:"",
+          v.rr?`<div class="vcard"><div class="vval">${v.rr}</div><div class="vlbl">Respiratory Rate</div></div>`:"",
           v.weight?`<div class="vcard"><div class="vval">${v.weight}</div><div class="vlbl">Weight</div></div>`:"",
           v.height?`<div class="vcard"><div class="vval">${v.height}</div><div class="vlbl">Height</div></div>`:"",
           v.o2?`<div class="vcard"><div class="vval">${v.o2}</div><div class="vlbl">SpO₂</div></div>`:""
@@ -1405,8 +1461,9 @@ window.openAddRec=async(type,label)=>{
   ge("addRecTitle").innerHTML=`<i class="fa fa-pen-to-square" style="color:var(--P)"></i> ${label}`;
   const forms={
     vitals:`<div class="frow"><div class="fg"><label class="fl">Blood Pressure</label><input id="vBP" class="fi" placeholder="e.g. 120/80 mmHg"/></div><div class="fg"><label class="fl">Temperature</label><input id="vTemp" class="fi" placeholder="e.g. 36.6 °C"/></div></div>
-      <div class="frow"><div class="fg"><label class="fl">Pulse</label><input id="vPulse" class="fi" placeholder="e.g. 72 bpm"/></div><div class="fg"><label class="fl">Weight</label><input id="vWeight" class="fi" placeholder="e.g. 70 kg"/></div></div>
-      <div class="frow"><div class="fg"><label class="fl">Height</label><input id="vHeight" class="fi" placeholder="e.g. 170 cm"/></div><div class="fg"><label class="fl">SpO₂</label><input id="vO2" class="fi" placeholder="e.g. 98%"/></div></div>
+      <div class="frow"><div class="fg"><label class="fl">Pulse</label><input id="vPulse" class="fi" placeholder="e.g. 72 bpm"/></div><div class="fg"><label class="fl">Respiratory Rate</label><input id="vRR" class="fi" placeholder="e.g. 16 breaths/min"/></div></div>
+      <div class="frow"><div class="fg"><label class="fl">Weight</label><input id="vWeight" class="fi" placeholder="e.g. 70 kg"/></div><div class="fg"><label class="fl">Height</label><input id="vHeight" class="fi" placeholder="e.g. 170 cm"/></div></div>
+      <div class="frow"><div class="fg"><label class="fl">SpO₂</label><input id="vO2" class="fi" placeholder="e.g. 98%"/></div><div class="fg"></div></div>
       <div class="fg"><label class="fl">Notes</label><textarea id="vNotes" class="fi" placeholder="Additional observations…"></textarea></div>
       <button class="btnP" onclick="saveRec('vitals')"><i class="fa fa-save"></i> Save Vitals</button>`,
     diag:`<div class="fg"><label class="fl">Diagnosis / Clinical Notes</label><textarea id="diagNote" class="fi" style="min-height:100px" placeholder="Full diagnosis and clinical findings…"></textarea></div>
@@ -1428,7 +1485,13 @@ window.openAddRec=async(type,label)=>{
       <button class="btnP" onclick="saveRec('note')"><i class="fa fa-save"></i> Save Note</button>`,
     referral:`<div class="fg"><label class="fl">Send Note To</label><select id="refTo" class="fsel"><option>Doctor</option><option>Nurse</option><option>Lab Technician</option><option>Pharmacy</option><option>Reception</option></select></div>
       <div class="fg"><label class="fl">Message / Note</label><textarea id="refNote" class="fi" style="min-height:100px" placeholder="Write your message to that department…"></textarea></div>
-      <button class="btnP" onclick="saveRec('referral')"><i class="fa fa-paper-plane"></i> Send Note</button>`
+      <button class="btnP" onclick="saveRec('referral')"><i class="fa fa-paper-plane"></i> Send Note</button>`,
+    injection:`<div style="background:#f3e5f5;border-radius:var(--rs);padding:10px;font-size:.82rem;color:#7b1fa2;margin-bottom:12px"><i class="fa fa-syringe"></i> Record an injection administered to the patient.</div>
+      <div class="frow"><div class="fg"><label class="fl">Injection Name *</label><input id="injName" class="fi" placeholder="e.g. Amikacin 500mg"/></div><div class="fg"><label class="fl">Dosage *</label><input id="injDose" class="fi" placeholder="e.g. 500mg"/></div></div>
+      <div class="frow"><div class="fg"><label class="fl">Route *</label><select id="injRoute" class="fsel"><option value="IM">IM – Intramuscular</option><option value="IV">IV – Intravenous</option><option value="SC">SC – Subcutaneous</option></select></div><div class="fg"><label class="fl">Days of Injection</label><input id="injDays" class="fi" type="number" placeholder="e.g. 5" min="1"/></div></div>
+      <div class="frow"><div class="fg"><label class="fl">Start Date *</label><input id="injStart" class="fi" type="date"/></div><div class="fg"><label class="fl">End Date</label><input id="injEnd" class="fi" type="date"/></div></div>
+      <div class="fg"><label class="fl">Notes / Instructions</label><textarea id="injNotes" class="fi" placeholder="Additional notes…"></textarea></div>
+      <button class="btnP" onclick="saveRec('injection')"><i class="fa fa-syringe"></i> Save Injection Record</button>`
   };
   ge("addRecBody").innerHTML=forms[type]||"";
   openModal("addRecModal");
@@ -1444,9 +1507,15 @@ window.saveRec=async(type)=>{
   if(type==="diag"&&!["Doctor","Admin"].includes(SP.role)){toast("⛔ Only Doctors can add diagnoses","err");return;}
   let rd={pid:aPID,type,by:SP.name,byRole:SP.role,ts:serverTimestamp()};
   if(type==="vitals"){
-    const bp=gv("vBP"),temp=gv("vTemp"),pulse=gv("vPulse"),weight=gv("vWeight"),height=gv("vHeight"),o2=gv("vO2"),notes=gv("vNotes");
-    if(!bp&&!temp&&!pulse){toast("Enter at least one vital","err");return;}
-    rd={...rd,tag:"Vital Signs",role:"vitals",vitals:{bp,temp,pulse,weight,height,o2},body:notes};
+    const bp=gv("vBP"),temp=gv("vTemp"),pulse=gv("vPulse"),rr=gv("vRR"),weight=gv("vWeight"),height=gv("vHeight"),o2=gv("vO2"),notes=gv("vNotes");
+    if(!bp&&!temp&&!pulse&&!rr){toast("Enter at least one vital","err");return;}
+    rd={...rd,tag:"Vital Signs",role:"vitals",vitals:{bp,temp,pulse,rr,weight,height,o2},body:notes};
+  }else if(type==="injection"){
+    const name=gv("injName"),dose=gv("injDose"),route=gv("injRoute"),days=gv("injDays"),start=gv("injStart"),end=gv("injEnd"),notes=gv("injNotes");
+    if(!name||!dose||!route){toast("Enter injection name, dosage and route","err");return;}
+    rd={...rd,tag:"Injection",role:"injection",type:"injection",
+      body:`💉 ${name} ${dose} via ${route}${days?" · "+days+" day(s)":""}${start?"\nStart: "+start:""}${end?" → End: "+end:""} ${notes?"\nNotes: "+notes:""}`,
+      injection:{name,dose,route,days,start,end,notes}};
   }else if(type==="diag"){
     const n=gv("diagNote");if(!n){toast("Enter diagnosis","err");return;}
     await sendNotif(["Nurse","Admin"],"diag","🩺 Diagnosis Added",`Dr.${SP.name} added diagnosis for patient ${aPID}`,aPID);
@@ -1525,25 +1594,47 @@ window.updAppt=async(id,status)=>{await updateDoc(doc(db,"appointments",id),{sta
 // ─── LAB ──────────────────────────────────────────────────────────────────
 window.loadLabQ=async()=>{
   const el=ge("labQ");if(!el)return;
+  // Show Chief Lab Tech panel if applicable
+  const chiefPanel=ge("chiefLabPanel");
+  if(chiefPanel)chiefPanel.style.display=(isChiefLabTech()||isStrictAdmin())?"block":"none";
+
   el.innerHTML='<div class="cr"><i class="fa fa-spinner fa-spin"></i></div>';
   const s=await getDocs(query(collection(db,"labRequests"),where("status","==","Pending")));
   if(s.empty){el.innerHTML='<div class="en">No pending lab requests</div>';return;}
   const rows=s.docs.map(d=>({_id:d.id,...d.data()}));
   rows.sort((a,b)=>{const order={STAT:0,Urgent:1,Routine:2};return(order[a.urgency]||2)-(order[b.urgency]||2);});
-  el.innerHTML=rows.map(r=>`<div class="icard">
-    <div class="crow">
-      <span><i class="fa fa-vial"></i> <b>${r.testName}</b>${r.urgency==="STAT"?` <span class="badge bg-no">STAT</span>`:r.urgency==="Urgent"?` <span class="badge bg-warn">Urgent</span>`:""}</span>
-      <span class="pid">${r.patientId}</span>
-    </div>
-    <small class="muted">Requested by ${r.requestedBy}${r.notes?" · "+r.notes:""}</small>
-    <div class="mt8">
-      <textarea id="lr-${r._id}" class="fi sm" style="min-height:60px" placeholder="Enter full result details here…"></textarea>
-      <div class="flex mt4">
-        <input id="lrref-${r._id}" class="fi sm" style="flex:1" placeholder="Reference range (optional)"/>
-        <button class="bsm primary" onclick="uploadLab('${r._id}','${r.patientId}','${r.testName}')"><i class="fa fa-upload"></i> Upload & Save to Patient File</button>
+
+  // Load approval requests
+  const approvalSnap=await getDocs(collection(db,"approvalRequests"));
+  const approvals={};
+  approvalSnap.docs.forEach(d=>{const r=d.data();if(r.labReqId)approvals[r.labReqId]=r;});
+
+  el.innerHTML=rows.map(r=>{
+    const approval=approvals[r._id];
+    const isApproved=approval&&approval.status==="Approved";
+    const isPending=approval&&approval.status==="Pending";
+    let actionHtml="";
+    if(isApproved||isStrictAdmin()||isChiefLabTech()){
+      actionHtml=`${isApproved?'<div style="background:#e6f7ef;border-radius:var(--rs);padding:6px 10px;font-size:.78rem;color:#1a7a4a;margin-bottom:6px"><i class="fa fa-check-circle"></i> Approved by Admin</div>':""}
+        <textarea id="lr-${r._id}" class="fi sm" style="min-height:60px" placeholder="Enter full result details here…"></textarea>
+        <div class="flex mt4">
+          <input id="lrref-${r._id}" class="fi sm" style="flex:1" placeholder="Reference range (optional)"/>
+          <button class="bsm primary" onclick="uploadLab('${r._id}','${r.patientId}','${r.testName}')"><i class="fa fa-upload"></i> Upload & Save to Patient File</button>
+        </div>`;
+    } else if(isPending){
+      actionHtml=`<div class="approval-pending"><i class="fa fa-clock"></i> Waiting for Admin Approval</div>`;
+    } else {
+      actionHtml=`<button class="bsm warn mt8" onclick="requestLabApproval('${r._id}','${r.testName}','${r.patientId}')"><i class="fa fa-paper-plane"></i> Request Admin Approval</button>`;
+    }
+    return`<div class="icard">
+      <div class="crow">
+        <span><i class="fa fa-vial"></i> <b>${r.testName}</b>${r.urgency==="STAT"?` <span class="badge bg-no">STAT</span>`:r.urgency==="Urgent"?` <span class="badge bg-warn">Urgent</span>`:""}</span>
+        <span class="pid">${r.patientId}</span>
       </div>
-    </div>
-  </div>`).join("");
+      <small class="muted">Requested by ${r.requestedBy}${r.notes?" · "+r.notes:""}</small>
+      <div class="mt8">${actionHtml}</div>
+    </div>`;
+  }).join("");
 };
 window.uploadLab=async(id,pid,test)=>{
   if(!canDo("uploadLab")){toast("⛔ Only Lab Technicians can upload results","err");return;}
@@ -1564,11 +1655,34 @@ window.loadRx=async()=>{
   el.innerHTML='<div class="cr"><i class="fa fa-spinner fa-spin"></i></div>';
   const s=await getDocs(query(collection(db,"prescriptions"),where("dispensed","==",false)));
   if(s.empty){el.innerHTML='<div class="en">No pending prescriptions from doctors</div>';return;}
-  el.innerHTML=s.docs.map(d=>{const r=d.data();return`<div class="icard">
-    <div class="crow"><span><i class="fa fa-pills"></i> <b>${r.drug}</b></span><span class="pid">${r.patientId}</span></div>
-    <small class="muted">${r.dosage}${r.instructions?" — "+r.instructions:""} · Prescribed by Dr.${r.prescribedBy}</small>
-    <button class="bsm success mt8" onclick="dispense('${d.id}','${r.drug}','${r.patientId}','${r.dosage}')"><i class="fa fa-check"></i> Mark Dispensed & Update Patient File</button>
-  </div>`;}).join("");
+  // Load all approval requests for current pending prescriptions
+  const approvalSnap=await getDocs(collection(db,"approvalRequests"));
+  const approvals={};
+  approvalSnap.docs.forEach(d=>{
+    const r=d.data();
+    if(r.prescriptionId)approvals[r.prescriptionId]=r;
+  });
+  el.innerHTML=s.docs.map(d=>{
+    const r=d.data();
+    const approval=approvals[d.id];
+    const isApproved=approval&&approval.status==="Approved";
+    const isPending=approval&&approval.status==="Pending";
+    let actionHtml="";
+    if(isApproved){
+      actionHtml=`<div style="background:#e6f7ef;border-radius:var(--rs);padding:6px 10px;font-size:.78rem;color:#1a7a4a;margin-bottom:6px"><i class="fa fa-check-circle"></i> Approved by Admin</div>
+        <button class="bsm success mt8" onclick="dispense('${d.id}','${r.drug}','${r.patientId}','${r.dosage}')"><i class="fa fa-check"></i> Dispense & Update Patient File</button>`;
+    } else if(isPending){
+      actionHtml=`<div class="approval-pending"><i class="fa fa-clock"></i> Waiting for Admin Approval</div>`;
+    } else {
+      // No approval request yet — pharmacist must request approval first
+      actionHtml=`<button class="bsm warn mt8" onclick="requestDispenseApproval('${d.id}','${r.drug}','${r.patientId}','${r.dosage}')"><i class="fa fa-paper-plane"></i> Request Admin Approval</button>`;
+    }
+    return`<div class="icard">
+      <div class="crow"><span><i class="fa fa-pills"></i> <b>${r.drug}</b></span><span class="pid">${r.patientId}</span></div>
+      <small class="muted">${r.dosage}${r.instructions?" — "+r.instructions:""} · Prescribed by Dr.${r.prescribedBy}</small>
+      ${actionHtml}
+    </div>`;
+  }).join("");
 };
 window.dispense=async(id,drug,pid,dosage)=>{
   if(!canDo("dispense")){toast("⛔ Only Pharmacists can dispense drugs","err");return;}
@@ -1652,6 +1766,132 @@ window.dispense=async(id,drug,pid,dosage)=>{
   else toast(`${drug} dispensed (Batch: ${batchUsed||"—"})!`,"ok");
   loadRx();loadStock();
 };
+window.deleteDrugBatch=async(batchId,drugName)=>{
+  if(!canDo("deleteDrug")&&!isStrictAdmin()){toast("⛔ Only Pharmacists and Admins can delete drug stock","err");return;}
+  if(!confirm(`Delete batch of "${drugName}" from stock?\n\nThis cannot be undone.`))return;
+  try{
+    // Get the batch to find qty
+    const bSnap=await getDoc(doc(db,"drugBatches",batchId));
+    if(bSnap.exists()){
+      const bd=bSnap.data();
+      // Mark batch inactive
+      await updateDoc(doc(db,"drugBatches",batchId),{active:false,deletedAt:serverTimestamp(),deletedBy:SP.name});
+      // Update legacy drugStock
+      const legSnap=await getDocs(query(collection(db,"drugStock"),where("name","==",bd.name)));
+      if(!legSnap.empty){
+        const legQty=legSnap.docs[0].data().qty||0;
+        const newQty=Math.max(0,legQty-(bd.qty||0));
+        await updateDoc(doc(db,"drugStock",legSnap.docs[0].id),{qty:newQty,updatedAt:serverTimestamp()});
+      }
+    }
+    toast(`✅ Drug batch "${drugName}" removed from stock`,"ok");
+    loadStock();
+  }catch(e){toast("Error: "+e.message,"err");}
+};
+
+// ─── ADMIN APPROVAL WORKFLOW ────────────────────────────────────────────────
+window.requestDispenseApproval=async(prescriptionId,drug,patientId,dosage)=>{
+  // Called by Pharmacist to request admin approval before dispensing
+  await addDoc(collection(db,"approvalRequests"),{
+    type:"dispense",prescriptionId,drug,patientId,dosage,
+    requestedBy:SP.name,requestedByRole:SP.role,
+    status:"Pending",createdAt:serverTimestamp()
+  });
+  await sendNotif(["Admin","Super Admin"],"approval","⏳ Approval Needed: Dispense Drug",
+    `${SP.name} (Pharmacist) requests approval to dispense ${drug} for patient ${patientId}`,patientId);
+  toast("⏳ Approval request sent to Admin","ok");
+  loadRx();
+};
+
+window.requestLabApproval=async(labReqId,testName,patientId)=>{
+  await addDoc(collection(db,"approvalRequests"),{
+    type:"labTest",labReqId,testName,patientId,
+    requestedBy:SP.name,requestedByRole:SP.role,
+    status:"Pending",createdAt:serverTimestamp()
+  });
+  await sendNotif(["Admin","Super Admin"],"approval","⏳ Approval Needed: Lab Test",
+    `${SP.name} (Lab Tech) requests approval to perform ${testName} for patient ${patientId}`,patientId);
+  toast("⏳ Approval request sent to Admin","ok");
+  loadLabQ();
+};
+
+window.loadApprovalQueue=async()=>{
+  const el=ge("approvalQueueList");if(!el)return;
+  el.innerHTML='<div class="cr"><i class="fa fa-spinner fa-spin"></i></div>';
+  const snap=await getDocs(query(collection(db,"approvalRequests"),where("status","==","Pending")));
+  if(snap.empty){el.innerHTML='<div class="en" style="padding:12px">No pending approvals ✅</div>';return;}
+  el.innerHTML=snap.docs.map(d=>{
+    const r=d.data();
+    const typeLabel=r.type==="dispense"?"💊 Dispense Drug":"🔬 Lab Test";
+    const detail=r.type==="dispense"?`${r.drug} for patient ${r.patientId}`:`${r.testName} for patient ${r.patientId}`;
+    return`<div class="icard">
+      <div class="crow"><span><b>${typeLabel}</b></span><span class="badge bg-warn">Pending</span></div>
+      <div style="font-size:.83rem;margin:4px 0">${detail}</div>
+      <div style="font-size:.76rem;color:var(--mu)">Requested by: ${r.requestedBy} (${r.requestedByRole})</div>
+      <div class="flex mt8">
+        <button class="bsm success" onclick="approveRequest('${d.id}','approve')"><i class="fa fa-check"></i> Approve</button>
+        <button class="bsm danger" onclick="approveRequest('${d.id}','reject')"><i class="fa fa-times"></i> Reject</button>
+      </div>
+    </div>`;
+  }).join("");
+};
+
+window.approveRequest=async(reqId,action)=>{
+  if(!isStrictAdmin()){toast("⛔ Only Admin can approve requests","err");return;}
+  const rSnap=await getDoc(doc(db,"approvalRequests",reqId));
+  if(!rSnap.exists())return;
+  const r=rSnap.data();
+  const status=action==="approve"?"Approved":"Rejected";
+  await updateDoc(doc(db,"approvalRequests",reqId),{status,reviewedBy:SP.name,reviewedAt:serverTimestamp()});
+  const targetRole=r.type==="dispense"?"Pharmacist":"Lab Technician";
+  await sendNotif([targetRole],"approval",`${status==="Approved"?"✅":"❌"} Request ${status}`,
+    `Admin ${SP.name} has ${status.toLowerCase()} your request for ${r.drug||r.testName}`,r.patientId||"");
+  toast(`Request ${status} and ${targetRole} notified`,"ok");
+  loadApprovalQueue();
+};
+
+// ─── CHIEF LAB TECH FUNCTIONS ────────────────────────────────────────────────
+window.loadAllLabResults=async()=>{
+  const el=ge("allLabResultsContent");if(!el)return;
+  const listDiv=ge("allLabResultsList");if(listDiv)listDiv.style.display="block";
+  el.innerHTML='<div class="cr"><i class="fa fa-spinner fa-spin"></i></div>';
+  const snap=await getDocs(collection(db,"labResults"));
+  if(snap.empty){el.innerHTML='<div class="en">No lab results yet</div>';return;}
+  const rows=[...snap.docs].map(d=>({id:d.id,...d.data()})).sort((a,b)=>(b.createdAt?.toDate?.()?.getTime()||0)-(a.createdAt?.toDate?.()?.getTime()||0));
+  el.innerHTML=`<table class="dtab"><thead><tr><th>Patient</th><th>Test</th><th>Result</th><th>By</th><th>Date</th><th>Action</th></tr></thead><tbody>`+
+  rows.map(r=>`<tr>
+    <td><span class="pid">${r.patientId||"—"}</span></td>
+    <td><b>${r.testName||"—"}</b></td>
+    <td style="font-size:.79rem;max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${r.results||"—"}</td>
+    <td style="font-size:.76rem">${r.uploadedBy||"—"}</td>
+    <td style="font-size:.76rem">${r.createdAt?new Date(r.createdAt.toDate()).toLocaleDateString("en-GB"):"—"}</td>
+    <td><span class="badge ${r.chiefReviewed?'bg-ok':'bg-warn'}">${r.chiefReviewed?"Reviewed":"Pending Review"}</span>
+      ${!r.chiefReviewed?`<br><button class="bsm success" style="margin-top:4px;font-size:.72rem;padding:4px 8px" onclick="markLabResultReviewed('${r.id}')"><i class="fa fa-check"></i> Mark Reviewed</button>`:""}
+    </td>
+  </tr>`).join("")+`</tbody></table>`;
+};
+
+window.markLabResultReviewed=async(resultId)=>{
+  if(!isChiefLabTech()&&!isStrictAdmin()){toast("⛔ Only Chief Lab Technician can review results","err");return;}
+  await updateDoc(doc(db,"labResults",resultId),{chiefReviewed:true,reviewedBy:SP.name,reviewedAt:serverTimestamp()});
+  toast("✅ Lab result marked as reviewed","ok");
+  loadAllLabResults();
+};
+
+window.loadLabStaffList=async()=>{
+  const el=ge("allLabResultsContent");if(!el)return;
+  const listDiv=ge("allLabResultsList");if(listDiv)listDiv.style.display="block";
+  el.innerHTML='<div class="cr"><i class="fa fa-spinner fa-spin"></i></div>';
+  const snap=await getDocs(query(collection(db,"staff"),where("role","==","Lab Technician")));
+  if(snap.empty){el.innerHTML='<div class="en">No Lab Technician staff found</div>';return;}
+  el.innerHTML=`<h4 class="ssub">🔬 Lab Technician Staff</h4><table class="dtab"><thead><tr><th>Name</th><th>Email</th><th>Dept</th><th>Status</th></tr></thead><tbody>`+
+  snap.docs.map(d=>{const r=d.data();return`<tr>
+    <td><b>${r.name}</b></td>
+    <td style="font-size:.76rem">${r.email||"—"}</td>
+    <td>${r.dept||"—"}</td>
+    <td><span class="badge ${r.active!==false?'bg-ok':'bg-no'}">${r.active!==false?"Active":"Inactive"}</span></td>
+  </tr>`;}).join("")+`</tbody></table>`;
+};
 window.addStock=async()=>{
   if(!canDo("manageStock")){toast("⛔ Only Pharmacists can manage drug stock","err");return;}
   const name=gv("sdrug"),qty=parseInt(gv("sqty"));
@@ -1715,7 +1955,7 @@ window.loadStock=async()=>{
     return;
   }
 
-  let html='<table class="dtab"><thead><tr><th>Drug</th><th>Batch</th><th>Qty</th><th>Expiry</th><th>Status</th></tr></thead><tbody>';
+  let html='<table class="dtab"><thead><tr><th>Drug</th><th>Batch</th><th>Qty</th><th>Expiry</th><th>Status</th><th>Action</th></tr></thead><tbody>';
   Object.entries(byName).forEach(([name,batches])=>{
     batches.forEach(r=>{
       const qty=r.qty||0;
@@ -1739,12 +1979,14 @@ window.loadStock=async()=>{
       let qtyStatus="";
       if(qty===0)qtyStatus=`<br><span style="font-size:.68rem;color:var(--D);font-weight:700">OUT OF STOCK</span>`;
       else if(qty<=5)qtyStatus=`<br><span style="font-size:.68rem;color:var(--W);font-weight:700">⚠️ Low</span>`;
+      const canDelDrug=canDo("deleteDrug")||isStrictAdmin();
       html+=`<tr style="${rowStyle}">
         <td><b>${name}</b>${r.price?`<br><small style="color:var(--mu)">₦${Number(r.price).toLocaleString()}/unit</small>`:""}${qtyStatus}</td>
         <td style="font-size:.75rem;color:var(--mu)">${r.batchNo||"—"}</td>
         <td style="font-weight:700;color:${qty===0?"var(--D)":qty<=5?"var(--W)":"var(--tx)"}">${qty}</td>
         <td style="font-size:.78rem;color:${expiryColor||"var(--tx)"}">${expiryStr}</td>
         <td>${expiryStatus||`<span style="background:var(--bg);color:var(--mu);font-size:.7rem;font-weight:600;padding:2px 8px;border-radius:20px">${qty===0?"Empty":qty<=5?"Low":"OK"}</span>`}</td>
+        <td>${canDelDrug?`<button class="btn-ic danger" onclick="deleteDrugBatch('${r.id}','${name.replace(/'/g,"")}')" title="Delete batch"><i class="fa fa-trash"></i></button>`:"—"}</td>
       </tr>`;
     });
   });
@@ -1893,10 +2135,21 @@ window.loadAdminStats=async()=>{
   const todP=ps.docs.filter(d=>{const c=d.data().createdAt;return c&&c.toDate&&c.toDate().toISOString().slice(0,10)===td;}).length;
   const allB=bs.docs.map(d=>d.data());const todB=allB.filter(b=>b.date===td);
   const rev=todB.filter(b=>b.status==="Paid").reduce((a,b)=>a+b.total,0);
-  sv("aTP",ps.size);sv("aTodP",todP);sv("aRev","₦"+rev.toLocaleString());sv("aStaff",ss.size);
-  sv("aCash","₦"+todB.filter(b=>b.method==="Cash"&&b.status==="Paid").reduce((a,b)=>a+b.total,0).toLocaleString());
-  sv("aPOS","₦"+todB.filter(b=>b.method==="POS"&&b.status==="Paid").reduce((a,b)=>a+b.total,0).toLocaleString());
-  sv("aTrf","₦"+todB.filter(b=>b.method==="Transfer"&&b.status==="Paid").reduce((a,b)=>a+b.total,0).toLocaleString());
+  sv("aTP",ps.size);sv("aTodP",todP);sv("aStaff",ss.docs.filter(d=>d.data().deleted!==true).length);
+  // Revenue only for strict Admin/Super Admin
+  if(isStrictAdmin()){
+    sv("aRev","₦"+rev.toLocaleString());
+    sv("aCash","₦"+todB.filter(b=>b.method==="Cash"&&b.status==="Paid").reduce((a,b)=>a+b.total,0).toLocaleString());
+    sv("aPOS","₦"+todB.filter(b=>b.method==="POS"&&b.status==="Paid").reduce((a,b)=>a+b.total,0).toLocaleString());
+    sv("aTrf","₦"+todB.filter(b=>b.method==="Transfer"&&b.status==="Paid").reduce((a,b)=>a+b.total,0).toLocaleString());
+    const rb=ge("adminRevBlock");if(rb)rb.style.display="block";
+    // Show approval queue only for strict admins
+    const aq=ge("approvalQueueBlock");if(aq)aq.style.display="block";
+  } else {
+    const rb=ge("adminRevBlock");
+    if(rb){rb.innerHTML='<div style="background:#fce8e8;border-radius:var(--rs);padding:14px;text-align:center;color:var(--D);font-weight:600"><i class="fa fa-lock" style="margin-right:6px"></i>Access Denied – Admin Only</div>';}
+    const aq=ge("approvalQueueBlock");if(aq)aq.style.display="none";
+  }
 };
 window.createStaff=async()=>{
   const name=gv("sName"),email=gv("sEmail"),pass=gv("sPass"),role=gv("sRole"),dept=gv("sDept"),shift=gv("sShift");
@@ -1915,12 +2168,34 @@ window.loadStaff=async()=>{
   const s=await getDocs(collection(db,"staff"));
   if(s.empty){el.innerHTML='<tr><td colspan="5" class="cr">No staff</td></tr>';return;}
   const canEdit=isSuperAdmin()||isAdmin();
+  const canDelete=isSuperAdmin();
   el.innerHTML=s.docs.map(d=>{const r=d.data(),uid=d.id;
-    const salBadge=r.basicSalary?`<span class="salary-badge">₦${Number(r.basicSalary).toLocaleString()}</span>`:"<span style=\"color:var(--mu);font-size:.75rem\">Not set</span>";
     const shiftBadge=r.shift?`<span style="background:#e8f1fb;color:var(--P);font-size:.7rem;font-weight:700;padding:2px 8px;border-radius:20px;text-transform:capitalize">${r.shift}</span>`:"<span style=\"color:var(--mu);font-size:.72rem\">—</span>";
-    const actions=canEdit?`<div style="display:flex;gap:5px"><button class="btn-ic" onclick="openEditStaff('${uid}')" title="Edit"><i class="fa fa-edit"></i></button><button class="btn-ic" onclick="openSalaryModal('${uid}')" title="Salary"><i class="fa fa-naira-sign"></i></button></div>`:"—";
-    return`<tr><td><b>${r.name}</b><br><small style="color:var(--mu);font-size:.72rem">${r.email}</small></td><td><span class="badge role-${(r.role||"").toLowerCase().replace(/\s/g,"-")}">${r.role}</span></td><td>${shiftBadge}</td><td><span class="badge ${r.active?"bg-ok":"bg-no"}">${r.active?"Active":"Inactive"}</span></td><td>${actions}</td></tr>`;
+    // Don't show delete for self
+    const isSelf=uid===CU.uid;
+    const actions=canEdit?`<div style="display:flex;gap:5px;flex-wrap:wrap">
+      <button class="btn-ic" onclick="openEditStaff('${uid}')" title="Edit"><i class="fa fa-edit"></i></button>
+      <button class="btn-ic" onclick="openSalaryModal('${uid}')" title="Salary"><i class="fa fa-naira-sign"></i></button>
+      ${canDelete&&!isSelf?`<button class="btn-ic danger" onclick="confirmDeleteStaff('${uid}','${(r.name||'').replace(/'/g,'')}')" title="Delete Staff"><i class="fa fa-trash"></i></button>`:""}
+    </div>`:"—";
+    return`<tr><td><b>${r.name}</b><br><small style="color:var(--mu);font-size:.72rem">${r.email}</small></td>
+    <td><span class="badge role-${(r.role||"").toLowerCase().replace(/\s/g,"-")}">${r.role}</span></td>
+    <td>${shiftBadge}</td>
+    <td><span class="badge ${r.active!==false?"bg-ok":"bg-no"}">${r.active!==false?"Active":"Inactive"}</span></td>
+    <td>${actions}</td></tr>`;
   }).join("");
+};
+
+window.confirmDeleteStaff=async(uid,name)=>{
+  if(!isSuperAdmin()){toast("⛔ Only Super Admin can delete staff","err");return;}
+  if(!confirm(`⚠️ DELETE STAFF ACCOUNT\n\nAre you sure you want to permanently delete "${name}"?\n\nThis will deactivate the account. The staff member will no longer be able to log in.`))return;
+  try{
+    // Mark as deleted/inactive in Firestore (safe approach — preserves records)
+    await updateDoc(doc(db,"staff",uid),{active:false,deleted:true,deletedAt:serverTimestamp(),deletedBy:SP.name});
+    // Also try to disable auth account via admin SDK (won't work client-side, but flag is set)
+    toast(`✅ Staff account "${name}" has been deactivated and deleted.`,"ok");
+    loadStaff();
+  }catch(e){toast("Error deleting staff: "+e.message,"err");}
 };
 
 // ─── PROFILE ───────────────────────────────────────────────────────────────
@@ -1977,14 +2252,16 @@ function startMsgBadge(){onSnapshot(query(collection(db,"chats"),where("members"
 // ─── NOTIFICATIONS ────────────────────────────────────────────────────────
 // Role → which notification types they receive
 const NOTIF_ROLES = {
-  "Pharmacist":     ["rx","referral_pharmacy","appointment"],
-  "Lab Technician": ["labReq","referral_lab","appointment"],
-  "Doctor":         ["labRes","referral_doctor","appointment","note_doctor"],
-  "Nurse":          ["referral_nurse","appointment","note_nurse","labRes"],
-  "Receptionist":   ["appointment","referral_reception"],
-  "Admin":          ["rx","labReq","labRes","referral","appointment","reg","note"],
-  "Super Admin":    ["rx","labReq","labRes","referral","appointment","reg","note"],
-  "Accountant":     ["payroll","appointment"]
+  "Pharmacist":          ["rx","referral_pharmacy","appointment","approval"],
+  "Lab Technician":      ["labReq","referral_lab","appointment","approval"],
+  "Chief Lab Technician":["labReq","labRes","referral_lab","appointment","approval"],
+  "Doctor":              ["labRes","referral_doctor","appointment","note_doctor"],
+  "Nurse":               ["referral_nurse","appointment","note_nurse","labRes"],
+  "Receptionist":        ["appointment","referral_reception"],
+  "Admin":               ["rx","labReq","labRes","referral","appointment","reg","note","approval"],
+  "Super Admin":         ["rx","labReq","labRes","referral","appointment","reg","note","approval"],
+  "Assistant Admin":     ["rx","labReq","labRes","referral","appointment","reg","note"],
+  "Accountant":          ["payroll","appointment"]
 };
 
 let notifUnsub = null;
@@ -2057,9 +2334,14 @@ function startNotifListener(){
       snap=>{ docsB=snap.docs; mergeAndRender(); },
       err=>console.log("Notif B error:",err.message)
     );
+    // Assistant Admin also gets their own role notifications
+    if(isAssistantAdmin()){
+      onSnapshot(query(collection(db,"notifications"),where("targetRole","==","Assistant Admin")),
+        snap=>{snap.docs.forEach(d=>{docsB=[...docsB,d];});mergeAndRender();},err=>{});
+    }
     // Also pull in all other roles for Super Admin (they see everything)
     if(isSuperAdmin()){
-      const roles=["Doctor","Nurse","Receptionist","Lab Technician","Pharmacist","Accountant"];
+      const roles=["Doctor","Nurse","Receptionist","Lab Technician","Chief Lab Technician","Pharmacist","Accountant","Assistant Admin"];
       let extraDocs={};
       roles.forEach(role=>{
         onSnapshot(
