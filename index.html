@@ -368,7 +368,7 @@ textarea.fi{resize:vertical;min-height:80px}
     <div class="nl">Staff</div>
     <div class="ni" data-mod="messages" onclick="showMod('messages')" style="position:relative"><i class="fa fa-comments"></i> Messages<span id="msgBadge" class="nbadge">0</span></div>
     <div class="ni" data-mod="profile" onclick="showMod('profile')"><i class="fa fa-circle-user"></i> My Profile</div>
-    <div class="ni" id="adminNav" data-mod="admin" onclick="showMod('admin')" style="display:none"><i class="fa fa-user-shield"></i> Admin Panel</div>
+    <div class="ni" id="adminNav" data-mod="admin" onclick="showMod('admin')" style="display:none"><i class="fa fa-user-shield"></i> Admin Panel<span id="approvalBadge" style="display:none;background:var(--D);color:#fff;border-radius:50%;min-width:18px;height:18px;font-size:.65rem;font-weight:700;align-items:center;justify-content:center;margin-left:auto;padding:0 4px"></span></div>
     <div class="ni" id="payrollNav" data-mod="payroll" onclick="showMod('payroll')" style="display:none"><i class="fa fa-money-bill-wave"></i> Payroll</div>
     <div class="ni" id="accountantNav" data-mod="accountant" onclick="showMod('accountant')" style="display:none"><i class="fa fa-calculator"></i> Accountant</div>
     <div class="ni" id="attendanceNav" data-mod="attendance" onclick="showMod('attendance')"><i class="fa fa-clock"></i> Attendance</div>
@@ -1338,6 +1338,26 @@ function initApp(){
   loadDashNotifs();
   startMsgBadge();
   startNotifListener();
+  // Real-time approval queue listener for Admin/Super Admin
+  if(isStrictAdmin()) startApprovalListener();
+}
+
+let _approvalUnsub=null;
+function startApprovalListener(){
+  if(_approvalUnsub){_approvalUnsub();_approvalUnsub=null;}
+  _approvalUnsub=onSnapshot(
+    query(collection(db,"approvalRequests"),where("status","==","Pending")),
+    snap=>{
+      // Update badge on admin nav
+      const count=snap.docs.length;
+      const badge=ge("approvalBadge");
+      if(badge){badge.textContent=count>0?count:"";badge.style.display=count>0?"inline-flex":"none";}
+      // Reload queue if admin panel is open
+      const adminMod=ge("mod-admin");
+      if(adminMod&&adminMod.style.display!=="none") loadApprovalQueue();
+    },
+    err=>console.log("Approval listener error:",err.message)
+  );
 }
 
 // ─── NAV ──────────────────────────────────────────────────────────────────
@@ -1739,18 +1759,31 @@ window.loadLabQ=async()=>{
     const approval=approvals[r._id];
     const isApproved=approval&&approval.status==="Approved";
     const isPending=approval&&approval.status==="Pending";
+    const isRejected=approval&&approval.status==="Rejected";
     let actionHtml="";
-    if(isApproved||isStrictAdmin()||isChiefLabTech()){
-      actionHtml=`${isApproved?'<div style="background:#e6f7ef;border-radius:var(--rs);padding:6px 10px;font-size:.78rem;color:#1a7a4a;margin-bottom:6px"><i class="fa fa-check-circle"></i> Approved by Admin</div>':""}
+    // Admin/Super Admin can upload directly without needing approval
+    if(isStrictAdmin()){
+      actionHtml=`<div style="background:#e8f1fb;border-radius:var(--rs);padding:6px 10px;font-size:.78rem;color:var(--P);margin-bottom:6px"><i class="fa fa-user-shield"></i> Admin — uploading directly</div>
+        <textarea id="lr-${r._id}" class="fi sm" style="min-height:60px" placeholder="Enter full result details here…"></textarea>
+        <div class="flex mt4">
+          <input id="lrref-${r._id}" class="fi sm" style="flex:1" placeholder="Reference range (optional)"/>
+          <button class="bsm primary" onclick="uploadLab('${r._id}','${r.patientId}','${r.testName}')"><i class="fa fa-upload"></i> Upload & Save to Patient File</button>
+        </div>`;
+    } else if(isApproved){
+      actionHtml=`<div style="background:#e6f7ef;border-radius:var(--rs);padding:6px 10px;font-size:.78rem;color:#1a7a4a;margin-bottom:6px"><i class="fa fa-check-circle"></i> Approved by Admin — you may now upload result</div>
         <textarea id="lr-${r._id}" class="fi sm" style="min-height:60px" placeholder="Enter full result details here…"></textarea>
         <div class="flex mt4">
           <input id="lrref-${r._id}" class="fi sm" style="flex:1" placeholder="Reference range (optional)"/>
           <button class="bsm primary" onclick="uploadLab('${r._id}','${r.patientId}','${r.testName}')"><i class="fa fa-upload"></i> Upload & Save to Patient File</button>
         </div>`;
     } else if(isPending){
-      actionHtml=`<div class="approval-pending"><i class="fa fa-clock"></i> Waiting for Admin Approval</div>`;
+      actionHtml=`<div class="approval-pending"><i class="fa fa-clock"></i> Waiting for Admin Approval — request already sent</div>`;
+    } else if(isRejected){
+      actionHtml=`<div style="background:#fce8e8;border-radius:var(--rs);padding:8px 10px;font-size:.78rem;color:var(--D);margin-bottom:6px"><i class="fa fa-times-circle"></i> Request was Rejected by Admin</div>
+        <button class="bsm warn mt4" onclick="requestLabApproval('${r._id}','${r.testName}','${r.patientId}')"><i class="fa fa-paper-plane"></i> Re-request Admin Approval</button>`;
     } else {
-      actionHtml=`<button class="bsm warn mt8" onclick="requestLabApproval('${r._id}','${r.testName}','${r.patientId}')"><i class="fa fa-paper-plane"></i> Request Admin Approval</button>`;
+      actionHtml=`<div style="background:#fff8e1;border-radius:var(--rs);padding:8px 10px;font-size:.79rem;color:#7a5e00;margin-bottom:6px"><i class="fa fa-lock"></i> <b>Admin approval required</b> before uploading this result.</div>
+        <button class="bsm warn mt4" onclick="requestLabApproval('${r._id}','${r.testName}','${r.patientId}')"><i class="fa fa-paper-plane"></i> Request Admin Approval</button>`;
     }
     return`<div class="icard">
       <div class="crow">
@@ -1764,6 +1797,11 @@ window.loadLabQ=async()=>{
 };
 window.uploadLab=async(id,pid,test)=>{
   if(!canDo("uploadLab")){toast("⛔ Only Lab Technicians can upload results","err");return;}
+  // Verify approval unless Admin/Super Admin
+  if(!isStrictAdmin()){
+    const appSnap=await getDocs(query(collection(db,"approvalRequests"),where("labReqId","==",id),where("status","==","Approved")));
+    if(appSnap.empty){toast("⛔ Admin approval is required before uploading this result","err");return;}
+  }
   const res=ge("lr-"+id)?ge("lr-"+id).value.trim():"";
   const ref=ge("lrref-"+id)?ge("lrref-"+id).value.trim():"";
   if(!res){toast("Enter result details","err");return;}
@@ -1793,15 +1831,22 @@ window.loadRx=async()=>{
     const approval=approvals[d.id];
     const isApproved=approval&&approval.status==="Approved";
     const isPending=approval&&approval.status==="Pending";
+    const isRejected=approval&&approval.status==="Rejected";
     let actionHtml="";
-    if(isApproved){
-      actionHtml=`<div style="background:#e6f7ef;border-radius:var(--rs);padding:6px 10px;font-size:.78rem;color:#1a7a4a;margin-bottom:6px"><i class="fa fa-check-circle"></i> Approved by Admin</div>
-        <button class="bsm success mt8" onclick="dispense('${d.id}','${r.drug}','${r.patientId}','${r.dosage}')"><i class="fa fa-check"></i> Dispense & Update Patient File</button>`;
+    if(isStrictAdmin()){
+      actionHtml=`<div style="background:#e8f1fb;border-radius:var(--rs);padding:6px 10px;font-size:.78rem;color:var(--P);margin-bottom:6px"><i class="fa fa-user-shield"></i> Admin — dispensing directly</div>
+        <button class="bsm success mt4" onclick="dispense('${d.id}','${r.drug}','${r.patientId}','${r.dosage}')"><i class="fa fa-check"></i> Dispense & Update Patient File</button>`;
+    } else if(isApproved){
+      actionHtml=`<div style="background:#e6f7ef;border-radius:var(--rs);padding:6px 10px;font-size:.78rem;color:#1a7a4a;margin-bottom:6px"><i class="fa fa-check-circle"></i> Approved by Admin — you may now dispense</div>
+        <button class="bsm success mt4" onclick="dispense('${d.id}','${r.drug}','${r.patientId}','${r.dosage}')"><i class="fa fa-check"></i> Dispense & Update Patient File</button>`;
     } else if(isPending){
-      actionHtml=`<div class="approval-pending"><i class="fa fa-clock"></i> Waiting for Admin Approval</div>`;
+      actionHtml=`<div class="approval-pending"><i class="fa fa-clock"></i> Waiting for Admin Approval — request already sent</div>`;
+    } else if(isRejected){
+      actionHtml=`<div style="background:#fce8e8;border-radius:var(--rs);padding:8px 10px;font-size:.78rem;color:var(--D);margin-bottom:6px"><i class="fa fa-times-circle"></i> Request was Rejected by Admin</div>
+        <button class="bsm warn mt4" onclick="requestDispenseApproval('${d.id}','${r.drug}','${r.patientId}','${r.dosage}')"><i class="fa fa-paper-plane"></i> Re-request Admin Approval</button>`;
     } else {
-      // No approval request yet — pharmacist must request approval first
-      actionHtml=`<button class="bsm warn mt8" onclick="requestDispenseApproval('${d.id}','${r.drug}','${r.patientId}','${r.dosage}')"><i class="fa fa-paper-plane"></i> Request Admin Approval</button>`;
+      actionHtml=`<div style="background:#fff8e1;border-radius:var(--rs);padding:8px 10px;font-size:.79rem;color:#7a5e00;margin-bottom:6px"><i class="fa fa-lock"></i> <b>Admin approval required</b> before dispensing this drug.</div>
+        <button class="bsm warn mt4" onclick="requestDispenseApproval('${d.id}','${r.drug}','${r.patientId}','${r.dosage}')"><i class="fa fa-paper-plane"></i> Request Admin Approval</button>`;
     }
     return`<div class="icard">
       <div class="crow"><span><i class="fa fa-pills"></i> <b>${r.drug}</b></span><span class="pid">${r.patientId}</span></div>
@@ -1812,6 +1857,11 @@ window.loadRx=async()=>{
 };
 window.dispense=async(id,drug,pid,dosage)=>{
   if(!canDo("dispense")){toast("⛔ Only Pharmacists can dispense drugs","err");return;}
+  // Verify approval unless Admin/Super Admin
+  if(!isStrictAdmin()){
+    const appSnap=await getDocs(query(collection(db,"approvalRequests"),where("prescriptionId","==",id),where("status","==","Approved")));
+    if(appSnap.empty){toast("⛔ Admin approval is required before dispensing this drug","err");return;}
+  }
 
   // 1. Mark prescription as dispensed
   await updateDoc(doc(db,"prescriptions",id),{dispensed:true,dispensedBy:SP.name,dispensedAt:serverTimestamp()});
