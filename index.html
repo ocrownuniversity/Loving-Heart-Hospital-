@@ -3197,8 +3197,8 @@ window.loadAttendanceModule=async()=>{
     if(timeEl)timeEl.textContent=`${fmtMins(shiftDef.start)} – ${fmtMins(shiftDef.end)}`;
     const v=validateShiftClockIn();
     if(badge){
-      if(!v.allowed){badge.textContent="Out of Shift";badge.className="shift-badge shift-block";}
-      else if(v.status==="Late"){badge.textContent="Late Window";badge.className="shift-badge shift-warn";}
+      if(v.status==="Late"){badge.textContent="⚠️ Late Window";badge.className="shift-badge shift-warn";}
+      else if(v.msg){badge.textContent="⏰ Early Clock-in";badge.className="shift-badge shift-ok";}
       else{badge.textContent="✓ On Shift";badge.className="shift-badge shift-ok";}
     }
   } else if(card){
@@ -3317,9 +3317,9 @@ const SHIFT_RULES = {
   "Orderly":    { morning:{label:"Morning",start:7*60,end:16*60}, afternoon:{label:"Afternoon",start:11*60,end:20*60} },
   "Cleaning":   { morning:{label:"Morning",start:7*60,end:16*60}, afternoon:{label:"Afternoon",start:11*60,end:20*60} },
 };
-// Allow clock-in within 30 mins before shift start, and up to 60 mins after shift start (grace for late)
-const SHIFT_EARLY_BUFFER = 30; // mins before shift
-const SHIFT_LATE_GRACE   = 60; // mins after shift start still allowed (marked Late)
+// Allow clock-in up to 2 hours before shift start. 30-min grace before marking Late.
+const SHIFT_EARLY_BUFFER = 120; // mins before shift — staff can clock in 2hrs early
+const SHIFT_LATE_GRACE   = 30;  // mins after shift start before status becomes "Late"
 
 function getStaffShiftDef(){
   const dept=(SP.dept||"").trim();
@@ -3374,50 +3374,66 @@ window.selectDailyShift=(shiftKey)=>{
   const alertBox=ge("shiftAlertBox");if(alertBox)alertBox.innerHTML="";
   const v=validateShiftClockIn();
   if(v.msg&&alertBox){
-    const cls=v.allowed?"clock-warn-box":"clock-warn-box";
-    alertBox.innerHTML=`<div class="${cls}"><i class="fa fa-triangle-exclamation" style="margin-top:2px;flex-shrink:0"></i><span>${v.msg}</span></div>`;
+    alertBox.innerHTML=`<div class="clock-warn-box"><i class="fa fa-triangle-exclamation" style="margin-top:2px;flex-shrink:0"></i><span>${v.msg}</span></div>`;
   }
 };
 
 function timeToMins(h,m){return h*60+m;}
 
-// Returns: {allowed:bool, status:"Present"|"Late"|"Early"|"OutOfShift", msg:string, shiftDef}
+// Normalize minutes to 0–1439 range (handles negatives and >1440)
+function normMins(m){return((m%1440)+1440)%1440;}
+
+// Returns: {allowed:true always, status:"Present"|"Late"|"Early", msg:string, shiftDef}
+// Clock-in is ALWAYS allowed — we only set the status accordingly.
 function validateShiftClockIn(){
   const shiftDef=getStaffShiftDef();
   if(!shiftDef) return{allowed:true,status:"Present",msg:"",shiftDef:null};
+
   const now=new Date();
-  const cur=timeToMins(now.getHours(),now.getMinutes());
+  const cur=timeToMins(now.getHours(),now.getMinutes()); // 0–1439
+
   const {start,end,label}=shiftDef;
-  // Check if time is within shift window (including buffers)
-  const windowStart=start-SHIFT_EARLY_BUFFER;
-  const windowEnd=end; // can't clock in after shift ends
-  let inWindow=false,isLate=false,isEarly=false;
-  // Handle overnight shift (e.g. Night: 18:00 – 08:00)
-  if(end<start){
-    // Crosses midnight
-    inWindow=(cur>=windowStart)||(cur<end);
-    isLate=(cur>=start+SHIFT_LATE_GRACE||cur>=start)&&(cur<start+SHIFT_LATE_GRACE+1)?false:cur>=start+SHIFT_LATE_GRACE;
-    isEarly=cur>=windowStart&&cur<start;
-  } else {
-    inWindow=cur>=windowStart&&cur<=windowEnd;
-    isEarly=cur>=windowStart&&cur<start;
-    isLate=cur>=start+SHIFT_LATE_GRACE&&cur<=windowEnd;
+
+  // Earliest allowed clock-in = 2 hours before shift start
+  const windowStart=normMins(start-SHIFT_EARLY_BUFFER);
+  // Late threshold = shift start + 30 mins grace
+  const lateThreshold=normMins(start+SHIFT_LATE_GRACE);
+
+  const fmt=m=>{const mm=normMins(m);return`${String(Math.floor(mm/60)).padStart(2,"0")}:${String(mm%60).padStart(2,"0")}`;};
+
+  // Helper: is 'cur' between 'a' and 'b' going forward (handles midnight wrap)?
+  function between(cur,a,b){
+    a=normMins(a);b=normMins(b);
+    if(a<=b) return cur>=a&&cur<b;
+    return cur>=a||cur<b; // wraps midnight
   }
-  const shiftStartFmt=`${String(Math.floor(start/60)).padStart(2,"0")}:${String(start%60).padStart(2,"0")}`;
-  const shiftEndFmt=`${String(Math.floor(end/60)).padStart(2,"0")}:${String(end%60).padStart(2,"0")}`;
-  if(!inWindow){
-    return{allowed:false,status:"OutOfShift",shiftDef,
-      msg:`⛔ You cannot clock in now. Your ${label} shift runs ${shiftStartFmt}–${shiftEndFmt}. Clock-in is only allowed from ${String(Math.floor(windowStart/60)).padStart(2,"0")}:${String(windowStart%60).padStart(2,"0")}.`};
-  }
-  if(isEarly){
+
+  // Is current time within the early window? (windowStart → shift start)
+  const isEarlyWindow = between(cur, windowStart, start);
+  // Is current time within the on-time grace window? (start → lateThreshold)
+  const isOnTime = between(cur, start, lateThreshold);
+  // Is current time past grace but still within shift? (lateThreshold → end)
+  const isLate = between(cur, lateThreshold, end);
+  // Is current time after shift end?
+  // (everything else — but we still ALLOW clock-in, just flag it)
+
+  const minsEarly = normMins(start-cur);  // how many mins before shift start
+  const minsLate  = normMins(cur-start);  // how many mins after shift start
+
+  if(isEarlyWindow){
     return{allowed:true,status:"Present",shiftDef,
-      msg:`⏰ You are clocking in ${start-cur} min early. Shift starts at ${shiftStartFmt}.`};
+      msg:`⏰ Clocking in ${minsEarly} min early. Your ${label} shift starts at ${fmt(start)}. You're on time — recorded as Present.`};
+  }
+  if(isOnTime){
+    return{allowed:true,status:"Present",shiftDef,msg:""};
   }
   if(isLate){
     return{allowed:true,status:"Late",shiftDef,
-      msg:`⚠️ You are clocking in late. ${label} shift started at ${shiftStartFmt}.`};
+      msg:`⚠️ You are ${minsLate} min late. ${label} shift started at ${fmt(start)}. Recorded as Late.`};
   }
-  return{allowed:true,status:"Present",shiftDef,msg:""};
+  // After shift end — still allow but flag clearly
+  return{allowed:true,status:"Late",shiftDef,
+    msg:`⚠️ Clocking in after ${label} shift (${fmt(start)}–${fmt(end)}). Recorded as Late. Contact Admin if this is incorrect.`};
 }
 
 window.doClockIn=async()=>{
@@ -3431,13 +3447,10 @@ window.doClockIn=async()=>{
   const existing=await getDocs(query(collection(db,"attendance"),where("staffUid","==",CU.uid),where("date","==",todayStr)));
   if(!existing.empty){toast("Already clocked in today!","err");if(btn)btn.disabled=false;return;}
 
-  // Shift validation — WARN ONLY, never block attendance
   const validation=validateShiftClockIn();
   const alertBox=ge("shiftAlertBox");
   if(alertBox)alertBox.innerHTML="";
-  if(!validation.allowed){
-    if(alertBox)alertBox.innerHTML=`<div class="clock-warn-box"><i class="fa fa-triangle-exclamation" style="margin-top:2px;flex-shrink:0"></i><span>${validation.msg} — Recorded for admin review.</span></div>`;
-  } else if(validation.msg){
+  if(validation.msg){
     if(alertBox)alertBox.innerHTML=`<div class="clock-warn-box"><i class="fa fa-triangle-exclamation" style="margin-top:2px;flex-shrink:0"></i><span>${validation.msg}</span></div>`;
   }
 
@@ -3445,8 +3458,7 @@ window.doClockIn=async()=>{
   const timeStr=now.toTimeString().slice(0,5);
   const {lat,lng}=await getGPS();
   const month=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}`;
-  const finalStatus=validation.allowed?validation.status:"Late";
-  const outOfShift=!validation.allowed;
+  const finalStatus=validation.status; // "Present", "Late", or "Early" — always saved
   const shiftDef=getStaffShiftDef();
 
   await addDoc(collection(db,"attendance"),{
@@ -3454,19 +3466,14 @@ window.doClockIn=async()=>{
     shift:window._dailyShift,
     shiftLabel:shiftDef?shiftDef.label:(window._dailyShift.charAt(0).toUpperCase()+window._dailyShift.slice(1)),
     date:todayStr,month,clockIn:timeStr,clockOut:null,
-    status:finalStatus,outOfShift:outOfShift||false,
+    status:finalStatus,
     lat,lng,hoursWorked:null,
     createdAt:serverTimestamp()
   });
 
-  if(outOfShift){
-    await sendNotif(["Admin","Super Admin"],"note","⚠️ Out-of-Shift Clock-In",
-      `${SP.name} (${SP.dept||SP.role}) clocked in at ${timeStr} on ${shiftDef?shiftDef.label:window._dailyShift} shift outside expected hours.`,"");
-  }
-
   if(lat)ge("gpsInfo").textContent=`📍 ${lat.toFixed(4)}, ${lng.toFixed(4)}`;
-  const statusMsg=outOfShift?" ⚠️ (Outside Shift)":finalStatus==="Late"?" (Late)":"";
-  toast(`Clocked in at ${timeStr}${statusMsg}!`,outOfShift?"err":"ok");
+  const statusMsg=finalStatus==="Late"?" — Recorded as Late":finalStatus==="Present"&&validation.msg?" — Early clock-in, recorded as Present":"";
+  toast(`✅ Clocked in at ${timeStr}${statusMsg}!`,"ok");
   if(btn)btn.disabled=false;
   window._dailyShift=null;
   checkTodayAttendance();
