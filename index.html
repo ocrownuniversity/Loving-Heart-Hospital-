@@ -499,7 +499,10 @@ textarea.fi{resize:vertical;min-height:80px}
         <div style="background:var(--bg);border-radius:var(--rs);padding:12px;margin-bottom:12px">
           <div style="font-size:.78rem;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">📥 Bulk Upload Stock (Excel / CSV)</div>
           <p style="font-size:.79rem;color:var(--mu);margin-bottom:10px">Upload any Excel or CSV file — any column format accepted. System will auto-detect drug name and quantity columns.</p>
-          <label for="stockExcelFile" class="bsm primary" style="cursor:pointer;display:inline-flex"><i class="fa fa-file-excel"></i> Upload Stock File</label>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
+            <label for="stockExcelFile" class="bsm primary" style="cursor:pointer;display:inline-flex"><i class="fa fa-file-excel"></i> Upload Stock File</label>
+            <button class="bsm success" onclick="importAprilStock()"><i class="fa fa-database"></i> Import April 2026 Stock</button>
+          </div>
           <input type="file" id="stockExcelFile" accept=".xlsx,.xls,.csv" style="display:none" onchange="importStockExcel(this)"/>
           <div id="stockImportStatus" style="margin-top:9px;font-size:.82rem"></div>
           <!-- Column mapping box -->
@@ -1085,7 +1088,20 @@ textarea.fi{resize:vertical;min-height:80px}
 </div></div>
 
 
-<!-- EDIT STAFF MODAL (Super Admin) -->
+<!-- EDIT STOCK MODAL -->
+<div id="editStockModal" class="movl"><div class="modal" style="max-width:380px">
+  <div class="mhd"><h3><i class="fa fa-pen" style="color:var(--P)"></i> Edit Stock Entry</h3><button class="mcls" onclick="cModal('editStockModal')">✕</button></div>
+  <div id="editStockInfo" style="background:var(--bg);border-radius:var(--rs);padding:10px;margin-bottom:12px;font-size:.84rem;font-weight:600"></div>
+  <div class="fg"><label class="fl">Drug Name</label><input id="editStockName" class="fi"/></div>
+  <div class="fg"><label class="fl">Quantity *</label><input id="editStockQty" class="fi" type="number" min="0"/></div>
+  <div class="fg"><label class="fl">Batch Number</label><input id="editStockBatch" class="fi"/></div>
+  <div class="fg"><label class="fl">Expiry Date</label><input id="editStockExpiry" class="fi" type="date"/></div>
+  <input type="hidden" id="editStockId"/>
+  <button class="btnP" onclick="saveStockEdit()"><i class="fa fa-save"></i> Save Changes</button>
+</div></div>
+
+
+<!-- EDIT STAFF MODAL (Admin / Super Admin only) -->
 <div id="editStaffModal" class="movl"><div class="modal">
   <div class="mhd"><h3><i class="fa fa-user-edit" style="color:var(--P)"></i> Edit Staff</h3><button class="mcls" onclick="cModal('editStaffModal')">✕</button></div>
   <div class="fg"><label class="fl">Full Name</label><input id="esName" class="fi"/></div>
@@ -1393,7 +1409,7 @@ window.cSB=()=>ge("sidebar").classList.remove("open");
 window.openModal=id=>{
   ge(id).style.display="flex";
   if(id==='billModal'){
-    loadBillPriceList();
+    loadBillPriceList(true); // always reload fresh so all items show
     _selectedBillItem=null;
     BI=[];renderBI();
     if(ge('bSearch'))ge('bSearch').value='';
@@ -1614,10 +1630,16 @@ window.openAddRec=async(type,label)=>{
       <button class="btnP" onclick="saveRec('vitals')"><i class="fa fa-save"></i> Save Vitals</button>`,
     diag:`<div class="fg"><label class="fl">Diagnosis / Clinical Notes</label><textarea id="diagNote" class="fi" style="min-height:100px" placeholder="Full diagnosis and clinical findings…"></textarea></div>
       <button class="btnP" onclick="saveRec('diag')"><i class="fa fa-save"></i> Save Diagnosis</button>`,
-    rx:`<div style="background:#fff8e1;border-radius:var(--rs);padding:10px;font-size:.82rem;color:#7a5e00;margin-bottom:12px"><i class="fa fa-circle-info"></i> This prescription will appear in the <b>Pharmacy module</b> for dispensing.</div>
-      <div class="frow"><div class="fg"><label class="fl">Drug Name *</label><input id="rxDrug" class="fi" placeholder="e.g. Amoxicillin 500mg"/></div><div class="fg"><label class="fl">Dosage *</label><input id="rxDose" class="fi" placeholder="e.g. 1 tab TDS x5 days"/></div></div>
-      <div class="fg"><label class="fl">Instructions</label><input id="rxNote" class="fi" placeholder="e.g. Take after food"/></div>
-      <button class="btnP" onclick="saveRec('rx')"><i class="fa fa-pills"></i> Send Prescription to Pharmacy</button>`,
+    rx:`<div style="background:#fff8e1;border-radius:var(--rs);padding:10px;font-size:.82rem;color:#7a5e00;margin-bottom:12px"><i class="fa fa-circle-info"></i> This prescription will appear in the <b>Pharmacy module</b>. Add as many drugs as needed.</div>
+      <div id="rxDrugList" style="margin-bottom:10px"></div>
+      <div style="background:var(--bg);border-radius:var(--rs);padding:10px;margin-bottom:10px">
+        <div style="font-size:.76rem;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.4px;margin-bottom:8px">Add Drug</div>
+        <div class="frow"><div class="fg"><label class="fl">Drug Name *</label><input id="rxDrug" class="fi" placeholder="e.g. Amoxicillin 500mg" list="rxDrugDatalist"/><datalist id="rxDrugDatalist"></datalist></div><div class="fg"><label class="fl">Dosage *</label><input id="rxDose" class="fi" placeholder="e.g. 1 tab TDS x5 days"/></div></div>
+        <div class="fg"><label class="fl">Instructions</label><input id="rxNote" class="fi" placeholder="e.g. Take after food"/></div>
+        <button class="bsm outline" onclick="rxAddDrug()"><i class="fa fa-plus"></i> Add Drug to List</button>
+      </div>
+      <div id="rxDrugCount" style="font-size:.8rem;color:var(--mu);margin-bottom:8px"></div>
+      <button class="btnP" id="rxSendBtn" onclick="saveRec('rx')" disabled style="opacity:.5"><i class="fa fa-pills"></i> Send All Prescriptions to Pharmacy</button>`,
     labReq:`<div style="background:#e0f7fa;border-radius:var(--rs);padding:10px;font-size:.82rem;color:#00838f;margin-bottom:12px"><i class="fa fa-circle-info"></i> This request will appear in the <b>Laboratory module</b> for the Lab Technician.</div>
       <div class="fg"><label class="fl">Test Name *</label><input id="labTestIn" class="fi" placeholder="e.g. FBC, Malaria RDT, HbA1c"/></div>
       <div class="fg"><label class="fl">Urgency</label><select id="labUrg" class="fsel"><option>Routine</option><option>Urgent</option><option>STAT</option></select></div>
@@ -1640,17 +1662,60 @@ window.openAddRec=async(type,label)=>{
       <button class="btnP" onclick="saveRec('injection')"><i class="fa fa-syringe"></i> Save Injection Record</button>`
   };
   ge("addRecBody").innerHTML=forms[type]||"";
+  if(type==="rx"){
+    window._rxDrugs=[];
+    renderRxList();
+    // Populate datalist from stock
+    const dl=ge('rxDrugDatalist');
+    if(dl){
+      try{
+        const snap=await getDocs(collection(db,'drugBatches'));
+        const names=[...new Set(snap.docs.map(d=>d.data().name).filter(Boolean))].sort();
+        dl.innerHTML=names.map(n=>`<option value="${n}">`).join('');
+      }catch(e){}
+    }
+  }
   openModal("addRecModal");
 };
+
+// ─── MULTI-DRUG PRESCRIPTION HELPERS ─────────────────────────────────────────
+window._rxDrugs=[];
+window.rxAddDrug=()=>{
+  const drug=(ge('rxDrug')?.value||'').trim();
+  const dose=(ge('rxDose')?.value||'').trim();
+  const note=(ge('rxNote')?.value||'').trim();
+  if(!drug||!dose){toast('Enter drug name and dosage','err');return;}
+  window._rxDrugs.push({drug,dose,note});
+  renderRxList();
+  ge('rxDrug').value='';ge('rxDose').value='';ge('rxNote').value='';
+  ge('rxDrug').focus();
+};
+function renderRxList(){
+  const el=ge('rxDrugList');if(!el)return;
+  const btn=ge('rxSendBtn');
+  const count=ge('rxDrugCount');
+  if(!window._rxDrugs.length){
+    el.innerHTML='<div style="color:var(--mu);font-size:.8rem;padding:6px 0">No drugs added yet.</div>';
+    if(btn){btn.disabled=true;btn.style.opacity='.5';}
+    if(count)count.textContent='';
+    return;
+  }
+  el.innerHTML=window._rxDrugs.map((d,i)=>`<div style="display:flex;align-items:center;gap:8px;background:var(--bg);border-radius:var(--rs);padding:8px 10px;margin-bottom:6px">
+    <div style="flex:1"><b style="font-size:.87rem">${d.drug}</b><br><span style="font-size:.76rem;color:var(--mu)">${d.dose}${d.note?' · '+d.note:''}</span></div>
+    <button class="btn-ic danger" onclick="rxRemoveDrug(${i})"><i class="fa fa-times"></i></button>
+  </div>`).join('');
+  if(btn){btn.disabled=false;btn.style.opacity='1';}
+  if(count)count.textContent=`${window._rxDrugs.length} drug${window._rxDrugs.length>1?'s':''} added`;
+}
+window.rxRemoveDrug=(i)=>{window._rxDrugs.splice(i,1);renderRxList();};
 
 window.saveRec=async(type)=>{
   if(!aPID){toast("No patient selected","err");return;}
   if(!canDo("addRecord")){toast("⛔ Your role cannot add records","err");return;}
-  // Extra strict checks per type
-  if(type==="rx"&&!["Doctor","Admin"].includes(SP.role)){toast("⛔ Only Doctors can prescribe medications","err");return;}
+  if(type==="rx"&&!["Doctor","Admin","Super Admin"].includes(SP.role)){toast("⛔ Only Doctors can prescribe medications","err");return;}
   if(type==="labRes"&&!canDo("uploadLab")){toast("⛔ Only Lab Technicians can upload lab results","err");return;}
-  if(type==="labReq"&&!["Doctor","Nurse","Admin"].includes(SP.role)){toast("⛔ Only Doctors and Nurses can request lab tests","err");return;}
-  if(type==="diag"&&!["Doctor","Admin"].includes(SP.role)){toast("⛔ Only Doctors can add diagnoses","err");return;}
+  if(type==="labReq"&&!["Doctor","Nurse","Admin","Super Admin"].includes(SP.role)){toast("⛔ Only Doctors and Nurses can request lab tests","err");return;}
+  if(type==="diag"&&!["Doctor","Admin","Super Admin"].includes(SP.role)){toast("⛔ Only Doctors can add diagnoses","err");return;}
   let rd={pid:aPID,type,by:SP.name,byRole:SP.role,ts:serverTimestamp()};
   if(type==="vitals"){
     const bp=gv("vBP"),temp=gv("vTemp"),pulse=gv("vPulse"),rr=gv("vRR"),weight=gv("vWeight"),height=gv("vHeight"),o2=gv("vO2"),notes=gv("vNotes");
@@ -1667,23 +1732,26 @@ window.saveRec=async(type)=>{
     await sendNotif(["Nurse","Admin"],"diag","🩺 Diagnosis Added",`Dr.${SP.name} added diagnosis for patient ${aPID}`,aPID);
     rd={...rd,tag:"Diagnosis",role:"doctor",body:n};
   }else if(type==="rx"){
-    const drug=gv("rxDrug"),dose=gv("rxDose"),note=gv("rxNote");
-    if(!drug||!dose){toast("Enter drug & dosage","err");return;}
-    // Also push to prescriptions collection so pharmacy can see it
-    await addDoc(collection(db,"prescriptions"),{patientId:aPID,drug,dosage:dose,instructions:note,prescribedBy:SP.name,dispensed:false,createdAt:serverTimestamp()});
-    await sendNotif(["Pharmacist","Admin"],"rx","💊 New Prescription",`Dr.${SP.name} prescribed ${drug} (${dose}) for patient ${aPID}`,aPID);
-    rd={...rd,tag:"Prescription",role:"pharmacy",body:`💊 ${drug} — ${dose}${note?" ("+note+")":""}\nSent to Pharmacy by Dr. ${SP.name}`};
+    // Multi-drug prescription
+    if(!window._rxDrugs||!window._rxDrugs.length){toast("Add at least one drug to the list","err");return;}
+    const drugs=window._rxDrugs;
+    for(const d of drugs){
+      await addDoc(collection(db,"prescriptions"),{patientId:aPID,drug:d.drug,dosage:d.dose,instructions:d.note,prescribedBy:SP.name,dispensed:false,createdAt:serverTimestamp()});
+    }
+    await sendNotif(["Pharmacist","Admin"],"rx","💊 New Prescription",
+      `Dr.${SP.name} prescribed ${drugs.length} drug(s) for patient ${aPID}: ${drugs.map(d=>d.drug).join(', ')}`,aPID);
+    rd={...rd,tag:"Prescription",role:"pharmacy",
+      body:`💊 Prescription by Dr. ${SP.name}\n`+drugs.map(d=>`• ${d.drug} — ${d.dose}${d.note?" ("+d.note+")":""}`).join('\n')};
+    window._rxDrugs=[];
   }else if(type==="labReq"){
     const test=gv("labTestIn"),urg=gv("labUrg"),notes=gv("labNotes");
     if(!test){toast("Enter test name","err");return;}
-    // Also push to labRequests so lab module shows it
     await addDoc(collection(db,"labRequests"),{patientId:aPID,testName:test,urgency:urg,notes,requestedBy:SP.name,status:"Pending",createdAt:serverTimestamp()});
     await sendNotif(["Lab Technician","Admin"],"labReq","🔬 New Lab Request",`${SP.name} requested ${test} [${urg}] for patient ${aPID}`,aPID);
     rd={...rd,tag:"Lab Request",role:"lab",body:`🔬 ${test} [${urg}]\n${notes?notes+"\n":""}Sent to Lab by ${SP.name}`};
   }else if(type==="labRes"){
     const test=gv("lrTest"),res=gv("lrResult"),ref=gv("lrRef");
     if(!test||!res){toast("Enter test name and result","err");return;}
-    // Mark related request as completed
     const lrs=await getDocs(query(collection(db,"labRequests"),where("patientId","==",aPID),where("testName","==",test),where("status","==","Pending")));
     for(const d of lrs.docs)await updateDoc(doc(db,"labRequests",d.id),{status:"Completed"});
     await addDoc(collection(db,"labResults"),{patientId:aPID,testName:test,results:res,reference:ref,uploadedBy:SP.name,createdAt:serverTimestamp()});
@@ -2154,13 +2222,18 @@ window.loadStock=async()=>{
       if(qty===0)qtyStatus=`<br><span style="font-size:.68rem;color:var(--D);font-weight:700">OUT OF STOCK</span>`;
       else if(qty<=5)qtyStatus=`<br><span style="font-size:.68rem;color:var(--W);font-weight:700">⚠️ Low</span>`;
       const canDelDrug=canDo("deleteDrug")||isStrictAdmin();
+      const canEdit=canDo("manageStock")||isStrictAdmin();
       html+=`<tr style="${rowStyle}">
         <td><b>${name}</b>${qtyStatus}</td>
         <td style="font-size:.75rem;color:var(--mu)">${r.batchNo||"—"}</td>
         <td style="font-weight:700;color:${qty===0?"var(--D)":qty<=5?"var(--W)":"var(--tx)"}">${qty}</td>
         <td style="font-size:.78rem;color:${expiryColor||"var(--tx)"}">${expiryStr}</td>
         <td>${expiryStatus||`<span style="background:var(--bg);color:var(--mu);font-size:.7rem;font-weight:600;padding:2px 8px;border-radius:20px">${qty===0?"Empty":qty<=5?"Low":"OK"}</span>`}</td>
-        <td>${canDelDrug?`<button class="btn-ic danger" onclick="deleteDrugBatch('${r.id}','${name.replace(/'/g,"")}')" title="Delete batch"><i class="fa fa-trash"></i></button>`:"—"}</td>
+        <td style="display:flex;gap:4px;flex-wrap:wrap">
+          ${canEdit?`<button class="btn-ic" onclick="openEditStock('${r.id}','${name.replace(/'/g,'')}',${qty},'${r.batchNo||''}','${r.expiry||''}')" title="Edit"><i class="fa fa-pen"></i></button>`:''}
+          ${canDelDrug?`<button class="btn-ic danger" onclick="deleteDrugBatch('${r.id}','${name.replace(/'/g,"")}')" title="Delete"><i class="fa fa-trash"></i></button>`:''}
+          ${!canEdit&&!canDelDrug?'—':''}
+        </td>
       </tr>`;
     });
   });
@@ -2282,11 +2355,6 @@ async function _stDoImport(rows,mapping){
 // ─── BILLING — Price List Driven ─────────────────────────────────────────────
 let _priceListCache=[], _selectedBillItem=null;
 
-window.loadBillPriceList=async()=>{
-  if(_priceListCache.length) return; // already loaded
-  const snap=await getDocs(collection(db,'priceList'));
-  _priceListCache=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(a.itemName||'').localeCompare(b.itemName||''));
-};
 
 window.searchBillItem=()=>{
   const q=(ge('bSearch')?.value||'').toLowerCase().trim();
@@ -4520,6 +4588,86 @@ async function _plDoImport(rows, mapping){
   </div>`;
   loadPriceList();
 }
+
+
+// ─── APRIL 2026 STOCK DATA (from APRIL_2026__PHARMACY.xlsx) ──────────────────
+const APRIL_STOCK_DATA = [{"name": "ACT 20/120", "qty": 476, "category": "TABLETS"}, {"name": "ACT 80/480", "qty": 6, "category": "TABLETS"}, {"name": "Albendazole", "qty": 32, "category": "TABLETS"}, {"name": "Amoxicillin 500mg", "qty": 70, "category": "TABLETS"}, {"name": "Amoxicillin 250mg", "qty": 110, "category": "TABLETS"}, {"name": "Amoxicillin 125mg", "qty": 0, "category": "TABLETS"}, {"name": "Ampicillin 250mg", "qty": 209, "category": "TABLETS"}, {"name": "Ampiclox", "qty": 20, "category": "TABLETS"}, {"name": "Arthritis care", "qty": 0, "category": "TABLETS"}, {"name": "Ascorbic Acid(vit.c)", "qty": 589, "category": "TABLETS"}, {"name": "Atorvastatin", "qty": 0, "category": "TABLETS"}, {"name": "Vit Bco", "qty": 4610, "category": "TABLETS"}, {"name": "Vit B6 (Pyridoxine)", "qty": 390, "category": "TABLETS"}, {"name": "Bromazepan", "qty": 30, "category": "TABLETS"}, {"name": "Buscopan", "qty": 0, "category": "TABLETS"}, {"name": "Carvedilol", "qty": 148, "category": "TABLETS"}, {"name": "Aspirin (vasoprin)", "qty": 0, "category": "TABLETS"}, {"name": "Captopril", "qty": 0, "category": "TABLETS"}, {"name": "Chlorpheniramine(Piritin)", "qty": 1864, "category": "TABLETS"}, {"name": "Cimetidine", "qty": 0, "category": "TABLETS"}, {"name": "Ciprofluoxacin 500mg", "qty": 118, "category": "TABLETS"}, {"name": "Chlomiphene (clomid)", "qty": 120, "category": "TABLETS"}, {"name": "Clopridrogel 75mg", "qty": 72, "category": "TABLETS"}, {"name": "Cotrimoxazole(septrim)", "qty": 220, "category": "TABLETS"}, {"name": "Daravite woman 50+", "qty": 0, "category": "TABLETS"}, {"name": "Dexamethasone 0.5mg", "qty": 205, "category": "TABLETS"}, {"name": "Daravite Omega3", "qty": 0, "category": "TABLETS"}, {"name": "Doxycycline", "qty": 224, "category": "TABLETS"}, {"name": "Daravite woman 70+", "qty": 0, "category": "TABLETS"}, {"name": "Felvin 20 (piroxicam)", "qty": 370, "category": "TABLETS"}, {"name": "Ferrous", "qty": 2492, "category": "TABLETS"}, {"name": "Folic Acid", "qty": 2523, "category": "TABLETS"}, {"name": "Frusemide", "qty": 10, "category": "TABLETS"}, {"name": "Ephederine(GG cold)", "qty": 402, "category": "TABLETS"}, {"name": "Gyno-tycosid (klinfast)", "qty": 0, "category": "TABLETS"}, {"name": "Griseofulvin", "qty": 0, "category": "TABLETS"}, {"name": "Glimeperide 2mg", "qty": 0, "category": "TABLETS"}, {"name": "Methyldopa", "qty": 0, "category": "TABLETS"}, {"name": "Ibuprofen", "qty": 517, "category": "TABLETS"}, {"name": "Indomethacine(indokris)", "qty": 50, "category": "TABLETS"}, {"name": "Ketoconazole", "qty": 0, "category": "TABLETS"}, {"name": "Chymotypsin", "qty": 378, "category": "TABLETS"}, {"name": "Metocloprimide", "qty": 0, "category": "TABLETS"}, {"name": "Levofem", "qty": 153, "category": "TABLETS"}, {"name": "Levofloxacin 500mg", "qty": 40, "category": "TABLETS"}, {"name": "Fluconazole 150mg", "qty": 0, "category": "TABLETS"}, {"name": "Loperamide(Imodium)", "qty": 253, "category": "TABLETS"}, {"name": "Loratadine 10mg", "qty": 16, "category": "TABLETS"}, {"name": "Manix", "qty": 0, "category": "TABLETS"}, {"name": "Metformin 500mg", "qty": 178, "category": "TABLETS"}, {"name": "Metronidazole", "qty": 740, "category": "TABLETS"}, {"name": "Misoprostol(cytotec)", "qty": 28, "category": "TABLETS"}, {"name": "Mutivite cap", "qty": 59, "category": "TABLETS"}, {"name": "MULTIVITE", "qty": 845, "category": "TABLETS"}, {"name": "Nifedipine", "qty": 292, "category": "TABLETS"}, {"name": "Nitrofurantoin", "qty": 9, "category": "TABLETS"}, {"name": "Nourduet(Amlodipine)", "qty": 0, "category": "TABLETS"}, {"name": "Hydrochlorothiazide (normoretic) 50mg", "qty": 0, "category": "TABLETS"}, {"name": "Novagen 500mg", "qty": 0, "category": "TABLETS"}, {"name": "Ofloxacin", "qty": 0, "category": "TABLETS"}, {"name": "Olanzapine 5mg", "qty": 100, "category": "TABLETS"}, {"name": "Omeprazole", "qty": 115, "category": "TABLETS"}, {"name": "Acetaminophen", "qty": 1666, "category": "TABLETS"}, {"name": "Prednisolone", "qty": 1914, "category": "TABLETS"}, {"name": "Pregabalin", "qty": 0, "category": "TABLETS"}, {"name": "Promethazine", "qty": 433, "category": "TABLETS"}, {"name": "Pregmom", "qty": 0, "category": "TABLETS"}, {"name": "Risperidone", "qty": 73, "category": "TABLETS"}, {"name": "Riboflavin", "qty": 405, "category": "TABLETS"}, {"name": "Rabeprazole", "qty": 0, "category": "TABLETS"}, {"name": "Salbutamol", "qty": 1905, "category": "TABLETS"}, {"name": "Sildenafil", "qty": 4, "category": "TABLETS"}, {"name": "Tamsulusin", "qty": 0, "category": "TABLETS"}, {"name": "Tranexamic Acid 500mg", "qty": 0, "category": "TABLETS"}, {"name": "vasoprin 75mg", "qty": 456, "category": "TABLETS"}, {"name": "Menbendazole 100mg", "qty": 209, "category": "TABLETS"}, {"name": "Zinc sulphate", "qty": 68, "category": "TABLETS"}, {"name": "Orphenadrine", "qty": 0, "category": "TABLETS"}, {"name": "Bisacodyl", "qty": 85, "category": "TABLETS"}, {"name": "Tetracycline", "qty": 168, "category": "TABLETS"}, {"name": "Hometamin Ginseng", "qty": 0, "category": "TABLETS"}, {"name": "Sulphadoxine (Fansider)", "qty": 96, "category": "TABLETS"}, {"name": "Priperaquine(ibasunate)", "qty": 0, "category": "TABLETS"}, {"name": "Amitriptyline (Triptizole) 25mg", "qty": 0, "category": "TABLETS"}, {"name": "Cefuroxime", "qty": 10, "category": "TABLETS"}, {"name": "Amlovar (amlodine)", "qty": 0, "category": "TABLETS"}, {"name": "Daravite woman by 37", "qty": 0, "category": "TABLETS"}, {"name": "Letrozole", "qty": 2, "category": "TABLETS"}, {"name": "Amlodipine 10mg", "qty": 624, "category": "TABLETS"}, {"name": "Allopurinol", "qty": 0, "category": "TABLETS"}, {"name": "Hemafolin cap", "qty": 0, "category": "TABLETS"}, {"name": "Obron6", "qty": 0, "category": "TABLETS"}, {"name": "Obron6 30", "qty": 0, "category": "TABLETS"}, {"name": "Azithromycin", "qty": 0, "category": "TABLETS"}, {"name": "Clarithromycin", "qty": 0, "category": "TABLETS"}, {"name": "Glimeperide 4mg", "qty": 0, "category": "TABLETS"}, {"name": "Norethisterone (Primolut) 5mg", "qty": 0, "category": "TABLETS"}, {"name": "Daravite forte50", "qty": 0, "category": "TABLETS"}, {"name": "Daravite forte30", "qty": 0, "category": "TABLETS"}, {"name": "Dolometa b", "qty": 260, "category": "TABLETS"}, {"name": "Calcium", "qty": 40, "category": "TABLETS"}, {"name": "Bendroflumethiazide", "qty": 0, "category": "TABLETS"}, {"name": "Propanolol 40mg", "qty": 420, "category": "TABLETS"}, {"name": "Sabutamol thyophyline", "qty": 63, "category": "TABLETS"}, {"name": "Ribavirin", "qty": 0, "category": "TABLETS"}, {"name": "phynobabitone", "qty": 0, "category": "TABLETS"}, {"name": "Diclofenac cholestyramine(flotac)", "qty": 0, "category": "TABLETS"}, {"name": "Tizanidine", "qty": 5, "category": "TABLETS"}, {"name": "Ivermectine", "qty": 364, "category": "TABLETS"}, {"name": "Hyoscin", "qty": 94, "category": "TABLETS"}, {"name": "Cyproheptadine", "qty": 15, "category": "TABLETS"}, {"name": "Coenzyme (coq10)", "qty": 0, "category": "TABLETS"}, {"name": "Parlodel (Bromocriptine)", "qty": 10, "category": "TABLETS"}, {"name": "Chlopromazine (CPZ)", "qty": 0, "category": "TABLETS"}, {"name": "Duphaston", "qty": 0, "category": "TABLETS"}, {"name": "Tenofovir(Antiviral", "qty": 270, "category": "TABLETS"}, {"name": "Ibuprofen 800mg", "qty": 0, "category": "TABLETS"}, {"name": "Digoxin", "qty": 14, "category": "TABLETS"}, {"name": "Famotidine", "qty": 119, "category": "TABLETS"}, {"name": "Lisinopril 5mg", "qty": 0, "category": "TABLETS"}, {"name": "Lisinopril 20mg", "qty": 55, "category": "TABLETS"}, {"name": "Metformin 1000mg", "qty": 0, "category": "TABLETS"}, {"name": "Boonfit", "qty": 40, "category": "TABLETS"}, {"name": "Amoxiclave(Agumetin) 625 mg", "qty": 0, "category": "TABLETS"}, {"name": "Telmisartan", "qty": 0, "category": "TABLETS"}, {"name": "Cocodamol", "qty": 29, "category": "TABLETS"}, {"name": "Prazequantel 600mg", "qty": 0, "category": "TABLETS"}, {"name": "Proguanil (paludrine 100mg", "qty": 35, "category": "TABLETS"}, {"name": "Clotrimazole (insert)", "qty": 4, "category": "TABLETS"}, {"name": "Antacid(Danacid)", "qty": 10, "category": "TABLETS"}, {"name": "Clearcold", "qty": 304, "category": "TABLETS"}, {"name": "Alendronic acid 70mg", "qty": 4, "category": "TABLETS"}, {"name": "Cetirizine 10mg", "qty": 0, "category": "TABLETS"}, {"name": "Diazepam 5mg", "qty": 804, "category": "TABLETS"}, {"name": "Vitamin A Oral liquid 5mg", "qty": 18, "category": "TABLETS"}, {"name": "Amlodipine 5mg", "qty": 848, "category": "TABLETS"}, {"name": "Salbutamol nebule", "qty": 4, "category": "TABLETS"}, {"name": "DULOXETIN 20MG", "qty": 14, "category": "TABLETS"}, {"name": "Lisinopril 10mg", "qty": 456, "category": "TABLETS"}, {"name": "Erythromycin tabs 500mg", "qty": 80, "category": "TABLETS"}, {"name": "Micronized Purified Flavonic fraction (Daflon) 500mg", "qty": 30, "category": "TABLETS"}, {"name": "Quinine 300mg", "qty": 44, "category": "TABLETS"}, {"name": "Chloroquine 250mg", "qty": 80, "category": "TABLETS"}, {"name": "Olanzapine 10mg", "qty": 54, "category": "TABLETS"}, {"name": "Aciclovir (Virest)", "qty": 7, "category": "TABLETS"}, {"name": "Diclofenac Sodium", "qty": 580, "category": "TABLETS"}, {"name": "Diclofenac Potassium", "qty": 232, "category": "TABLETS"}, {"name": "Aceclofenac & pcm", "qty": 80, "category": "TABLETS"}, {"name": "Paracetamol, Ibuprofen& Caffeine(Deska)", "qty": 90, "category": "TABLETS"}, {"name": "Chloramphenicol", "qty": 160, "category": "TABLETS"}, {"name": "Levamisole(Maxtex)", "qty": 300, "category": "TABLETS"}, {"name": "Cod liver Oil", "qty": 15, "category": "TABLETS"}, {"name": "Paracetamol & cafeine(Bukaris)", "qty": 30, "category": "TABLETS"}, {"name": "Feed fine", "qty": 40, "category": "TABLETS"}, {"name": "Danacid", "qty": 10, "category": "TABLETS"}, {"name": "Rifampicin", "qty": 0, "category": "TABLETS"}, {"name": "Hydrochlorothiazide (normoretic) 25mg", "qty": 0, "category": "TABLETS"}, {"name": "Adrenaline", "qty": 0, "category": "INJECTIONS"}, {"name": "Arteether", "qty": 1, "category": "INJECTIONS"}, {"name": "Artemether", "qty": 158, "category": "INJECTIONS"}, {"name": "BCO", "qty": 8, "category": "INJECTIONS"}, {"name": "IV/IM Ceftriaxone", "qty": 0, "category": "INJECTIONS"}, {"name": "Chloroquine", "qty": 0, "category": "INJECTIONS"}, {"name": "Chlorpheniramine", "qty": 13, "category": "INJECTIONS"}, {"name": "IVF Ciprofloxacin", "qty": 13, "category": "INJECTIONS"}, {"name": "Dexamethasone", "qty": 36, "category": "INJECTIONS"}, {"name": "Diazepam", "qty": 1, "category": "INJECTIONS"}, {"name": "Diclofenac", "qty": 2, "category": "INJECTIONS"}, {"name": "Frusemide(Lasix)", "qty": 12, "category": "INJECTIONS"}, {"name": "Gentamicine", "qty": 77, "category": "INJECTIONS"}, {"name": "Hydralazine", "qty": 90, "category": "INJECTIONS"}, {"name": "Amoxiline Inj Hancotin", "qty": 0, "category": "INJECTIONS"}, {"name": "Hydrocortizone", "qty": 17, "category": "INJECTIONS"}, {"name": "IVF 20%Manitol", "qty": 11, "category": "INJECTIONS"}, {"name": "Half strenght", "qty": 0, "category": "INJECTIONS"}, {"name": "4.3%Dextrose saline", "qty": 5, "category": "INJECTIONS"}, {"name": "5% Dextrose water", "qty": 9, "category": "INJECTIONS"}, {"name": "noristrerat", "qty": 2, "category": "INJECTIONS"}, {"name": "IVF Normal Saline", "qty": 7, "category": "INJECTIONS"}, {"name": "Ketamine", "qty": 4, "category": "INJECTIONS"}, {"name": "Metoclopramide", "qty": 74, "category": "INJECTIONS"}, {"name": "IVF Metronidazole", "qty": 7, "category": "INJECTIONS"}, {"name": "Pentazocine", "qty": 5, "category": "INJECTIONS"}, {"name": "Progesterone", "qty": 6, "category": "INJECTIONS"}, {"name": "Quinine", "qty": 60, "category": "INJECTIONS"}, {"name": "Testosterone", "qty": 0, "category": "INJECTIONS"}, {"name": "Tranexamic", "qty": 0, "category": "INJECTIONS"}, {"name": "Ventolin nebulizer", "qty": 0, "category": "INJECTIONS"}, {"name": "Atropine", "qty": 10, "category": "INJECTIONS"}, {"name": "Aminiophyline", "qty": 25, "category": "INJECTIONS"}, {"name": "Paracetamol", "qty": 38, "category": "INJECTIONS"}, {"name": "Procain penicillin", "qty": 1, "category": "INJECTIONS"}, {"name": "Medroxyprogesteron", "qty": 0, "category": "INJECTIONS"}, {"name": "Ergometrim", "qty": 4, "category": "INJECTIONS"}, {"name": "Vitamin K", "qty": 0, "category": "INJECTIONS"}, {"name": "Artesunate", "qty": 0, "category": "INJECTIONS"}, {"name": "Rocephine", "qty": 0, "category": "INJECTIONS"}, {"name": "T.T inj", "qty": 0, "category": "INJECTIONS"}, {"name": "Hepatitis B", "qty": 0, "category": "INJECTIONS"}, {"name": "Iodine", "qty": 1, "category": "INJECTIONS"}, {"name": "Hyoscine", "qty": 48, "category": "INJECTIONS"}, {"name": "Oxytocine", "qty": 25, "category": "INJECTIONS"}, {"name": "Anusol suppositry", "qty": 0, "category": "INJECTIONS"}, {"name": "5% Dextrose saline", "qty": 10, "category": "INJECTIONS"}, {"name": "Chlopromazine", "qty": 13, "category": "INJECTIONS"}, {"name": "Crystalline penicilline", "qty": 7, "category": "INJECTIONS"}, {"name": "Calgonate calcium", "qty": 20, "category": "INJECTIONS"}, {"name": "Fluphenazine", "qty": 0, "category": "INJECTIONS"}, {"name": "Docetaxel", "qty": 4, "category": "INJECTIONS"}, {"name": "Full strength", "qty": 0, "category": "INJECTIONS"}, {"name": "Insullin", "qty": 0, "category": "INJECTIONS"}, {"name": "Vancomycin", "qty": 0, "category": "INJECTIONS"}, {"name": "10% Dextrose saline", "qty": 0, "category": "INJECTIONS"}, {"name": "Copper T(ICU)", "qty": 0, "category": "INJECTIONS"}, {"name": "Vitamin K3", "qty": 10, "category": "INJECTIONS"}, {"name": "Clexane", "qty": 0, "category": "INJECTIONS"}, {"name": "Phenobabitone", "qty": 0, "category": "INJECTIONS"}, {"name": "Meropenem", "qty": 0, "category": "INJECTIONS"}, {"name": "Cefuroxime inj", "qty": 0, "category": "INJECTIONS"}, {"name": "10% dextrose water", "qty": 12, "category": "INJECTIONS"}, {"name": "Ringeres lactate", "qty": 6, "category": "INJECTIONS"}, {"name": "Tothema", "qty": 0, "category": "INJECTIONS"}, {"name": "Iron dextran", "qty": 1, "category": "INJECTIONS"}, {"name": "Sodium Hyagluronate(SOHYAL)", "qty": 0, "category": "INJECTIONS"}, {"name": "Streptomycin", "qty": 0, "category": "INJECTIONS"}, {"name": "Albumin", "qty": 1, "category": "INJECTIONS"}, {"name": "Magnessium sulphate", "qty": 5, "category": "INJECTIONS"}, {"name": "Canula Pink", "qty": 45, "category": "WARD CONSUMABLES"}, {"name": "Canula Green", "qty": 7, "category": "WARD CONSUMABLES"}, {"name": "Canula Blue", "qty": 27, "category": "WARD CONSUMABLES"}, {"name": "Canula Yellow", "qty": 1, "category": "WARD CONSUMABLES"}, {"name": "Needle and Syringe 5ml", "qty": 116, "category": "WARD CONSUMABLES"}, {"name": "Needle and Syringe 2ml", "qty": 129, "category": "WARD CONSUMABLES"}, {"name": "Needle and Syringe 10ml", "qty": 0, "category": "WARD CONSUMABLES"}, {"name": "Blood Giving Set", "qty": 6, "category": "WARD CONSUMABLES"}, {"name": "IV giving set", "qty": 24, "category": "WARD CONSUMABLES"}, {"name": "Extra needle 2ml", "qty": 63, "category": "WARD CONSUMABLES"}, {"name": "Extra needle 5ml", "qty": 151, "category": "WARD CONSUMABLES"}, {"name": "Scalp vein net", "qty": 0, "category": "WARD CONSUMABLES"}, {"name": "Cotton Wool", "qty": 0, "category": "WARD CONSUMABLES"}, {"name": "Crepe bandage", "qty": 11, "category": "WARD CONSUMABLES"}, {"name": "Orthopedic padding", "qty": 8, "category": "WARD CONSUMABLES"}, {"name": "Stockinette", "qty": 1, "category": "WARD CONSUMABLES"}, {"name": "Softban Cotton Wool padding", "qty": 8, "category": "WARD CONSUMABLES"}, {"name": "Suture- Nylon 0", "qty": 13, "category": "WARD CONSUMABLES"}, {"name": "Suture- Nylon 1", "qty": 20, "category": "WARD CONSUMABLES"}, {"name": "Suture- Nylon 2/0", "qty": 0, "category": "WARD CONSUMABLES"}, {"name": "Suture- Chromic 2/0", "qty": 21, "category": "WARD CONSUMABLES"}, {"name": "Suture- Chromic 0", "qty": 13, "category": "WARD CONSUMABLES"}, {"name": "Suture- Chromic 1", "qty": 9, "category": "WARD CONSUMABLES"}, {"name": "Suture- Chromic 2", "qty": 6, "category": "WARD CONSUMABLES"}, {"name": "Suture- Nylon 2", "qty": 19, "category": "WARD CONSUMABLES"}, {"name": "Suture- Vicryl 2", "qty": 0, "category": "WARD CONSUMABLES"}, {"name": "Suture- Vicryl 0", "qty": 0, "category": "WARD CONSUMABLES"}, {"name": "Surgical Blade", "qty": 26, "category": "WARD CONSUMABLES"}, {"name": "Urine bag", "qty": 3, "category": "WARD CONSUMABLES"}, {"name": "Urinary Cathether- Size 18", "qty": 1, "category": "WARD CONSUMABLES"}, {"name": "Urinary Cathether- Size 16", "qty": 0, "category": "WARD CONSUMABLES"}, {"name": "Urinary Cathether- Size 20", "qty": 10, "category": "WARD CONSUMABLES"}, {"name": "Urinary Cathether- Size 22", "qty": 10, "category": "WARD CONSUMABLES"}, {"name": "Silicone Cathether", "qty": 0, "category": "WARD CONSUMABLES"}, {"name": "Eusol", "qty": 11, "category": "WARD CONSUMABLES"}, {"name": "Urinary Catheter size 6", "qty": 0, "category": "WARD CONSUMABLES"}, {"name": "Surgical gloves", "qty": 6, "category": "WARD CONSUMABLES"}, {"name": "Nightingale", "qty": 10, "category": "WARD CONSUMABLES"}, {"name": "Ladysept", "qty": 11, "category": "WARD CONSUMABLES"}, {"name": "Goya oil", "qty": 5, "category": "WARD CONSUMABLES"}, {"name": "Moko spirit", "qty": 0, "category": "WARD CONSUMABLES"}, {"name": "Contraceptive( T- copper)", "qty": 2, "category": "WARD CONSUMABLES"}, {"name": "Insulin syringe", "qty": 4, "category": "WARD CONSUMABLES"}, {"name": "Mucus extractor", "qty": 0, "category": "WARD CONSUMABLES"}, {"name": "Srum p.t strip", "qty": 23, "category": "WARD CONSUMABLES"}, {"name": "Mosquitoe net", "qty": 4, "category": "WARD CONSUMABLES"}, {"name": "Guaze bandge", "qty": 18, "category": "WARD CONSUMABLES"}, {"name": "Guaze big", "qty": 1, "category": "WARD CONSUMABLES"}, {"name": "P O P bandage", "qty": 7, "category": "WARD CONSUMABLES"}, {"name": "Blood bag", "qty": 4, "category": "WARD CONSUMABLES"}, {"name": "GV", "qty": 1, "category": "WARD CONSUMABLES"}, {"name": "CORD CLAMP", "qty": 11, "category": "WARD CONSUMABLES"}, {"name": "Feeding tube (NG tube)", "qty": 14, "category": "WARD CONSUMABLES"}, {"name": "soap", "qty": 83, "category": "WARD CONSUMABLES"}, {"name": "Hypo", "qty": 29, "category": "WARD CONSUMABLES"}, {"name": "Amoxicillin", "qty": 10, "category": "SYRUP"}, {"name": "Ascorbic Acid (Vit C)", "qty": 28, "category": "SYRUP"}, {"name": "Ampicillin", "qty": 2, "category": "SYRUP"}, {"name": "Augumentin (Amoxiclave)", "qty": 0, "category": "SYRUP"}, {"name": "Chlotamol(BABY REX)", "qty": 18, "category": "SYRUP"}, {"name": "Chlopheniramine", "qty": 9, "category": "SYRUP"}, {"name": "Ciklavit", "qty": 2, "category": "SYRUP"}, {"name": "Cotrimoxazole", "qty": 29, "category": "SYRUP"}, {"name": "Cough Expectorant", "qty": 69, "category": "SYRUP"}, {"name": "Mist Magnesium Trisilicate", "qty": 10, "category": "SYRUP"}, {"name": "Erythromycin", "qty": 7, "category": "SYRUP"}, {"name": "Ferrokris blood tonic", "qty": 3, "category": "SYRUP"}, {"name": "Ferrotal", "qty": 1, "category": "SYRUP"}, {"name": "Bonababe", "qty": 10, "category": "SYRUP"}, {"name": "Tinto-tonic", "qty": 0, "category": "SYRUP"}, {"name": "Liquid Iron", "qty": 0, "category": "SYRUP"}, {"name": "MIM (SMALL)", "qty": 4, "category": "SYRUP"}, {"name": "MIM(BIG)", "qty": 1, "category": "SYRUP"}, {"name": "Orheptal(big)", "qty": 1, "category": "SYRUP"}, {"name": "Orheptal(small)", "qty": 1, "category": "SYRUP"}, {"name": "Ranferon", "qty": 4, "category": "SYRUP"}, {"name": "Vamirex", "qty": 0, "category": "SYRUP"}, {"name": "Artemeter", "qty": 0, "category": "SYRUP"}, {"name": "Maxiquine", "qty": 2, "category": "SYRUP"}, {"name": "Matosan (sorbitol)", "qty": 0, "category": "SYRUP"}, {"name": "Mebendazole", "qty": 8, "category": "SYRUP"}, {"name": "Peacetone blood tonic", "qty": 0, "category": "SYRUP"}, {"name": "Chemiron(big)", "qty": 2, "category": "SYRUP"}, {"name": "Chemiron(small)", "qty": 8, "category": "SYRUP"}, {"name": "Monomim(with cod liver oil)", "qty": 5, "category": "SYRUP"}, {"name": "Gripe water", "qty": 0, "category": "SYRUP"}, {"name": "Brunto tonic(big)", "qty": 1, "category": "SYRUP"}, {"name": "brunto tonic(small)", "qty": 2, "category": "SYRUP"}, {"name": "Panpiron tonic(small)", "qty": 1, "category": "SYRUP"}, {"name": "1% Hydrocortisone", "qty": 0, "category": "CREAMS"}, {"name": "5% Permethrin", "qty": 0, "category": "CREAMS"}, {"name": "Antifungial", "qty": 0, "category": "CREAMS"}, {"name": "Antibiotics", "qty": 0, "category": "CREAMS"}, {"name": "Antibiotics with vit e", "qty": 0, "category": "CREAMS"}, {"name": "Methysalicilate", "qty": 1, "category": "CREAMS"}, {"name": "Triple Action", "qty": 10, "category": "CREAMS"}, {"name": "Drujela", "qty": 0, "category": "CREAMS"}, {"name": "Dermazin (25g)", "qty": 0, "category": "CREAMS"}, {"name": "Ky gel", "qty": 2, "category": "CREAMS"}, {"name": "Triple Action Vit e", "qty": 1, "category": "CREAMS"}, {"name": "Clotrimazole", "qty": 3, "category": "CREAMS"}, {"name": "Lidocaine gel", "qty": 8, "category": "CREAMS"}, {"name": "sp-6 toothpaste", "qty": 4, "category": "CREAMS"}, {"name": "Acneaway", "qty": 6, "category": "CREAMS"}, {"name": "Neovate", "qty": 4, "category": "CREAMS"}, {"name": "Visiderm", "qty": 5, "category": "CREAMS"}, {"name": "Visita Plus", "qty": 5, "category": "CREAMS"}, {"name": "Mesone", "qty": 6, "category": "CREAMS"}, {"name": "NCP BIG", "qty": 4, "category": "OTHERS"}, {"name": "7 Keys", "qty": 4, "category": "OTHERS"}, {"name": "Calamine lotion", "qty": 0, "category": "OTHERS"}, {"name": "Chloraphenicol eye drop", "qty": 1, "category": "OTHERS"}, {"name": "Gentamincine eye drop", "qty": 8, "category": "OTHERS"}, {"name": "Guaze", "qty": 1, "category": "OTHERS"}, {"name": "ORS", "qty": 0, "category": "OTHERS"}, {"name": "Savlon", "qty": 3, "category": "OTHERS"}, {"name": "Benzyle benzoate", "qty": 4, "category": "OTHERS"}, {"name": "Ncp small", "qty": 19, "category": "OTHERS"}, {"name": "spirit", "qty": 1, "category": "OTHERS"}, {"name": "Drumellose", "qty": 0, "category": "OTHERS"}, {"name": "Liquid parafin", "qty": 0, "category": "OTHERS"}, {"name": "Olapatidine drop", "qty": 0, "category": "OTHERS"}, {"name": "Nospamin", "qty": 10, "category": "DROPS"}, {"name": "Acetaminophen(Panda)", "qty": 7, "category": "DROPS"}];
+
+window.importAprilStock=async()=>{
+  if(!canDo('manageStock')&&!isStrictAdmin()){toast('⛔ Only Pharmacists can manage stock','err');return;}
+  const statusEl=ge('stockImportStatus');
+  if(!confirm(`Import April 2026 pharmacy stock?\n\n${APRIL_STOCK_DATA.length} items from all sheets (Tablets, Injections, Syrups, Creams, Consumables, etc.)\n\nExisting drugs will be RESTOCKED (quantities added). New drugs will be created.`))return;
+  if(statusEl)statusEl.innerHTML='<i class="fa fa-spinner fa-spin"></i> Importing April 2026 stock data…';
+  let added=0,updated=0,skipped=0;
+  for(const item of APRIL_STOCK_DATA){
+    const name=item.name.trim();
+    const qty=parseInt(item.qty)||0;
+    const cat=item.category||'';
+    if(!name){skipped++;continue;}
+    try{
+      const bn='APRIL2026-'+name.replace(/\s+/g,'-').toUpperCase().slice(0,12);
+      // Check if this exact batch already exists to prevent duplicates
+      const existBatch=await getDocs(query(collection(db,'drugBatches'),where('batchNo','==',bn)));
+      if(!existBatch.empty){skipped++;continue;} // already imported
+      if(qty>0){
+        await addDoc(collection(db,'drugBatches'),{name,qty,batchNo:bn,expiry:'',category:cat,addedBy:SP.name||'System',addedAt:serverTimestamp(),active:true,importedFromExcel:true});
+      }
+      const s=await getDocs(query(collection(db,'drugStock'),where('name','==',name)));
+      if(s.empty){
+        await addDoc(collection(db,'drugStock'),{name,qty,category:cat,updatedAt:serverTimestamp(),addedBy:SP.name||'System'});
+        added++;
+      } else {
+        const old=s.docs[0].data().qty||0;
+        await updateDoc(doc(db,'drugStock',s.docs[0].id),{qty:old+qty,category:cat,updatedAt:serverTimestamp()});
+        updated++;
+      }
+    }catch(e){skipped++;console.error(e);}
+  }
+  if(statusEl)statusEl.innerHTML=`<div style="background:#e6f7ef;border-radius:var(--rs);padding:10px;font-size:.82rem"><b style="color:#1a7a4a"><i class="fa fa-check-circle"></i> April 2026 stock imported!</b><br>✅ New: <b>${added}</b> &nbsp;|&nbsp; 🔄 Restocked: <b>${updated}</b>${skipped?` &nbsp;|&nbsp; ⚠️ Skipped: <b>${skipped}</b>`:''} <span style="font-size:.72rem;color:var(--mu)">(skipped = already imported or 0 qty)</span></div>`;
+  loadStock();
+};
+
+// ─── EDIT STOCK ───────────────────────────────────────────────────────────────
+window.openEditStock=(id,name,qty,batch,expiry)=>{
+  if(!canDo('manageStock')&&!isStrictAdmin()){toast('⛔ Only Pharmacists can edit stock','err');return;}
+  ge('editStockId').value=id;
+  ge('editStockName').value=name;
+  ge('editStockQty').value=qty;
+  ge('editStockBatch').value=batch||'';
+  ge('editStockExpiry').value=expiry||'';
+  ge('editStockInfo').textContent='Editing: '+name;
+  openModal('editStockModal');
+};
+window.saveStockEdit=async()=>{
+  const id=ge('editStockId').value;
+  const name=(ge('editStockName').value||'').trim();
+  const qty=parseInt(ge('editStockQty').value);
+  const batch=(ge('editStockBatch').value||'').trim();
+  const expiry=(ge('editStockExpiry').value||'').trim();
+  if(!name||isNaN(qty)||qty<0){toast('Enter valid drug name and quantity','err');return;}
+  await updateDoc(doc(db,'drugBatches',id),{name,qty,batchNo:batch,expiry,updatedAt:serverTimestamp(),editedBy:SP.name});
+  // Sync legacy drugStock total
+  const s=await getDocs(query(collection(db,'drugStock'),where('name','==',name)));
+  if(!s.empty) await updateDoc(doc(db,'drugStock',s.docs[0].id),{qty,updatedAt:serverTimestamp()});
+  toast('✅ Stock updated','ok');
+  cModal('editStockModal');
+  loadStock();
+};
+
+// ─── DUPLICATE ACTION GUARD ───────────────────────────────────────────────────
+// Returns true if safe to proceed, false if user cancelled
+async function _guardDuplicate(collection_, field, value, actionLabel){
+  const snap=await getDocs(query(collection(db,collection_),where(field,'==',value),where('date','==',today())));
+  if(snap.empty) return true;
+  return confirm(`⚠️ It looks like "${actionLabel}" has already been done today.\n\nDo you want to do it again?`);
+}
+
+// ─── FIX BILLING PRICE LIST: always reload fresh ─────────────────────────────
+window.loadBillPriceList=async(forceReload)=>{
+  if(_priceListCache.length&&!forceReload) return;
+  const snap=await getDocs(collection(db,'priceList'));
+  _priceListCache=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(a.itemName||'').localeCompare(b.itemName||''));
+};
 
 // Close bill search dropdown on outside click
 document.addEventListener('click',e=>{
