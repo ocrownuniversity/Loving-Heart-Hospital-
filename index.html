@@ -610,6 +610,24 @@ textarea.fi{resize:vertical;min-height:80px}
         <div class="mhdr" style="margin-bottom:10px"><h4 style="font-size:.93rem">👥 All Staff</h4><button class="bsm outline" onclick="loadStaff()"><i class="fa fa-rotate"></i></button></div>
         <div class="twrap"><table class="dtab"><thead><tr><th>Name</th><th>Role</th><th>Shift</th><th>Status</th><th>Actions</th></tr></thead><tbody id="staffBody"></tbody></table></div>
       </div>
+      <!-- MANUAL PRICE LIST ENTRY -->
+      <div class="sc-mb" id="manualPriceBlock">
+        <div class="mhdr" style="margin-bottom:10px">
+          <h4 style="font-size:.93rem"><i class="fa fa-plus-circle" style="color:var(--A)"></i> Add Item to Price List Manually</h4>
+        </div>
+        <div style="background:var(--bg);border-radius:var(--rs);padding:13px;margin-bottom:8px">
+          <div class="frow">
+            <div class="fg"><label class="fl">Item Name *</label><input id="mplName" class="fi" placeholder="e.g. Malaria Test"/></div>
+            <div class="fg"><label class="fl">Category</label><input id="mplCat" class="fi" placeholder="e.g. Laboratory, Pharmacy, Consultation"/></div>
+          </div>
+          <div class="frow">
+            <div class="fg"><label class="fl">Item Code (optional)</label><input id="mplCode" class="fi" placeholder="e.g. LAB001"/></div>
+            <div class="fg"><label class="fl">Price (₦) *</label><input id="mplPrice" class="fi" type="number" min="0" step="0.01" placeholder="0.00"/></div>
+          </div>
+          <button class="bsm success" onclick="addManualPriceItem()"><i class="fa fa-plus"></i> Add to Price List</button>
+          <div id="mplStatus" style="margin-top:8px;font-size:.82rem"></div>
+        </div>
+      </div>
       <!-- PRICE LIST MANAGEMENT -->
       <div class="sc-mb" id="priceListAdminBlock">
         <div class="mhdr" style="margin-bottom:10px">
@@ -1732,16 +1750,34 @@ window.saveRec=async(type)=>{
     await sendNotif(["Nurse","Admin"],"diag","🩺 Diagnosis Added",`Dr.${SP.name} added diagnosis for patient ${aPID}`,aPID);
     rd={...rd,tag:"Diagnosis",role:"doctor",body:n};
   }else if(type==="rx"){
-    // Multi-drug prescription
     if(!window._rxDrugs||!window._rxDrugs.length){toast("Add at least one drug to the list","err");return;}
     const drugs=window._rxDrugs;
     for(const d of drugs){
-      await addDoc(collection(db,"prescriptions"),{patientId:aPID,drug:d.drug,dosage:d.dose,instructions:d.note,prescribedBy:SP.name,dispensed:false,createdAt:serverTimestamp()});
+      // Save prescription with status "PendingApproval" — pharmacy cannot see it yet
+      const pRef=await addDoc(collection(db,"prescriptions"),{
+        patientId:aPID,drug:d.drug,dosage:d.dose,instructions:d.note,
+        prescribedBy:SP.name,dispensed:false,
+        status:"PendingApproval",
+        createdAt:serverTimestamp()
+      });
+      // Automatically create approval request for Admin — doctor does NOT send separately
+      await addDoc(collection(db,"approvalRequests"),{
+        type:"dispense",
+        prescriptionId:pRef.id,
+        drug:d.drug,dosage:d.dose,
+        patientId:aPID,
+        requestedBy:SP.name,
+        requestedByRole:SP.role,
+        status:"Pending",
+        autoCreated:true,
+        createdAt:serverTimestamp()
+      });
     }
-    await sendNotif(["Pharmacist","Admin"],"rx","💊 New Prescription",
+    // Notify Admin only
+    await sendNotif(["Admin","Super Admin"],"rx","💊 New Prescription — Needs Approval",
       `Dr.${SP.name} prescribed ${drugs.length} drug(s) for patient ${aPID}: ${drugs.map(d=>d.drug).join(', ')}`,aPID);
     rd={...rd,tag:"Prescription",role:"pharmacy",
-      body:`💊 Prescription by Dr. ${SP.name}\n`+drugs.map(d=>`• ${d.drug} — ${d.dose}${d.note?" ("+d.note+")":""}`).join('\n')};
+      body:`💊 Prescription by Dr. ${SP.name}\n`+drugs.map(d=>`• ${d.drug} — ${d.dose}${d.note?" ("+d.note+")":""}`).join('\n')+`\n⏳ Awaiting Admin Approval`};
     window._rxDrugs=[];
   }else if(type==="labReq"){
     const test=gv("labTestIn"),urg=gv("labUrg"),notes=gv("labNotes");
@@ -1885,41 +1921,29 @@ window.uploadLab=async(id,pid,test)=>{
 window.loadRx=async()=>{
   const el=ge("pharmRx");if(!el)return;
   el.innerHTML='<div class="cr"><i class="fa fa-spinner fa-spin"></i></div>';
-  const s=await getDocs(query(collection(db,"prescriptions"),where("dispensed","==",false)));
-  if(s.empty){el.innerHTML='<div class="en">No pending prescriptions from doctors</div>';return;}
-  // Load all approval requests for current pending prescriptions
-  const approvalSnap=await getDocs(collection(db,"approvalRequests"));
-  const approvals={};
-  approvalSnap.docs.forEach(d=>{
+  // Pharmacist only sees prescriptions Admin has approved
+  const q=isStrictAdmin()
+    ? query(collection(db,"prescriptions"),where("dispensed","==",false))
+    : query(collection(db,"prescriptions"),where("dispensed","==",false),where("status","==","Approved"));
+  const snap=await getDocs(q);
+  if(snap.empty){
+    el.innerHTML='<div class="en" style="padding:16px"><i class="fa fa-clock" style="margin-right:6px;color:var(--mu)"></i>'+(isStrictAdmin()?"No pending prescriptions.":"No approved prescriptions yet. Prescriptions appear here only after Admin approval.")+'</div>';
+    return;
+  }
+  el.innerHTML=snap.docs.map(d=>{
     const r=d.data();
-    if(r.prescriptionId)approvals[r.prescriptionId]=r;
-  });
-  el.innerHTML=s.docs.map(d=>{
-    const r=d.data();
-    const approval=approvals[d.id];
-    const isApproved=approval&&approval.status==="Approved";
-    const isPending=approval&&approval.status==="Pending";
-    const isRejected=approval&&approval.status==="Rejected";
-    let actionHtml="";
-    if(isStrictAdmin()){
-      actionHtml=`<div style="background:#e8f1fb;border-radius:var(--rs);padding:6px 10px;font-size:.78rem;color:var(--P);margin-bottom:6px"><i class="fa fa-user-shield"></i> Admin — dispensing directly</div>
-        <button class="bsm success mt4" onclick="dispense('${d.id}','${r.drug}','${r.patientId}','${r.dosage}')"><i class="fa fa-check"></i> Dispense & Update Patient File</button>`;
-    } else if(isApproved){
-      actionHtml=`<div style="background:#e6f7ef;border-radius:var(--rs);padding:6px 10px;font-size:.78rem;color:#1a7a4a;margin-bottom:6px"><i class="fa fa-check-circle"></i> Approved by Admin — you may now dispense</div>
-        <button class="bsm success mt4" onclick="dispense('${d.id}','${r.drug}','${r.patientId}','${r.dosage}')"><i class="fa fa-check"></i> Dispense & Update Patient File</button>`;
-    } else if(isPending){
-      actionHtml=`<div class="approval-pending"><i class="fa fa-clock"></i> Waiting for Admin Approval — request already sent</div>`;
-    } else if(isRejected){
-      actionHtml=`<div style="background:#fce8e8;border-radius:var(--rs);padding:8px 10px;font-size:.78rem;color:var(--D);margin-bottom:6px"><i class="fa fa-times-circle"></i> Request was Rejected by Admin</div>
-        <button class="bsm warn mt4" onclick="requestDispenseApproval('${d.id}','${r.drug}','${r.patientId}','${r.dosage}')"><i class="fa fa-paper-plane"></i> Re-request Admin Approval</button>`;
-    } else {
-      actionHtml=`<div style="background:#fff8e1;border-radius:var(--rs);padding:8px 10px;font-size:.79rem;color:#7a5e00;margin-bottom:6px"><i class="fa fa-lock"></i> <b>Admin approval required</b> before dispensing this drug.</div>
-        <button class="bsm warn mt4" onclick="requestDispenseApproval('${d.id}','${r.drug}','${r.patientId}','${r.dosage}')"><i class="fa fa-paper-plane"></i> Request Admin Approval</button>`;
-    }
-    return`<div class="icard">
-      <div class="crow"><span><i class="fa fa-pills"></i> <b>${r.drug}</b></span><span class="pid">${r.patientId}</span></div>
-      <small class="muted">${r.dosage}${r.instructions?" — "+r.instructions:""} · Prescribed by Dr.${r.prescribedBy}</small>
-      ${actionHtml}
+    const adminBadge=isStrictAdmin()&&r.status!=="Approved"
+      ?`<span class="badge bg-warn">⏳ Pending Approval</span>`
+      :`<span class="badge bg-ok">✅ Approved</span>`;
+    const dispenseBtn=(!isStrictAdmin()||r.status==="Approved")
+      ?`<button class="bsm success mt8" onclick="dispense('${d.id}','${(r.drug||'').replace(/'/g,"\\'")}','${r.patientId||''}','${(r.dosage||'').replace(/'/g,"\\'")}')"><i class="fa fa-check"></i> Dispense Now</button>`
+      :(isStrictAdmin()?`<button class="bsm success mt8" onclick="dispense('${d.id}','${(r.drug||'').replace(/'/g,"\\'")}','${r.patientId||''}','${(r.dosage||'').replace(/'/g,"\\'")}')"><i class="fa fa-user-shield"></i> Dispense (Admin)</button>`:'');
+    return`<div class="icard" style="border-left:4px solid var(--A)">
+      <div class="crow"><span><b>💊 ${r.drug}</b></span>${adminBadge}</div>
+      <div style="font-size:.82rem;color:var(--mu);margin:4px 0">Patient: <b>${r.patientId||"—"}</b> &nbsp;|&nbsp; Dosage: <b>${r.dosage||"—"}</b></div>
+      ${r.instructions?`<div style="font-size:.78rem;color:var(--mu)">📋 ${r.instructions}</div>`:""}
+      <div style="font-size:.76rem;color:var(--mu);margin-top:3px">Prescribed by: <b>Dr. ${r.prescribedBy||"—"}</b>${r.approvedBy?` &nbsp;|&nbsp; Approved by: <b>${r.approvedBy}</b>`:""}</div>
+      ${dispenseBtn}
     </div>`;
   }).join("");
 };
@@ -2062,22 +2086,42 @@ window.requestLabApproval=async(labReqId,testName,patientId)=>{
 window.loadApprovalQueue=async()=>{
   const el=ge("approvalQueueList");if(!el)return;
   el.innerHTML='<div class="cr"><i class="fa fa-spinner fa-spin"></i></div>';
-  const snap=await getDocs(query(collection(db,"approvalRequests"),where("status","==","Pending")));
-  if(snap.empty){el.innerHTML='<div class="en" style="padding:12px">No pending approvals ✅</div>';return;}
-  el.innerHTML=snap.docs.map(d=>{
-    const r=d.data();
-    const typeLabel=r.type==="dispense"?"💊 Dispense Drug":"🔬 Lab Test";
-    const detail=r.type==="dispense"?`${r.drug} for patient ${r.patientId}`:`${r.testName} for patient ${r.patientId}`;
-    return`<div class="icard">
-      <div class="crow"><span><b>${typeLabel}</b></span><span class="badge bg-warn">Pending</span></div>
-      <div style="font-size:.83rem;margin:4px 0">${detail}</div>
-      <div style="font-size:.76rem;color:var(--mu)">Requested by: ${r.requestedBy} (${r.requestedByRole})</div>
-      <div class="flex mt8">
-        <button class="bsm success" onclick="approveRequest('${d.id}','approve')"><i class="fa fa-check"></i> Approve</button>
-        <button class="bsm danger" onclick="approveRequest('${d.id}','reject')"><i class="fa fa-times"></i> Reject</button>
-      </div>
+  // Show all requests (pending + recently reviewed)
+  const snap=await getDocs(query(collection(db,"approvalRequests"),orderBy("createdAt","desc")));
+  if(snap.empty){el.innerHTML='<div class="en" style="padding:12px">No approval requests yet ✅</div>';return;}
+  const all=snap.docs.map(d=>({_id:d.id,...d.data()}));
+  // Pending first, then reviewed
+  const pending=all.filter(r=>r.status==="Pending");
+  const reviewed=all.filter(r=>r.status!=="Pending").slice(0,10);
+  const renderCard=(r,isPend)=>{
+    const typeLabel=r.type==="dispense"?"💊 Drug Dispense":"🔬 Lab Test";
+    const detail=r.type==="dispense"?`<b>${r.drug}</b>${r.dosage?" — "+r.dosage:""}`:(`<b>${r.testName}</b>`);
+    const statusBadge=r.status==="Approved"
+      ?`<span class="badge bg-ok">✅ Approved</span>`
+      :r.status==="Rejected"
+      ?`<span class="badge bg-err">❌ Rejected</span>`
+      :`<span class="badge bg-warn">⏳ Pending</span>`;
+    return`<div class="icard" style="border-left:4px solid ${r.status==="Approved"?"var(--A)":r.status==="Rejected"?"var(--D)":"var(--W)"}">
+      <div class="crow"><span><b>${typeLabel}</b></span>${statusBadge}</div>
+      <div style="font-size:.84rem;margin:5px 0">${detail}</div>
+      <div style="font-size:.76rem;color:var(--mu)">Patient: <b>${r.patientId||"—"}</b> &nbsp;|&nbsp; By: ${r.requestedBy||"—"} (${r.requestedByRole||"—"})</div>
+      ${r.reviewedBy?`<div style="font-size:.74rem;color:var(--mu);margin-top:2px">${r.status} by: <b>${r.reviewedBy}</b></div>`:""}
+      ${isPend?`<div class="flex mt8">
+        <button class="bsm success" onclick="approveRequest('${r._id}','approve')"><i class="fa fa-check"></i> Approve</button>
+        <button class="bsm danger" onclick="approveRequest('${r._id}','reject')"><i class="fa fa-times"></i> Reject</button>
+      </div>`:""}
     </div>`;
-  }).join("");
+  };
+  let html="";
+  if(pending.length){
+    html+=`<div style="font-size:.78rem;font-weight:700;color:var(--D);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">⏳ Pending (${pending.length})</div>`;
+    html+=pending.map(r=>renderCard(r,true)).join("");
+  }
+  if(reviewed.length){
+    html+=`<div style="font-size:.78rem;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.5px;margin:14px 0 8px">Recent Decisions</div>`;
+    html+=reviewed.map(r=>renderCard(r,false)).join("");
+  }
+  el.innerHTML=html||'<div class="en">No pending approvals ✅</div>';
 };
 
 window.approveRequest=async(reqId,action)=>{
@@ -2087,10 +2131,31 @@ window.approveRequest=async(reqId,action)=>{
   const r=rSnap.data();
   const status=action==="approve"?"Approved":"Rejected";
   await updateDoc(doc(db,"approvalRequests",reqId),{status,reviewedBy:SP.name,reviewedAt:serverTimestamp()});
-  const targetRole=r.type==="dispense"?"Pharmacist":"Lab Technician";
-  await sendNotif([targetRole],"approval",`${status==="Approved"?"✅":"❌"} Request ${status}`,
-    `Admin ${SP.name} has ${status.toLowerCase()} your request for ${r.drug||r.testName}`,r.patientId||"");
-  toast(`Request ${status} and ${targetRole} notified`,"ok");
+  // Update the linked prescription status so pharmacy can see it
+  if(r.type==="dispense"&&r.prescriptionId){
+    await updateDoc(doc(db,"prescriptions",r.prescriptionId),{
+      status:status==="Approved"?"Approved":"Rejected",
+      approvedBy:SP.name,
+      approvedAt:serverTimestamp()
+    }).catch(()=>{});
+  }
+  // Update linked lab request
+  if(r.type==="lab"&&r.labReqId){
+    await updateDoc(doc(db,"labRequests",r.labReqId),{
+      approvalStatus:status,
+      approvedBy:SP.name,
+      approvedAt:serverTimestamp()
+    }).catch(()=>{});
+  }
+  // Notify the right role only when approved — pharmacy sees it now
+  if(status==="Approved"){
+    const targetRole=r.type==="dispense"?"Pharmacist":"Lab Technician";
+    await sendNotif([targetRole],"approval","✅ Ready to Proceed",
+      `Admin ${SP.name} approved: ${r.drug||r.testName} for patient ${r.patientId}. You can now proceed.`,r.patientId||"");
+    toast("✅ Approved — Pharmacist/Lab notified","ok");
+  } else {
+    toast("❌ Rejected","ok");
+  }
   loadApprovalQueue();
 };
 
@@ -4351,6 +4416,31 @@ window.markOffDuty=async()=>{
 
 // ─── PRICE LIST MANAGEMENT ────────────────────────────────────────────────────
 let _allPriceItems=[];
+
+window.addManualPriceItem=async()=>{
+  const name=(ge('mplName')?.value||'').trim();
+  const cat=(ge('mplCat')?.value||'').trim();
+  const code=(ge('mplCode')?.value||'').trim();
+  const price=parseFloat(ge('mplPrice')?.value||'0');
+  const statusEl=ge('mplStatus');
+  if(!name){toast('Enter item name','err');return;}
+  if(!price||price<=0){toast('Enter a valid price','err');return;}
+  statusEl.innerHTML='<i class="fa fa-spinner fa-spin"></i> Saving…';
+  // Check if item already exists by name
+  const existing=await getDocs(query(collection(db,'priceList'),where('itemName','==',name)));
+  if(!existing.empty){
+    // Update existing
+    await updateDoc(doc(db,'priceList',existing.docs[0].id),{price,category:cat,updatedAt:serverTimestamp()});
+    statusEl.innerHTML=`<span style="color:var(--A)">✅ Price updated for <b>${name}</b> → ₦${price.toLocaleString()}</span>`;
+  } else {
+    const autoCode=code||('ITEM-'+Date.now().toString(36).toUpperCase());
+    await addDoc(collection(db,'priceList'),{itemCode:autoCode,itemName:name,category:cat,price,updatedAt:serverTimestamp()});
+    statusEl.innerHTML=`<span style="color:var(--A)">✅ <b>${name}</b> added at ₦${price.toLocaleString()}</span>`;
+  }
+  ge('mplName').value='';ge('mplCat').value='';ge('mplCode').value='';ge('mplPrice').value='';
+  _priceListCache=[];// Force billing search to reload
+  loadPriceList();
+};
 
 window.loadPriceList=async()=>{
   const el=ge('priceListWrap');if(!el)return;
