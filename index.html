@@ -401,6 +401,7 @@ textarea.fi{resize:vertical;min-height:80px}
         <div class="wc-row">
           <div class="wc-chip"><span class="online-dot"></span> Online</div>
           <div class="wc-chip" id="wcDate" style="font-size:.72rem"></div>
+          <div class="wc-chip" id="wcTime" style="font-size:.72rem"><i class="fa fa-clock" style="margin-right:4px"></i><span id="liveClockDash">--:--</span></div>
         </div>
       </div>
       <div class="sgrid">
@@ -536,8 +537,81 @@ textarea.fi{resize:vertical;min-height:80px}
 
     <!-- BILLING -->
     <div id="mod-billing" class="mod">
-      <div class="mhdr"><h2><i class="fa fa-file-invoice-dollar" style="color:var(--P)"></i> Billing</h2><button class="bsm primary" onclick="openModal('billModal')"><i class="fa fa-plus"></i> New Bill</button></div>
-      <div class="twrap"><table class="dtab"><thead><tr><th>Receipt</th><th>Patient</th><th>Total</th><th>Method</th><th>Status</th><th>Date</th></tr></thead><tbody id="billBody"><tr><td colspan="6" class="cr"><i class="fa fa-spinner fa-spin"></i></td></tr></tbody></table></div>
+      <div class="mhdr">
+        <h2><i class="fa fa-file-invoice-dollar" style="color:var(--P)"></i> Billing</h2>
+        <button class="bsm primary" onclick="openModal('billModal')"><i class="fa fa-plus"></i> New Bill</button>
+      </div>
+      <!-- Live time bar -->
+      <div style="display:flex;align-items:center;gap:10px;background:var(--PL);border-radius:var(--rs);padding:8px 13px;margin-bottom:12px;font-size:.82rem;color:var(--P)">
+        <i class="fa fa-clock"></i>
+        <span id="billingDateTime" style="font-weight:600"></span>
+      </div>
+      <!-- Billing tabs -->
+      <div class="ptab-row" style="margin-bottom:12px">
+        <div class="ptab active" onclick="switchBillTab('receipts',this)">🧾 Receipts</div>
+        <div class="ptab" onclick="switchBillTab('history',this)">📋 Receipt History</div>
+        <div class="ptab" onclick="switchBillTab('reports',this)">📊 Payment Reports</div>
+      </div>
+      <!-- RECEIPTS TAB -->
+      <div id="bill-tab-receipts">
+        <div class="twrap"><table class="dtab">
+          <thead><tr><th>Receipt</th><th>Patient</th><th>Total</th><th>Method</th><th>Status</th><th>Date</th><th>⚡</th></tr></thead>
+          <tbody id="billBody"><tr><td colspan="7" class="cr"><i class="fa fa-spinner fa-spin"></i></td></tr></tbody>
+        </table></div>
+      </div>
+      <!-- RECEIPT HISTORY TAB -->
+      <div id="bill-tab-history" style="display:none">
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;align-items:center">
+          <div style="position:relative;flex:1;min-width:160px">
+            <i class="fa fa-search" style="position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--mu)"></i>
+            <input id="histSearch" class="fi" style="padding-left:34px;font-size:.85rem" placeholder="Search receipt, patient, amount…" oninput="filterReceiptHistory()"/>
+          </div>
+          <select id="histMethod" class="fsel" style="flex:1;min-width:100px;font-size:.85rem" onchange="filterReceiptHistory()">
+            <option value="">All Methods</option>
+            <option>Cash</option><option>POS</option><option>Transfer</option>
+          </select>
+          <select id="histStatus" class="fsel" style="flex:1;min-width:100px;font-size:.85rem" onchange="filterReceiptHistory()">
+            <option value="">All Status</option>
+            <option>Paid</option><option>Unpaid</option><option>Partially Paid</option>
+          </select>
+        </div>
+        <div id="receiptHistoryList"><div class="cr"><i class="fa fa-spinner fa-spin"></i></div></div>
+      </div>
+      <!-- PDF REPORTS TAB -->
+      <div id="bill-tab-reports" style="display:none">
+        <div class="sc-mb" style="background:linear-gradient(135deg,var(--P),#5e35b1);border-radius:var(--r);padding:18px;color:#fff;margin-bottom:14px">
+          <h3 style="font-size:1rem;margin-bottom:4px"><i class="fa fa-chart-bar"></i> Payment Reports</h3>
+          <p style="font-size:.8rem;opacity:.85">Generate and download payment summaries as PDF</p>
+        </div>
+        <!-- Quick summary cards -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:14px">
+          <div class="scard"><div class="iw ib"><i class="fa fa-naira-sign"></i></div><div class="sv2" id="rptTodayRev">—</div><div class="sl">Today</div></div>
+          <div class="scard"><div class="iw ig"><i class="fa fa-calendar-week"></i></div><div class="sv2" id="rptWeekRev">—</div><div class="sl">This Week</div></div>
+          <div class="scard"><div class="iw io"><i class="fa fa-calendar"></i></div><div class="sv2" id="rptMonthRev">—</div><div class="sl">This Month</div></div>
+          <div class="scard"><div class="iw ip"><i class="fa fa-chart-line"></i></div><div class="sv2" id="rptYearRev">—</div><div class="sl">This Year</div></div>
+        </div>
+        <div class="sc-mb">
+          <h4 class="ssub">📅 Custom Report Period</h4>
+          <div class="frow" style="margin-bottom:10px">
+            <div class="fg"><label class="fl">From</label><input type="date" id="rptFrom" class="fi"/></div>
+            <div class="fg"><label class="fl">To</label><input type="date" id="rptTo" class="fi"/></div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <button class="bsm primary" onclick="generatePaymentReport('today')"><i class="fa fa-file-pdf"></i> Today PDF</button>
+            <button class="bsm primary" style="background:#388e3c" onclick="generatePaymentReport('week')"><i class="fa fa-file-pdf"></i> This Week PDF</button>
+            <button class="bsm primary" style="background:#f57c00" onclick="generatePaymentReport('month')"><i class="fa fa-file-pdf"></i> This Month PDF</button>
+            <button class="bsm primary" style="background:#5e35b1" onclick="generatePaymentReport('year')"><i class="fa fa-file-pdf"></i> This Year PDF</button>
+            <button class="bsm outline" style="grid-column:span 2" onclick="generatePaymentReport('custom')"><i class="fa fa-calendar-range"></i> Custom Range PDF</button>
+          </div>
+        </div>
+        <div id="rptPreviewArea" style="display:none" class="sc-mb">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+            <h4 class="ssub" style="margin:0" id="rptPreviewTitle">Report Preview</h4>
+            <button class="bsm primary" onclick="downloadReportPDF()"><i class="fa fa-download"></i> Download PDF</button>
+          </div>
+          <div id="rptPreviewContent"></div>
+        </div>
+      </div>
     </div>
 
     <!-- MESSAGES -->
@@ -1372,6 +1446,7 @@ function initApp(){
   loadDashNotifs();
   startMsgBadge();
   startNotifListener();
+  startLiveClock();
   // Real-time approval queue listener for Admin/Super Admin
   if(isStrictAdmin()) startApprovalListener();
 }
@@ -2582,14 +2657,15 @@ function printR(b){showReceipt(b);}
 window.loadBills=async()=>{
   const el=ge("billBody");if(!el)return;
   const s=await getDocs(query(collection(db,"bills"),orderBy("createdAt","desc"),limit(60)));
-  if(s.empty){el.innerHTML='<tr><td colspan="6" class="cr">No bills</td></tr>';return;}
-  el.innerHTML=s.docs.map(d=>{const b=d.data();return`<tr>
+  if(s.empty){el.innerHTML='<tr><td colspan="7" class="cr">No bills</td></tr>';return;}
+  el.innerHTML=s.docs.map(d=>{const b={_id:d.id,...d.data()};return`<tr>
     <td><span class="pid" style="cursor:pointer" onclick='showReceipt(${JSON.stringify(b).replace(/'/g,"\\'")})'>${b.receiptNo}</span></td>
     <td>${b.customerName||b.patientId||"—"}</td>
     <td>₦${b.total.toLocaleString()}</td>
     <td>${b.method}</td>
     <td><span class="badge st-${b.status.toLowerCase().replace(/\s/g,"-")}">${b.status}</span></td>
     <td>${b.date}</td>
+    <td><button class="btn-ic" title="View & Reprint" onclick='showReceipt(${JSON.stringify(b).replace(/'/g,"\\'")})'><i class="fa fa-eye"></i></button></td>
   </tr>`;}).join("");
 };
 
@@ -4764,6 +4840,280 @@ document.addEventListener('click',e=>{
   const drop=ge('bSearchDrop'),search=ge('bSearch');
   if(drop&&search&&!drop.contains(e.target)&&e.target!==search){drop.style.display='none';}
 });
+
+// ─── BILLING TAB SWITCHER ─────────────────────────────────────────────────────
+window.switchBillTab=(tab,el)=>{
+  ['receipts','history','reports'].forEach(t=>{
+    const c=ge(`bill-tab-${t}`); if(c) c.style.display=t===tab?'block':'none';
+  });
+  document.querySelectorAll('.ptab-row .ptab').forEach(t=>t.classList.remove('active'));
+  if(el) el.classList.add('active');
+  if(tab==='history') loadReceiptHistory();
+  if(tab==='reports') loadReportSummaries();
+};
+
+// ─── RECEIPT HISTORY ──────────────────────────────────────────────────────────
+let _allBillsCache=[];
+window.loadReceiptHistory=async()=>{
+  const el=ge('receiptHistoryList'); if(!el)return;
+  el.innerHTML='<div class="cr"><i class="fa fa-spinner fa-spin"></i></div>';
+  const s=await getDocs(query(collection(db,'bills'),orderBy('createdAt','desc'),limit(200)));
+  _allBillsCache=s.docs.map(d=>({_id:d.id,...d.data()}));
+  renderReceiptHistory(_allBillsCache);
+};
+
+window.filterReceiptHistory=()=>{
+  const q=(gv('histSearch')||'').toLowerCase();
+  const meth=gv('histMethod')||'';
+  const stat=gv('histStatus')||'';
+  let list=_allBillsCache;
+  if(q) list=list.filter(b=>(b.receiptNo||'').toLowerCase().includes(q)||(b.customerName||'').toLowerCase().includes(q)||String(b.total||'').includes(q));
+  if(meth) list=list.filter(b=>b.method===meth);
+  if(stat) list=list.filter(b=>b.status===stat);
+  renderReceiptHistory(list);
+};
+
+function renderReceiptHistory(list){
+  const el=ge('receiptHistoryList'); if(!el)return;
+  if(!list.length){el.innerHTML='<div class="en">No receipts found</div>';return;}
+  el.innerHTML=list.map(b=>{
+    const ts=b.createdAt?.toDate?b.createdAt.toDate():null;
+    const timeStr=ts?ts.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}):'';
+    const dateStr=ts?ts.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}):b.date||'—';
+    return`<div class="icard" style="margin-bottom:9px">
+      <div class="crow">
+        <span class="pid">${b.receiptNo||'—'}</span>
+        <span class="badge st-${(b.status||'unpaid').toLowerCase().replace(/\s/g,'-')}">${b.status||'—'}</span>
+      </div>
+      <div style="margin:5px 0;font-weight:600;font-size:.92rem">${b.customerName||b.patientId||'—'}</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;font-size:.82rem;color:var(--mu)">
+        <span><i class="fa fa-credit-card" style="margin-right:4px"></i>${b.method||'—'}</span>
+        <span style="font-weight:700;color:var(--A);font-size:.95rem">₦${(b.total||0).toLocaleString()}</span>
+      </div>
+      <div style="font-size:.75rem;color:var(--mu);margin-top:4px">
+        <i class="fa fa-calendar" style="margin-right:4px"></i>${dateStr}${timeStr?' · '+timeStr:''}
+        &nbsp;·&nbsp; <i class="fa fa-user" style="margin-right:3px"></i>${b.createdBy||'—'}
+      </div>
+      <div style="display:flex;gap:7px;margin-top:9px">
+        <button class="bsm outline" style="flex:1;font-size:.79rem;padding:6px" onclick='showReceipt(${JSON.stringify(b).replace(/'/g,"\\'")})'><i class="fa fa-eye"></i> View</button>
+        <button class="bsm primary" style="flex:1;font-size:.79rem;padding:6px" onclick='_currentReceipt=${JSON.stringify(b).replace(/'/g,"\\'")};_currentReceipt=JSON.parse(_currentReceipt.replace ? _currentReceipt : JSON.stringify(_currentReceipt));showReceipt(${JSON.stringify(b).replace(/'/g,"\\'")})'><i class="fa fa-print"></i> Reprint</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ─── PAYMENT REPORT SUMMARIES ─────────────────────────────────────────────────
+let _reportBillsData=[];
+window.loadReportSummaries=async()=>{
+  const s=await getDocs(query(collection(db,'bills'),orderBy('createdAt','desc'),limit(1000)));
+  _reportBillsData=s.docs.map(d=>({_id:d.id,...d.data()}));
+  const now=new Date();
+  const todayStr=today();
+  // Week start (Monday)
+  const weekStart=new Date(now); weekStart.setDate(now.getDate()-now.getDay()+1); weekStart.setHours(0,0,0,0);
+  const monthStr=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+  const yearStr=String(now.getFullYear());
+
+  const paidOnly=b=>b.status==='Paid';
+  const sum=arr=>arr.filter(paidOnly).reduce((a,b)=>a+(b.total||0),0);
+
+  sv('rptTodayRev','₦'+sum(_reportBillsData.filter(b=>b.date===todayStr)).toLocaleString());
+  sv('rptWeekRev','₦'+sum(_reportBillsData.filter(b=>{const ts=b.createdAt?.toDate?b.createdAt.toDate():null;return ts&&ts>=weekStart;})).toLocaleString());
+  sv('rptMonthRev','₦'+sum(_reportBillsData.filter(b=>(b.date||'').startsWith(monthStr))).toLocaleString());
+  sv('rptYearRev','₦'+sum(_reportBillsData.filter(b=>(b.date||'').startsWith(yearStr))).toLocaleString());
+};
+
+window.generatePaymentReport=async(period)=>{
+  const now=new Date();
+  const todayStr=today();
+  let label='',filtered=[];
+
+  if(period==='today'){
+    label='Daily Report — '+now.toLocaleDateString('en-GB',{day:'2-digit',month:'long',year:'numeric'});
+    filtered=_reportBillsData.filter(b=>b.date===todayStr);
+  } else if(period==='week'){
+    const wStart=new Date(now); wStart.setDate(now.getDate()-now.getDay()+1); wStart.setHours(0,0,0,0);
+    const wEnd=new Date(wStart); wEnd.setDate(wStart.getDate()+6);
+    label=`Weekly Report — ${wStart.toLocaleDateString('en-GB',{day:'2-digit',month:'short'})} – ${wEnd.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'})}`;
+    filtered=_reportBillsData.filter(b=>{const ts=b.createdAt?.toDate?b.createdAt.toDate():null;return ts&&ts>=wStart&&ts<=wEnd;});
+  } else if(period==='month'){
+    const mStr=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+    label='Monthly Report — '+now.toLocaleDateString('en-GB',{month:'long',year:'numeric'});
+    filtered=_reportBillsData.filter(b=>(b.date||'').startsWith(mStr));
+  } else if(period==='year'){
+    const yr=String(now.getFullYear());
+    label='Annual Report — '+yr;
+    filtered=_reportBillsData.filter(b=>(b.date||'').startsWith(yr));
+  } else if(period==='custom'){
+    const from=gv('rptFrom'),to=gv('rptTo');
+    if(!from||!to){toast('Select From and To dates','err');return;}
+    label=`Custom Report — ${from} to ${to}`;
+    filtered=_reportBillsData.filter(b=>b.date&&b.date>=from&&b.date<=to);
+  }
+
+  if(!filtered.length){toast('No records found for this period','err');return;}
+
+  const paid=filtered.filter(b=>b.status==='Paid');
+  const unpaid=filtered.filter(b=>b.status!=='Paid');
+  const totalPaid=paid.reduce((a,b)=>a+(b.total||0),0);
+  const totalUnpaid=unpaid.reduce((a,b)=>a+(b.total||0),0);
+  const totalAll=filtered.reduce((a,b)=>a+(b.total||0),0);
+  const byCash=paid.filter(b=>b.method==='Cash').reduce((a,b)=>a+(b.total||0),0);
+  const byPOS=paid.filter(b=>b.method==='POS').reduce((a,b)=>a+(b.total||0),0);
+  const byTrf=paid.filter(b=>b.method==='Transfer').reduce((a,b)=>a+(b.total||0),0);
+
+  const el=ge('rptPreviewArea');
+  ge('rptPreviewTitle').textContent=label;
+  ge('rptPreviewContent').innerHTML=buildReportHTML(label,filtered,paid,unpaid,totalPaid,totalUnpaid,totalAll,byCash,byPOS,byTrf);
+  el.style.display='block';
+  el.scrollIntoView({behavior:'smooth'});
+  // Store for download
+  window._currentReportData={label,filtered,paid,unpaid,totalPaid,totalUnpaid,totalAll,byCash,byPOS,byTrf};
+};
+
+function buildReportHTML(label,filtered,paid,unpaid,totalPaid,totalUnpaid,totalAll,byCash,byPOS,byTrf){
+  const now=new Date();
+  return`<div id="reportPrintArea" style="font-family:'DM Sans',sans-serif;font-size:.85rem">
+    <div style="background:linear-gradient(135deg,var(--P),#5e35b1);border-radius:var(--rs);padding:14px;color:#fff;margin-bottom:12px;text-align:center">
+      <div style="font-size:1rem;font-weight:700">Loving Heart Hospital</div>
+      <div style="font-size:.78rem;opacity:.87;margin-top:2px">${label}</div>
+      <div style="font-size:.72rem;opacity:.7;margin-top:4px">Generated: ${now.toLocaleString('en-GB',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})}</div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px">
+      <div style="background:#e6f7ef;border-radius:var(--rs);padding:10px;text-align:center">
+        <div style="font-size:1rem;font-weight:700;color:#1a7a4a">₦${totalPaid.toLocaleString()}</div>
+        <div style="font-size:.72rem;color:var(--mu)">Paid (${paid.length})</div>
+      </div>
+      <div style="background:#fce8e8;border-radius:var(--rs);padding:10px;text-align:center">
+        <div style="font-size:1rem;font-weight:700;color:var(--D)">₦${totalUnpaid.toLocaleString()}</div>
+        <div style="font-size:.72rem;color:var(--mu)">Unpaid (${unpaid.length})</div>
+      </div>
+      <div style="background:var(--PL);border-radius:var(--rs);padding:10px;text-align:center">
+        <div style="font-size:1rem;font-weight:700;color:var(--P)">₦${totalAll.toLocaleString()}</div>
+        <div style="font-size:.72rem;color:var(--mu)">Total (${filtered.length})</div>
+      </div>
+    </div>
+    <div style="background:var(--bg);border-radius:var(--rs);padding:11px;margin-bottom:12px">
+      <div style="font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--mu);margin-bottom:8px">Payment Method Breakdown</div>
+      <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px dashed var(--brd);font-size:.83rem"><span>Cash</span><span style="font-weight:600;color:var(--P)">₦${byCash.toLocaleString()}</span></div>
+      <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px dashed var(--brd);font-size:.83rem"><span>POS</span><span style="font-weight:600;color:var(--A)">₦${byPOS.toLocaleString()}</span></div>
+      <div style="display:flex;justify-content:space-between;padding:5px 0;font-size:.83rem"><span>Transfer</span><span style="font-weight:600;color:var(--W)">₦${byTrf.toLocaleString()}</span></div>
+    </div>
+    <div style="font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--mu);margin-bottom:8px">Transaction Details</div>
+    <div style="overflow-x:auto;border-radius:var(--rs);border:1px solid var(--brd)">
+      <table style="width:100%;border-collapse:collapse;font-size:.79rem">
+        <thead><tr style="background:var(--P);color:#fff">
+          <th style="padding:8px 10px;text-align:left">Receipt</th>
+          <th style="padding:8px 10px;text-align:left">Patient</th>
+          <th style="padding:8px 10px;text-align:right">Amount</th>
+          <th style="padding:8px 10px;text-align:left">Method</th>
+          <th style="padding:8px 10px;text-align:left">Status</th>
+          <th style="padding:8px 10px;text-align:left">Date</th>
+          <th style="padding:8px 10px;text-align:left">Time</th>
+        </tr></thead>
+        <tbody>
+          ${filtered.map((b,i)=>{
+            const ts=b.createdAt?.toDate?b.createdAt.toDate():null;
+            const tStr=ts?ts.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}):'—';
+            return`<tr style="border-bottom:1px solid var(--brd);background:${i%2===0?'#fff':'var(--bg)'}">
+              <td style="padding:7px 10px;font-family:monospace;font-size:.76rem">${b.receiptNo||'—'}</td>
+              <td style="padding:7px 10px">${b.customerName||b.patientId||'—'}</td>
+              <td style="padding:7px 10px;text-align:right;font-weight:700">₦${(b.total||0).toLocaleString()}</td>
+              <td style="padding:7px 10px">${b.method||'—'}</td>
+              <td style="padding:7px 10px"><span style="background:${b.status==='Paid'?'#e6f7ef':'#fce8e8'};color:${b.status==='Paid'?'#1a7a4a':'var(--D)'};padding:2px 7px;border-radius:12px;font-size:.72rem;font-weight:700">${b.status||'—'}</span></td>
+              <td style="padding:7px 10px">${b.date||'—'}</td>
+              <td style="padding:7px 10px">${tStr}</td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+    </div>
+  </div>`;
+}
+
+window.downloadReportPDF=()=>{
+  const d=window._currentReportData;
+  if(!d){toast('Generate a report first','err');return;}
+  const now=new Date();
+  const w=window.open('','_blank','width=800,height=900');
+  w.document.write(`<!DOCTYPE html><html><head>
+    <title>${d.label}</title>
+    <style>
+      *{box-sizing:border-box;margin:0;padding:0}
+      body{font-family:Arial,sans-serif;padding:24px;color:#1a2740;font-size:13px}
+      h1{font-size:1.2rem;margin-bottom:4px}
+      .hdr{background:#0057b8;color:#fff;border-radius:8px;padding:16px;margin-bottom:16px;text-align:center}
+      .hdr h1{color:#fff}.hdr p{font-size:.78rem;opacity:.87;margin-top:4px}
+      .cards{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px}
+      .card{border-radius:8px;padding:12px;text-align:center}
+      .card.green{background:#e6f7ef}.card.red{background:#fce8e8}.card.blue{background:#e8f1fb}
+      .card .val{font-size:1.1rem;font-weight:700}.card .lbl{font-size:.72rem;color:#6b7a99;margin-top:3px}
+      .card.green .val{color:#1a7a4a}.card.red .val{color:#e53935}.card.blue .val{color:#0057b8}
+      .breakdown{background:#f0f4f8;border-radius:8px;padding:12px;margin-bottom:16px}
+      .brow{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px dashed #dde4ed;font-size:.83rem}
+      .brow:last-child{border-bottom:none}
+      table{width:100%;border-collapse:collapse;font-size:.8rem}
+      th{background:#0057b8;color:#fff;padding:7px 9px;text-align:left}
+      td{padding:6px 9px;border-bottom:1px solid #dde4ed}
+      tr:nth-child(even) td{background:#f0f4f8}
+      .status-paid{background:#e6f7ef;color:#1a7a4a;padding:2px 7px;border-radius:12px;font-size:.71rem;font-weight:700}
+      .status-other{background:#fce8e8;color:#e53935;padding:2px 7px;border-radius:12px;font-size:.71rem;font-weight:700}
+      .footer{text-align:center;font-size:.72rem;color:#6b7a99;margin-top:18px;border-top:1px solid #dde4ed;padding-top:10px}
+      @media print{body{padding:10px}@page{margin:12mm;size:A4}}
+    </style>
+  </head><body>
+    <div class="hdr">
+      <h1>Loving Heart Hospital</h1>
+      <p>${d.label}</p>
+      <p>Generated: ${now.toLocaleString('en-GB',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})}</p>
+    </div>
+    <div class="cards">
+      <div class="card green"><div class="val">₦${d.totalPaid.toLocaleString()}</div><div class="lbl">Paid (${d.paid.length})</div></div>
+      <div class="card red"><div class="val">₦${d.totalUnpaid.toLocaleString()}</div><div class="lbl">Unpaid (${d.unpaid.length})</div></div>
+      <div class="card blue"><div class="val">₦${d.totalAll.toLocaleString()}</div><div class="lbl">Total (${d.filtered.length})</div></div>
+    </div>
+    <div class="breakdown">
+      <div style="font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#6b7a99;margin-bottom:8px">Payment Method Breakdown</div>
+      <div class="brow"><span>Cash</span><span style="font-weight:700;color:#0057b8">₦${d.byCash.toLocaleString()}</span></div>
+      <div class="brow"><span>POS</span><span style="font-weight:700;color:#00a878">₦${d.byPOS.toLocaleString()}</span></div>
+      <div class="brow"><span>Transfer</span><span style="font-weight:700;color:#f59e0b">₦${d.byTrf.toLocaleString()}</span></div>
+    </div>
+    <table>
+      <thead><tr><th>Receipt</th><th>Patient</th><th>Amount</th><th>Method</th><th>Status</th><th>Date</th><th>Time</th></tr></thead>
+      <tbody>
+        ${d.filtered.map(b=>{
+          const ts=b.createdAt?.toDate?b.createdAt.toDate():null;
+          const tStr=ts?ts.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}):'—';
+          return`<tr>
+            <td style="font-family:monospace;font-size:.75rem">${b.receiptNo||'—'}</td>
+            <td>${b.customerName||b.patientId||'—'}</td>
+            <td style="font-weight:700">₦${(b.total||0).toLocaleString()}</td>
+            <td>${b.method||'—'}</td>
+            <td><span class="${b.status==='Paid'?'status-paid':'status-other'}">${b.status||'—'}</span></td>
+            <td>${b.date||'—'}</td>
+            <td>${tStr}</td>
+          </tr>`;
+        }).join('')}
+      </tbody>
+    </table>
+    <div class="footer">Loving Heart Hospital Management System · Printed ${now.toLocaleString('en-GB')}</div>
+  </body></html>`);
+  w.document.close();
+  setTimeout(()=>w.print(),500);
+};
+
+// ─── LIVE CLOCK (dashboard + billing) ─────────────────────────────────────────
+function startLiveClock(){
+  function tick(){
+    const now=new Date();
+    const timeStr=now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+    const dateTimeStr=now.toLocaleString('en-GB',{weekday:'short',day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit',second:'2-digit'});
+    const lc=ge('liveClockDash'); if(lc) lc.textContent=timeStr;
+    const bd=ge('billingDateTime'); if(bd) bd.textContent=dateTimeStr;
+  }
+  tick();
+  setInterval(tick,1000);
+}
 
 // ─── TOAST ───────────────────────────────────────────────────────────────────
 window.toast=(msg,type="ok")=>{const t=document.createElement("div");t.className=`toast t-${type}`;t.innerHTML=`<i class="fa fa-${type==="ok"?"check-circle":"exclamation-circle"}"></i> ${msg}`;ge("toasts").appendChild(t);setTimeout(()=>t.classList.add("show"),10);setTimeout(()=>{t.classList.remove("show");setTimeout(()=>t.remove(),300);},3500);};
