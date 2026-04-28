@@ -401,7 +401,6 @@ textarea.fi{resize:vertical;min-height:80px}
         <div class="wc-row">
           <div class="wc-chip"><span class="online-dot"></span> Online</div>
           <div class="wc-chip" id="wcDate" style="font-size:.72rem"></div>
-          <div class="wc-chip" id="wcTime" style="font-size:.72rem"><i class="fa fa-clock" style="margin-right:4px"></i><span id="liveClockDash">--:--</span></div>
         </div>
       </div>
       <div class="sgrid">
@@ -483,6 +482,16 @@ textarea.fi{resize:vertical;min-height:80px}
     <div id="mod-pharmacy" class="mod">
       <div class="mhdr"><h2><i class="fa fa-pills" style="color:var(--P)"></i> Pharmacy</h2><button class="bsm outline" onclick="loadRx()"><i class="fa fa-rotate"></i> Refresh</button></div>
       <div class="sc-mb"><h4 class="ssub">💊 Pending Prescriptions from Doctors</h4><div id="pharmRx"></div></div>
+
+      <!-- MANUAL DRUG ENTRY SECTION -->
+      <div class="sc-mb" style="border:2px solid #c2185b;border-radius:var(--r);padding:15px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <h4 style="font-size:.93rem;color:#c2185b"><i class="fa fa-prescription-bottle-medical" style="margin-right:7px"></i>Manual Drug Dispensing</h4>
+          <button class="bsm" style="background:#fce4ec;color:#c2185b;border:1.5px solid #c2185b;font-size:.79rem" onclick="openManualDispenseModal()"><i class="fa fa-plus"></i> Dispense Manually</button>
+        </div>
+        <p style="font-size:.79rem;color:var(--mu);margin-bottom:8px">Dispense a drug directly to a patient without a doctor's prescription. Stock is automatically deducted and the action is recorded in the patient's medical history.</p>
+        <div id="manualDispenseHistory" style="margin-top:4px"><div class="en" style="font-size:.8rem">Recent manual dispensing entries appear here after use.</div></div>
+      </div>
       <div class="sc-mb">
         <h4 class="ssub">📦 Drug Stock Inventory</h4>
         <!-- Expiry alerts banner -->
@@ -537,81 +546,8 @@ textarea.fi{resize:vertical;min-height:80px}
 
     <!-- BILLING -->
     <div id="mod-billing" class="mod">
-      <div class="mhdr">
-        <h2><i class="fa fa-file-invoice-dollar" style="color:var(--P)"></i> Billing</h2>
-        <button class="bsm primary" onclick="openModal('billModal')"><i class="fa fa-plus"></i> New Bill</button>
-      </div>
-      <!-- Live time bar -->
-      <div style="display:flex;align-items:center;gap:10px;background:var(--PL);border-radius:var(--rs);padding:8px 13px;margin-bottom:12px;font-size:.82rem;color:var(--P)">
-        <i class="fa fa-clock"></i>
-        <span id="billingDateTime" style="font-weight:600"></span>
-      </div>
-      <!-- Billing tabs -->
-      <div class="ptab-row" style="margin-bottom:12px">
-        <div class="ptab active" onclick="switchBillTab('receipts',this)">🧾 Receipts</div>
-        <div class="ptab" onclick="switchBillTab('history',this)">📋 Receipt History</div>
-        <div class="ptab" onclick="switchBillTab('reports',this)">📊 Payment Reports</div>
-      </div>
-      <!-- RECEIPTS TAB -->
-      <div id="bill-tab-receipts">
-        <div class="twrap"><table class="dtab">
-          <thead><tr><th>Receipt</th><th>Patient</th><th>Total</th><th>Method</th><th>Status</th><th>Date</th><th>⚡</th></tr></thead>
-          <tbody id="billBody"><tr><td colspan="7" class="cr"><i class="fa fa-spinner fa-spin"></i></td></tr></tbody>
-        </table></div>
-      </div>
-      <!-- RECEIPT HISTORY TAB -->
-      <div id="bill-tab-history" style="display:none">
-        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;align-items:center">
-          <div style="position:relative;flex:1;min-width:160px">
-            <i class="fa fa-search" style="position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--mu)"></i>
-            <input id="histSearch" class="fi" style="padding-left:34px;font-size:.85rem" placeholder="Search receipt, patient, amount…" oninput="filterReceiptHistory()"/>
-          </div>
-          <select id="histMethod" class="fsel" style="flex:1;min-width:100px;font-size:.85rem" onchange="filterReceiptHistory()">
-            <option value="">All Methods</option>
-            <option>Cash</option><option>POS</option><option>Transfer</option>
-          </select>
-          <select id="histStatus" class="fsel" style="flex:1;min-width:100px;font-size:.85rem" onchange="filterReceiptHistory()">
-            <option value="">All Status</option>
-            <option>Paid</option><option>Unpaid</option><option>Partially Paid</option>
-          </select>
-        </div>
-        <div id="receiptHistoryList"><div class="cr"><i class="fa fa-spinner fa-spin"></i></div></div>
-      </div>
-      <!-- PDF REPORTS TAB -->
-      <div id="bill-tab-reports" style="display:none">
-        <div class="sc-mb" style="background:linear-gradient(135deg,var(--P),#5e35b1);border-radius:var(--r);padding:18px;color:#fff;margin-bottom:14px">
-          <h3 style="font-size:1rem;margin-bottom:4px"><i class="fa fa-chart-bar"></i> Payment Reports</h3>
-          <p style="font-size:.8rem;opacity:.85">Generate and download payment summaries as PDF</p>
-        </div>
-        <!-- Quick summary cards -->
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:14px">
-          <div class="scard"><div class="iw ib"><i class="fa fa-naira-sign"></i></div><div class="sv2" id="rptTodayRev">—</div><div class="sl">Today</div></div>
-          <div class="scard"><div class="iw ig"><i class="fa fa-calendar-week"></i></div><div class="sv2" id="rptWeekRev">—</div><div class="sl">This Week</div></div>
-          <div class="scard"><div class="iw io"><i class="fa fa-calendar"></i></div><div class="sv2" id="rptMonthRev">—</div><div class="sl">This Month</div></div>
-          <div class="scard"><div class="iw ip"><i class="fa fa-chart-line"></i></div><div class="sv2" id="rptYearRev">—</div><div class="sl">This Year</div></div>
-        </div>
-        <div class="sc-mb">
-          <h4 class="ssub">📅 Custom Report Period</h4>
-          <div class="frow" style="margin-bottom:10px">
-            <div class="fg"><label class="fl">From</label><input type="date" id="rptFrom" class="fi"/></div>
-            <div class="fg"><label class="fl">To</label><input type="date" id="rptTo" class="fi"/></div>
-          </div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-            <button class="bsm primary" onclick="generatePaymentReport('today')"><i class="fa fa-file-pdf"></i> Today PDF</button>
-            <button class="bsm primary" style="background:#388e3c" onclick="generatePaymentReport('week')"><i class="fa fa-file-pdf"></i> This Week PDF</button>
-            <button class="bsm primary" style="background:#f57c00" onclick="generatePaymentReport('month')"><i class="fa fa-file-pdf"></i> This Month PDF</button>
-            <button class="bsm primary" style="background:#5e35b1" onclick="generatePaymentReport('year')"><i class="fa fa-file-pdf"></i> This Year PDF</button>
-            <button class="bsm outline" style="grid-column:span 2" onclick="generatePaymentReport('custom')"><i class="fa fa-calendar-range"></i> Custom Range PDF</button>
-          </div>
-        </div>
-        <div id="rptPreviewArea" style="display:none" class="sc-mb">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-            <h4 class="ssub" style="margin:0" id="rptPreviewTitle">Report Preview</h4>
-            <button class="bsm primary" onclick="downloadReportPDF()"><i class="fa fa-download"></i> Download PDF</button>
-          </div>
-          <div id="rptPreviewContent"></div>
-        </div>
-      </div>
+      <div class="mhdr"><h2><i class="fa fa-file-invoice-dollar" style="color:var(--P)"></i> Billing</h2><button class="bsm primary" onclick="openModal('billModal')"><i class="fa fa-plus"></i> New Bill</button></div>
+      <div class="twrap"><table class="dtab"><thead><tr><th>Receipt</th><th>Patient</th><th>Total</th><th>Method</th><th>Status</th><th>Date</th></tr></thead><tbody id="billBody"><tr><td colspan="6" class="cr"><i class="fa fa-spinner fa-spin"></i></td></tr></tbody></table></div>
     </div>
 
     <!-- MESSAGES -->
@@ -1005,6 +941,100 @@ textarea.fi{resize:vertical;min-height:80px}
     <div class="fg"><label class="fl">Medical History / Allergies</label><textarea id="rHist" class="fi" placeholder="Conditions, allergies…"></textarea></div>
     <button class="btnP" onclick="regPat()"><i class="fa fa-save"></i> Save Patient</button>
   </form>
+</div></div>
+
+<!-- MANUAL DRUG DISPENSE MODAL -->
+<div id="manualDispenseModal" class="movl"><div class="modal">
+  <div class="mhd">
+    <h3><i class="fa fa-prescription-bottle-medical" style="color:#c2185b"></i> Manual Drug Dispensing</h3>
+    <button class="mcls" onclick="cModal('manualDispenseModal')">✕</button>
+  </div>
+  <div style="background:#fce4ec;border-radius:var(--rs);padding:10px 13px;margin-bottom:14px;font-size:.8rem;color:#c2185b;display:flex;gap:8px;align-items:flex-start">
+    <i class="fa fa-circle-info" style="margin-top:2px;flex-shrink:0"></i>
+    <span>This dispenses a drug <b>without a doctor's prescription</b>. Stock is deducted automatically and the action is saved to the patient's medical record.</span>
+  </div>
+  <div class="fg">
+    <label class="fl">Patient ID *</label>
+    <input id="mdPatId" class="fi" placeholder="e.g. MCH-0001" oninput="mdLookupPatient()"/>
+    <div id="mdPatInfo" style="margin-top:5px;font-size:.8rem;color:var(--mu)"></div>
+  </div>
+  <div class="fg">
+    <label class="fl">Select Drug from Stock *</label>
+    <select id="mdDrugSel" class="fsel" onchange="mdUpdateStockInfo()">
+      <option value="">Loading stock…</option>
+    </select>
+    <div id="mdStockInfo" style="margin-top:5px;font-size:.79rem;color:var(--mu)"></div>
+  </div>
+  <div class="frow">
+    <div class="fg">
+      <label class="fl">Quantity *</label>
+      <input id="mdQty" class="fi" type="number" min="1" value="1" placeholder="1" oninput="mdCheckQty()"/>
+    </div>
+    <div class="fg">
+      <label class="fl">Dosage / Frequency *</label>
+      <input id="mdDosage" class="fi" placeholder="e.g. 1 tablet twice daily"/>
+    </div>
+  </div>
+  <div class="fg">
+    <label class="fl">Reason / Clinical Indication</label>
+    <input id="mdReason" class="fi" placeholder="e.g. OTC request, emergency supply, patient request…"/>
+  </div>
+  <div id="mdQtyWarn" style="display:none;background:#fce8e8;border-radius:var(--rs);padding:8px 12px;font-size:.8rem;color:var(--D);margin-bottom:8px">
+    <i class="fa fa-triangle-exclamation"></i> <span id="mdQtyWarnText"></span>
+  </div>
+  <div style="background:var(--bg);border-radius:var(--rs);padding:9px 12px;font-size:.79rem;color:var(--mu);margin-bottom:12px">
+    <i class="fa fa-user" style="margin-right:5px"></i>Action will be recorded as performed by: <b id="mdStaffName">—</b>
+  </div>
+  <button class="btnP" style="background:#c2185b" onclick="submitManualDispense()">
+    <i class="fa fa-pills"></i> Dispense Drug & Save to Patient Record
+  </button>
+</div></div>
+
+<!-- MANUAL DRUG DISPENSE MODAL -->
+<div id="manualDispenseModal" class="movl"><div class="modal">
+  <div class="mhd">
+    <h3><i class="fa fa-prescription-bottle-medical" style="color:#c2185b"></i> Manual Drug Dispensing</h3>
+    <button class="mcls" onclick="cModal('manualDispenseModal')">✕</button>
+  </div>
+  <div style="background:#fce4ec;border-radius:var(--rs);padding:10px 13px;margin-bottom:14px;font-size:.8rem;color:#c2185b;display:flex;gap:8px;align-items:flex-start">
+    <i class="fa fa-circle-info" style="margin-top:2px;flex-shrink:0"></i>
+    <span>Dispenses a drug <b>without a doctor's prescription</b>. Stock is deducted via FEFO and the action is saved to the patient's medical record automatically.</span>
+  </div>
+  <div class="fg">
+    <label class="fl">Patient ID *</label>
+    <input id="mdPatId" class="fi" placeholder="e.g. MCH-0001" oninput="mdLookupPatient()"/>
+    <div id="mdPatInfo" style="margin-top:5px;font-size:.8rem"></div>
+  </div>
+  <div class="fg">
+    <label class="fl">Select Drug from Stock *</label>
+    <select id="mdDrugSel" class="fsel" onchange="mdUpdateStockInfo()">
+      <option value="">Loading stock…</option>
+    </select>
+    <div id="mdStockInfo" style="margin-top:5px;font-size:.79rem"></div>
+  </div>
+  <div class="frow">
+    <div class="fg">
+      <label class="fl">Quantity *</label>
+      <input id="mdQty" class="fi" type="number" min="1" value="1" placeholder="1" oninput="mdCheckQty()"/>
+    </div>
+    <div class="fg">
+      <label class="fl">Dosage / Frequency *</label>
+      <input id="mdDosage" class="fi" placeholder="e.g. 1 tablet twice daily"/>
+    </div>
+  </div>
+  <div class="fg">
+    <label class="fl">Reason / Clinical Indication</label>
+    <input id="mdReason" class="fi" placeholder="e.g. OTC request, emergency supply, patient request…"/>
+  </div>
+  <div id="mdQtyWarn" style="display:none;border-radius:var(--rs);padding:8px 12px;font-size:.8rem;margin-bottom:8px">
+    <i class="fa fa-triangle-exclamation"></i> <span id="mdQtyWarnText"></span>
+  </div>
+  <div style="background:var(--bg);border-radius:var(--rs);padding:9px 12px;font-size:.79rem;color:var(--mu);margin-bottom:12px">
+    <i class="fa fa-user" style="margin-right:5px"></i>Recorded as performed by: <b id="mdStaffName">—</b>
+  </div>
+  <button class="btnP" style="background:#c2185b" onclick="submitManualDispense()">
+    <i class="fa fa-pills"></i> Dispense Drug &amp; Save to Patient Record
+  </button>
 </div></div>
 
 <!-- PATIENT FULL RECORD MODAL -->
@@ -1446,7 +1476,6 @@ function initApp(){
   loadDashNotifs();
   startMsgBadge();
   startNotifListener();
-  startLiveClock();
   // Real-time approval queue listener for Admin/Super Admin
   if(isStrictAdmin()) startApprovalListener();
 }
@@ -1486,7 +1515,7 @@ window.showMod=mod=>{
   if(mod==="patients")    searchPats();
   if(mod==="appointments")loadAppts();
   if(mod==="lab")         loadLabQ();
-  if(mod==="pharmacy")    {loadRx();loadStock();}
+  if(mod==="pharmacy")    {loadRx();loadStock();loadManualDispenseHistory();}
   if(mod==="billing")     {loadBills();loadBillPriceList();}
   if(mod==="messages")    loadThreads();
   if(mod==="profile")     loadProf();
@@ -2109,6 +2138,190 @@ window.dispense=async(id,drug,pid,dosage)=>{
   else toast(`${drug} dispensed (Batch: ${batchUsed||"—"})!`,"ok");
   loadRx();loadStock();
 };
+
+// ─── MANUAL DRUG DISPENSING (Pharmacist-initiated, no doctor Rx) ──────────────
+let _mdStockCache=[];
+
+window.openManualDispenseModal=()=>{
+  if(!canDo("dispense")&&!isStrictAdmin()){toast("⛔ Only Pharmacists can manually dispense drugs","err");return;}
+  ge("mdPatId").value="";ge("mdPatInfo").textContent="";
+  ge("mdDosage").value="";ge("mdReason").value="";
+  ge("mdQty").value="1";ge("mdStockInfo").textContent="";
+  ge("mdQtyWarn").style.display="none";
+  ge("mdStaffName").textContent=SP.name||"—";
+  _mdLoadStockDropdown();
+  openModal("manualDispenseModal");
+};
+
+async function _mdLoadStockDropdown(){
+  const sel=ge("mdDrugSel");
+  sel.innerHTML='<option value="">⏳ Loading stock…</option>';
+  try{
+    const snap=await getDocs(query(collection(db,"drugBatches"),where("active","==",true)));
+    const byName={};
+    snap.docs.forEach(d=>{
+      const r=d.data();
+      if(!byName[r.name])byName[r.name]={name:r.name,totalQty:0};
+      byName[r.name].totalQty+=(r.qty||0);
+    });
+    _mdStockCache=Object.values(byName).filter(d=>d.totalQty>0).sort((a,b)=>a.name.localeCompare(b.name));
+    if(!_mdStockCache.length){sel.innerHTML='<option value="">⚠️ No stock available</option>';return;}
+    sel.innerHTML='<option value="">Select drug from stock…</option>'+
+      _mdStockCache.map(d=>`<option value="${d.name}">${d.name} (${d.totalQty} unit${d.totalQty!==1?"s":""})</option>`).join("");
+  }catch(e){sel.innerHTML='<option value="">⚠️ Error loading stock</option>';}
+}
+
+window.mdUpdateStockInfo=()=>{
+  const name=ge("mdDrugSel").value;
+  const infoEl=ge("mdStockInfo");
+  if(!name){infoEl.textContent="";return;}
+  const entry=_mdStockCache.find(d=>d.name===name);
+  if(entry)infoEl.innerHTML=`<span style="color:${entry.totalQty<=5?"var(--D)":"var(--A)"}"><i class="fa fa-boxes-stacked"></i> ${entry.totalQty} unit${entry.totalQty!==1?"s":""} in stock</span>`;
+  mdCheckQty();
+};
+
+window.mdCheckQty=()=>{
+  const name=ge("mdDrugSel").value;
+  const qty=parseInt(ge("mdQty").value)||0;
+  const warnEl=ge("mdQtyWarn");
+  const warnTxt=ge("mdQtyWarnText");
+  if(!name||qty<=0){warnEl.style.display="none";return;}
+  const entry=_mdStockCache.find(d=>d.name===name);
+  if(!entry){warnEl.style.display="none";return;}
+  if(qty>entry.totalQty){
+    warnEl.style.background="#fce8e8";warnEl.style.color="var(--D)";
+    warnTxt.textContent=`Requested (${qty}) exceeds available stock (${entry.totalQty} units).`;
+    warnEl.style.display="block";
+  } else if(entry.totalQty-qty<=5){
+    warnEl.style.background="#fff8e1";warnEl.style.color="#7a5e00";
+    warnTxt.textContent=`After dispensing, only ${entry.totalQty-qty} unit(s) will remain — low stock.`;
+    warnEl.style.display="block";
+  } else {
+    warnEl.style.display="none";
+  }
+};
+
+window.mdLookupPatient=async()=>{
+  const pid=(ge("mdPatId").value||"").trim();
+  const infoEl=ge("mdPatInfo");
+  if(!pid){infoEl.textContent="";return;}
+  try{
+    const snap=await getDocs(query(collection(db,"patients"),where("pid","==",pid)));
+    if(snap.empty){infoEl.innerHTML='<span style="color:var(--D)"><i class="fa fa-circle-xmark"></i> Patient not found</span>';}
+    else{const p=snap.docs[0].data();infoEl.innerHTML=`<span style="color:var(--A)"><i class="fa fa-circle-check"></i> <b>${p.name}</b> — ${p.age||"—"} yrs, ${p.gender||"—"}</span>`;}
+  }catch(e){infoEl.textContent="";}
+};
+
+window.submitManualDispense=async()=>{
+  if(!canDo("dispense")&&!isStrictAdmin()){toast("⛔ Only Pharmacists can manually dispense drugs","err");return;}
+  const pid=(ge("mdPatId").value||"").trim();
+  const drug=(ge("mdDrugSel").value||"").trim();
+  const qty=parseInt(ge("mdQty").value)||0;
+  const dosage=(ge("mdDosage").value||"").trim();
+  const reason=(ge("mdReason").value||"").trim();
+  if(!pid){toast("Enter a Patient ID","err");return;}
+  if(!drug){toast("Select a drug from stock","err");return;}
+  if(qty<1){toast("Quantity must be at least 1","err");return;}
+  if(!dosage){toast("Enter dosage / frequency","err");return;}
+
+  const patSnap=await getDocs(query(collection(db,"patients"),where("pid","==",pid)));
+  if(patSnap.empty){toast("Patient ID not found in system","err");return;}
+
+  const stockEntry=_mdStockCache.find(d=>d.name===drug);
+  if(!stockEntry||stockEntry.totalQty<qty){toast(`Not enough stock. Available: ${stockEntry?stockEntry.totalQty:0}`,"err");return;}
+
+  const btn=document.querySelector("#manualDispenseModal .btnP");
+  if(btn){btn.disabled=true;btn.innerHTML='<i class="fa fa-spinner fa-spin"></i> Dispensing…';}
+
+  try{
+    // FEFO batch deduction — same logic as existing dispense()
+    const batchSnap=await getDocs(query(collection(db,"drugBatches"),where("active","==",true)));
+    const today_=new Date();today_.setHours(0,0,0,0);
+    let matchedBatches=batchSnap.docs.filter(d=>{
+      const n=(d.data().name||"").toLowerCase(),dn=drug.toLowerCase();
+      return(n===dn||n.includes(dn)||dn.includes(n))&&(d.data().qty||0)>0;
+    });
+    matchedBatches.sort((a,b)=>{
+      const ae=a.data().expiry,be=b.data().expiry;
+      if(!ae&&!be)return 0;if(!ae)return 1;if(!be)return -1;
+      return new Date(ae)-new Date(be);
+    });
+    let remaining=qty,batchesUsed=[],lowStockWarn=false,expiredWarn=false;
+    for(const batch of matchedBatches){
+      if(remaining<=0)break;
+      const bd=batch.data();
+      const take=Math.min(remaining,bd.qty||0);
+      const newQty=(bd.qty||0)-take;
+      batchesUsed.push(`${bd.batchNo||"—"} (×${take})`);
+      if(bd.expiry&&new Date(bd.expiry)<today_){
+        expiredWarn=true;
+        await sendNotif(["Admin","Pharmacist"],"rx",`🚨 Expired Batch Dispensed: ${drug}`,`Batch ${bd.batchNo||"—"} of ${drug} is EXPIRED (${bd.expiry}). Manually dispensed for patient ${pid} by ${SP.name}.`,"");
+      }
+      await updateDoc(doc(db,"drugBatches",batch.id),{qty:newQty,lastDispensedAt:serverTimestamp(),lastDispensedBy:SP.name});
+      const legSnap=await getDocs(query(collection(db,"drugStock"),where("name","==",bd.name)));
+      if(!legSnap.empty){
+        const legQty=legSnap.docs[0].data().qty||0;
+        const legNew=Math.max(0,legQty-take);
+        await updateDoc(doc(db,"drugStock",legSnap.docs[0].id),{qty:legNew,updatedAt:serverTimestamp()});
+        if(legNew<=5){lowStockWarn=true;await sendNotif(["Admin","Pharmacist"],"rx",`⚠️ Low Stock: ${drug}`,`Only ${legNew} unit(s) of ${drug} remaining after manual dispense.`,"");}
+        if(legNew===0)await sendNotif(["Admin","Pharmacist"],"rx",`🚨 OUT OF STOCK: ${drug}`,`${drug} is now completely out of stock!`,"");
+      }
+      remaining-=take;
+    }
+    const batchNote=batchesUsed.length?`\nBatch(es): ${batchesUsed.join(", ")}`:`\n⚠️ No batch record found`;
+
+    // Notify Doctor / Nurse / Admin
+    await sendNotif(["Doctor","Nurse","Admin"],"rx","💊 Manual Drug Dispensed",
+      `${drug} (×${qty}) manually dispensed for patient ${pid} by ${SP.name} (Pharmacist).${reason?" Reason: "+reason:""}`,pid);
+
+    // Add to patient record — same format as existing Rx dispense
+    await addDoc(collection(db,"records"),{
+      pid,type:"rx",tag:"Pharmacist Manual Dispense",role:"pharmacy",
+      body:`💊 ${drug} — Manually Dispensed by ${SP.name}\nQuantity: ${qty} unit(s)\nDosage: ${dosage}`+
+           (reason?`\nReason: ${reason}`:"")+batchNote+
+           `\nFEFO stock deduction applied\n[No doctor prescription — pharmacist-initiated entry]`,
+      by:SP.name,byRole:SP.role,ts:serverTimestamp()
+    });
+
+    // Create a prescription-like record for history consistency
+    await addDoc(collection(db,"prescriptions"),{
+      patientId:pid,drug,dosage,
+      instructions:reason||"Manual pharmacist entry",
+      prescribedBy:`${SP.name} (Pharmacist — Manual Entry)`,
+      dispensed:true,dispensedBy:SP.name,dispensedAt:serverTimestamp(),
+      status:"Dispensed",manualEntry:true,createdAt:serverTimestamp()
+    });
+
+    cModal("manualDispenseModal");
+    if(expiredWarn)toast(`⚠️ Dispensed from EXPIRED batch! Admin notified.`,"err");
+    else if(lowStockWarn)toast(`⚠️ Low stock alert for ${drug}!`,"err");
+    else toast(`✅ ${drug} (×${qty}) dispensed & saved to patient record!`,"ok");
+    loadRx();loadStock();loadManualDispenseHistory();
+  }catch(e){
+    toast("Error: "+e.message,"err");
+  }finally{
+    if(btn){btn.disabled=false;btn.innerHTML='<i class="fa fa-pills"></i> Dispense Drug & Save to Patient Record';}
+  }
+};
+
+window.loadManualDispenseHistory=async()=>{
+  const el=ge("manualDispenseHistory");if(!el)return;
+  try{
+    const snap=await getDocs(query(collection(db,"prescriptions"),where("manualEntry","==",true),orderBy("createdAt","desc")));
+    if(snap.empty){el.innerHTML='<div class="en" style="font-size:.8rem">No manual dispensing records yet.</div>';return;}
+    const rows=snap.docs.slice(0,8).map(d=>({id:d.id,...d.data()}));
+    el.innerHTML=`<div style="font-size:.76rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#c2185b;margin-bottom:6px">Recent Manual Entries</div>`+
+    `<table class="dtab" style="font-size:.78rem"><thead><tr><th>Patient</th><th>Drug</th><th>Dosage</th><th>By</th><th>Date</th></tr></thead><tbody>`+
+    rows.map(r=>`<tr>
+      <td><span class="pid">${r.patientId||"—"}</span></td>
+      <td><b>${r.drug||"—"}</b></td>
+      <td style="color:var(--mu)">${r.dosage||"—"}</td>
+      <td style="font-size:.73rem">${r.dispensedBy||"—"}</td>
+      <td style="font-size:.73rem">${r.createdAt?new Date(r.createdAt.toDate()).toLocaleDateString("en-GB",{day:"2-digit",month:"short"}):"—"}</td>
+    </tr>`).join("")+`</tbody></table>`;
+  }catch(e){el.innerHTML='<div class="en" style="font-size:.8rem">Could not load history.</div>';}
+};
+
 window.deleteDrugBatch=async(batchId,drugName)=>{
   if(!canDo("deleteDrug")&&!isStrictAdmin()){toast("⛔ Only Pharmacists and Admins can delete drug stock","err");return;}
   if(!confirm(`Delete batch of "${drugName}" from stock?\n\nThis cannot be undone.`))return;
@@ -2657,15 +2870,14 @@ function printR(b){showReceipt(b);}
 window.loadBills=async()=>{
   const el=ge("billBody");if(!el)return;
   const s=await getDocs(query(collection(db,"bills"),orderBy("createdAt","desc"),limit(60)));
-  if(s.empty){el.innerHTML='<tr><td colspan="7" class="cr">No bills</td></tr>';return;}
-  el.innerHTML=s.docs.map(d=>{const b={_id:d.id,...d.data()};return`<tr>
+  if(s.empty){el.innerHTML='<tr><td colspan="6" class="cr">No bills</td></tr>';return;}
+  el.innerHTML=s.docs.map(d=>{const b=d.data();return`<tr>
     <td><span class="pid" style="cursor:pointer" onclick='showReceipt(${JSON.stringify(b).replace(/'/g,"\\'")})'>${b.receiptNo}</span></td>
     <td>${b.customerName||b.patientId||"—"}</td>
     <td>₦${b.total.toLocaleString()}</td>
     <td>${b.method}</td>
     <td><span class="badge st-${b.status.toLowerCase().replace(/\s/g,"-")}">${b.status}</span></td>
     <td>${b.date}</td>
-    <td><button class="btn-ic" title="View & Reprint" onclick='showReceipt(${JSON.stringify(b).replace(/'/g,"\\'")})'><i class="fa fa-eye"></i></button></td>
   </tr>`;}).join("");
 };
 
@@ -4194,24 +4406,36 @@ function calcPayroll(staff, attRecs, year, month, bonusTotal=0, loanTotal=0, ext
   const grossBase=basic+housing+transport+medical+otherAllow;
   const grossSalary=grossBase+bonusTotal;
 
-  // Working days
+  // Full calendar days in month (30 or 31) - NOT Mon-Fri only
   const daysInMonth=new Date(year,month,0).getDate();
-  let workingDays=0;
-  for(let d=1;d<=daysInMonth;d++){ const dow=new Date(year,month-1,d).getDay(); if(dow!==0&&dow!==6)workingDays++; }
 
-  let presentDays=0,absentDays=0,lateDays=0;
-  attRecs.forEach(a=>{ if(a.status==='Present'||a.status==='Late')presentDays++; if(a.status==='Late')lateDays++; if(a.status==='Absent')absentDays++; });
+  // Build date->status map
+  const attMap={};
+  attRecs.forEach(a=>{ if(a.date) attMap[a.date]=a.status; });
 
-  const dailyRate = workingDays>0?basic/workingDays:0;
-  const absentDeduction = dailyRate*absentDays;
-  const lateDeduction = (dailyRate*0.25)*lateDays;
+  let presentDays=0,absentDays=0,lateDays=0,offDays=0,noRecordDays=0;
+  for(let d=1;d<=daysInMonth;d++){
+    const dateStr=`${year}-${String(month).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const status=attMap[dateStr]||'__none__';
+    if(status==='Present'){ presentDays++; }
+    else if(status==='Off'){ offDays++; presentDays++; } // Off = present, no deduction
+    else if(status==='Late'){ lateDays++; presentDays++; } // Late = present + 25% penalty
+    else if(status==='Absent'){ absentDays++; }
+    else { noRecordDays++; absentDays++; } // No record = Absent
+  }
+
+  const dailyRate = daysInMonth>0 ? basic/daysInMonth : 0;
+  const absentDeduction = dailyRate * absentDays;
+  const lateDeduction = (dailyRate * 0.25) * lateDays;
   const taxAmt = grossSalary*(staff.taxPercent||0)/100;
   const pensionAmt = grossSalary*(staff.pensionPercent||0)/100;
   const nhfAmt = grossSalary*(staff.nhfPercent||0)/100;
   const otherDed = (staff.otherDeductions||0)+extraDed+loanTotal;
   const totalDeductions=taxAmt+pensionAmt+nhfAmt+otherDed+absentDeduction+lateDeduction;
   const netPay=Math.max(0,grossSalary-totalDeductions);
-  return{basic,housing,transport,medical,otherAllow,grossBase,grossSalary,bonusTotal,loanTotal,extraDed,taxAmt,pensionAmt,nhfAmt,otherDed,absentDeduction,lateDeduction,totalDeductions,netPay,presentDays,absentDays,lateDays,workingDays};
+  return{basic,housing,transport,medical,otherAllow,grossBase,grossSalary,bonusTotal,loanTotal,extraDed,
+    taxAmt,pensionAmt,nhfAmt,otherDed,absentDeduction,lateDeduction,totalDeductions,netPay,
+    presentDays,absentDays,lateDays,offDays,noRecordDays,daysInMonth,dailyRate};
 }
 
 // ── VIEW INDIVIDUAL PAYSLIP ──
@@ -4280,9 +4504,11 @@ function buildFullPayslip(p){
       <div class="di"><span>Pay Period</span><strong>${monthLabel(p.month)}</strong></div>
       <div class="di"><span>Pay Date</span><strong>${p.payDate||'—'}</strong></div>
       <div class="di"><span>Method</span><strong>${p.payMethod||'—'}</strong></div>
-      <div class="di"><span>Working Days</span><strong>${p.workingDays||0}</strong></div>
+      <div class="di"><span>Days in Month</span><strong>${p.daysInMonth||0}</strong></div>
       <div class="di"><span>Days Present</span><strong style="color:var(--A)">${p.presentDays||0}</strong></div>
       <div class="di"><span>Days Absent</span><strong style="color:var(--D)">${p.absentDays||0}</strong></div>
+      <div class="di"><span>Days Late</span><strong style="color:#f59e0b">${p.lateDays||0}</strong></div>
+      <div class="di"><span>Off Days</span><strong style="color:var(--mu)">${p.offDays||0}</strong></div>
       <div class="di"><span>Status</span><strong><span class="pr-status-chip ${p.payStatus==='Paid'?'pr-paid':'pr-pending'}">${p.payStatus||'Pending'}</span></strong></div>
     </div>
     <div class="payslip-section-title earn">💰 Earnings</div>
@@ -4294,13 +4520,32 @@ function buildFullPayslip(p){
     ${p.bonusTotal?`<div class="payslip-line"><span>Bonus <span class="bonus-tag">BONUS</span></span><span style="color:var(--A)">${fmtN(p.bonusTotal)}</span></div>`:''}
     <div class="payslip-line" style="font-weight:700"><span>Gross Salary</span><span>${fmtN(p.grossSalary)}</span></div>
     <div class="payslip-section-title ded">📉 Deductions</div>
-    <div class="payslip-line"><span>Tax (PAYE)</span><span style="color:var(--D)">${fmtN(p.taxAmt)}</span></div>
-    <div class="payslip-line"><span>Pension</span><span style="color:var(--D)">${fmtN(p.pensionAmt)}</span></div>
-    <div class="payslip-line"><span>NHF</span><span style="color:var(--D)">${fmtN(p.nhfAmt||0)}</span></div>
-    <div class="payslip-line"><span>Absence Deduction</span><span style="color:var(--D)">${fmtN(p.absentDeduction)}</span></div>
-    <div class="payslip-line"><span>Late Deduction</span><span style="color:var(--D)">${fmtN(p.lateDeduction)}</span></div>
+    <!-- Attendance deduction formula box -->
+    <div style="background:#fff8e1;border-left:3px solid #f59e0b;border-radius:6px;padding:9px 11px;margin-bottom:8px;font-size:.75rem;color:#7a5e00">
+      <div style="font-weight:700;margin-bottom:5px">⚠️ How Attendance Deductions Were Calculated</div>
+      <div>Days in Month: <strong>${p.daysInMonth||'?'}</strong> calendar days</div>
+      <div>Daily Rate = ₦${(p.basic||0).toLocaleString()} ÷ ${p.daysInMonth||'?'} = <strong>₦${Math.round(p.dailyRate||0).toLocaleString()}/day</strong></div>
+      <div style="margin-top:4px;padding-top:4px;border-top:1px dashed #f59e0b">
+        Absent ${p.absentDays||0} day(s): ${p.absentDays||0} × ₦${Math.round(p.dailyRate||0).toLocaleString()} = <strong style="color:#e53935">-₦${Math.round(p.absentDeduction||0).toLocaleString()}</strong>
+      </div>
+      <div>Late ${p.lateDays||0} day(s): ${p.lateDays||0} × 25% × ₦${Math.round(p.dailyRate||0).toLocaleString()} = <strong style="color:#e53935">-₦${Math.round(p.lateDeduction||0).toLocaleString()}</strong></div>
+      ${(p.noRecordDays||0)>0?`<div style="font-style:italic;margin-top:3px">(${p.noRecordDays} day(s) had no clock-in record → treated as Absent)</div>`:''}
+      <div style="margin-top:3px;color:#1a7a4a">Off days: ${p.offDays||0} day(s) → counted as Present (no deduction) ✔️</div>
+    </div>
+    <!-- Attendance summary boxes -->
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:5px;margin-bottom:10px;text-align:center">
+      <div style="background:#e6f7ef;border-radius:5px;padding:6px 4px"><div style="font-size:.65rem;color:#1a7a4a;font-weight:700">PRESENT</div><div style="font-size:1rem;font-weight:700;color:#1a7a4a">${p.presentDays||0}</div></div>
+      <div style="background:#fff8e1;border-radius:5px;padding:6px 4px"><div style="font-size:.65rem;color:#7a5e00;font-weight:700">LATE</div><div style="font-size:1rem;font-weight:700;color:#f59e0b">${p.lateDays||0}</div></div>
+      <div style="background:#fce8e8;border-radius:5px;padding:6px 4px"><div style="font-size:.65rem;color:#e53935;font-weight:700">ABSENT</div><div style="font-size:1rem;font-weight:700;color:#e53935">${p.absentDays||0}</div></div>
+      <div style="background:var(--bg);border-radius:5px;padding:6px 4px"><div style="font-size:.65rem;color:var(--mu);font-weight:700">OFF</div><div style="font-size:1rem;font-weight:700;color:var(--mu)">${p.offDays||0}</div></div>
+    </div>
+    <div class="payslip-line"><span>Tax (PAYE) <span style="font-size:.7rem;color:var(--mu)">${p.taxPercent||0}% of gross</span></span><span style="color:var(--D)">${fmtN(p.taxAmt)}</span></div>
+    <div class="payslip-line"><span>Pension <span style="font-size:.7rem;color:var(--mu)">${p.pensionPercent||0}% of gross</span></span><span style="color:var(--D)">${fmtN(p.pensionAmt)}</span></div>
+    <div class="payslip-line"><span>NHF <span style="font-size:.7rem;color:var(--mu)">${p.nhfPercent||0}% of gross</span></span><span style="color:var(--D)">${fmtN(p.nhfAmt||0)}</span></div>
+    <div class="payslip-line"><span>Absence Deduction <span style="font-size:.7rem;color:var(--mu)">${p.absentDays||0} day(s) × ₦${Math.round(p.dailyRate||0).toLocaleString()}</span></span><span style="color:var(--D)">${fmtN(p.absentDeduction)}</span></div>
+    <div class="payslip-line"><span>Late Deduction <span style="font-size:.7rem;color:var(--mu)">${p.lateDays||0} day(s) × 25% of daily rate</span></span><span style="color:var(--D)">${fmtN(p.lateDeduction)}</span></div>
     ${p.loanTotal?`<div class="payslip-line"><span>Loan/Advance <span class="loan-tag">LOAN</span></span><span style="color:var(--D)">${fmtN(p.loanTotal)}</span></div>`:''}
-    ${p.extraDed?`<div class="payslip-line"><span>Extra Deduction</span><span style="color:var(--D)">${fmtN(p.extraDed)}</span></div>`:''}
+    ${p.extraDed?`<div class="payslip-line"><span>Extra Deduction</span><span style="color:var(--D)">${fmtN(p.extraDed)}</span></div>`:''} 
     <div class="payslip-line" style="font-weight:700;color:var(--D)"><span>Total Deductions</span><span>${fmtN(p.totalDeductions)}</span></div>
     <div class="payslip-net"><span>NET PAY</span><span>${fmtN(p.netPay)}</span></div>
     <p style="font-size:.7rem;color:var(--mu);text-align:center;margin-top:10px">Generated by ${p.generatedBy||'System'} · ${p.generatedAt?p.generatedAt.slice(0,10):'—'}</p>
@@ -4339,8 +4584,11 @@ function buildPrintPayslip(p){
     <div class="info-item"><div class="info-label">Pay Period</div><div class="info-val">${monthLabel(p.month)}</div></div>
     <div class="info-item"><div class="info-label">Pay Date</div><div class="info-val">${p.payDate||'—'}</div></div>
     <div class="info-item"><div class="info-label">Status</div><div class="info-val"><span class="status">${p.payStatus||'Pending'}</span></div></div>
-    <div class="info-item"><div class="info-label">Working Days</div><div class="info-val">${p.workingDays||0}</div></div>
+    <div class="info-item"><div class="info-label">Days in Month</div><div class="info-val">${p.daysInMonth||0} days</div></div>
     <div class="info-item"><div class="info-label">Present</div><div class="info-val">${p.presentDays||0} days</div></div>
+    <div class="info-item"><div class="info-label">Absent</div><div class="info-val" style="color:#e53935">${p.absentDays||0} days</div></div>
+    <div class="info-item"><div class="info-label">Late</div><div class="info-val" style="color:#f59e0b">${p.lateDays||0} days</div></div>
+    <div class="info-item"><div class="info-label">Off Days</div><div class="info-val">${p.offDays||0} days</div></div>
   </div>
   <div class="sec-title earn">Earnings</div>
   <div class="row"><span>Basic Salary</span><span>₦${Number(p.basic||0).toLocaleString()}</span></div>
@@ -4351,11 +4599,29 @@ function buildPrintPayslip(p){
   ${p.bonusTotal?`<div class="row"><span>Bonus</span><span style="color:#00a878">₦${Number(p.bonusTotal||0).toLocaleString()}</span></div>`:''}
   <div class="row bold"><span>Gross Salary</span><span>₦${Number(p.grossSalary||0).toLocaleString()}</span></div>
   <div class="sec-title ded">Deductions</div>
-  <div class="row"><span>Tax (PAYE)</span><span style="color:#e53935">₦${Number(p.taxAmt||0).toLocaleString()}</span></div>
-  <div class="row"><span>Pension</span><span style="color:#e53935">₦${Number(p.pensionAmt||0).toLocaleString()}</span></div>
-  <div class="row"><span>NHF</span><span style="color:#e53935">₦${Number(p.nhfAmt||0).toLocaleString()}</span></div>
-  <div class="row"><span>Absence Deduction</span><span style="color:#e53935">₦${Number(p.absentDeduction||0).toLocaleString()}</span></div>
-  <div class="row"><span>Late Deduction</span><span style="color:#e53935">₦${Number(p.lateDeduction||0).toLocaleString()}</span></div>
+  <div style="background:#fff8e1;border-left:3px solid #f59e0b;border-radius:5px;padding:8px 10px;margin-bottom:8px;font-size:.72rem;color:#7a5e00">
+    <div style="font-weight:700;margin-bottom:4px">Attendance Deduction Formula</div>
+    <div>Days in Month: <strong>${p.daysInMonth||'?'} calendar days</strong></div>
+    <div>Daily Rate = ₦${Number(p.basic||0).toLocaleString()} ÷ ${p.daysInMonth||'?'} = <strong>₦${Math.round(p.dailyRate||0).toLocaleString()}/day</strong></div>
+    <div style="margin-top:3px">Absent ${p.absentDays||0} day(s) × ₦${Math.round(p.dailyRate||0).toLocaleString()} = <strong style="color:#e53935">-₦${Math.round(p.absentDeduction||0).toLocaleString()}</strong></div>
+    <div>Late ${p.lateDays||0} day(s) × 25% × ₦${Math.round(p.dailyRate||0).toLocaleString()} = <strong style="color:#e53935">-₦${Math.round(p.lateDeduction||0).toLocaleString()}</strong></div>
+    ${(p.noRecordDays||0)>0?`<div style="font-style:italic">${p.noRecordDays} day(s) no clock-in → treated as Absent</div>`:''}
+    <div style="color:#1a7a4a">Off days: ${p.offDays||0} counted as Present ✔️</div>
+  </div>
+  <table style="width:100%;border-collapse:collapse;margin-bottom:10px;font-size:.72rem;text-align:center"><tr>
+    <td style="background:#e6f7ef;border-radius:4px;padding:5px"><div style="font-weight:700;color:#1a7a4a">PRESENT</div><div style="font-size:.9rem;font-weight:700">${p.presentDays||0}</div></td>
+    <td style="width:5px"></td>
+    <td style="background:#fff8e1;border-radius:4px;padding:5px"><div style="font-weight:700;color:#7a5e00">LATE</div><div style="font-size:.9rem;font-weight:700">${p.lateDays||0}</div></td>
+    <td style="width:5px"></td>
+    <td style="background:#fce8e8;border-radius:4px;padding:5px"><div style="font-weight:700;color:#e53935">ABSENT</div><div style="font-size:.9rem;font-weight:700">${p.absentDays||0}</div></td>
+    <td style="width:5px"></td>
+    <td style="background:#f0f4f8;border-radius:4px;padding:5px"><div style="font-weight:700;color:#6b7a99">OFF</div><div style="font-size:.9rem;font-weight:700">${p.offDays||0}</div></td>
+  </tr></table>
+  <div class="row"><span>Tax (PAYE) <em style="font-size:.68rem;color:#aaa">${p.taxPercent||0}% of gross</em></span><span style="color:#e53935">₦${Number(p.taxAmt||0).toLocaleString()}</span></div>
+  <div class="row"><span>Pension <em style="font-size:.68rem;color:#aaa">${p.pensionPercent||0}% of gross</em></span><span style="color:#e53935">₦${Number(p.pensionAmt||0).toLocaleString()}</span></div>
+  <div class="row"><span>NHF <em style="font-size:.68rem;color:#aaa">${p.nhfPercent||0}% of gross</em></span><span style="color:#e53935">₦${Number(p.nhfAmt||0).toLocaleString()}</span></div>
+  <div class="row"><span>Absence Deduction <em style="font-size:.68rem;color:#aaa">${p.absentDays||0} day(s) × ₦${Math.round(p.dailyRate||0).toLocaleString()}</em></span><span style="color:#e53935">₦${Number(p.absentDeduction||0).toLocaleString()}</span></div>
+  <div class="row"><span>Late Deduction <em style="font-size:.68rem;color:#aaa">${p.lateDays||0} day(s) × 25% daily rate</em></span><span style="color:#e53935">₦${Number(p.lateDeduction||0).toLocaleString()}</span></div>
   ${p.loanTotal?`<div class="row"><span>Loan/Advance Repayment</span><span style="color:#e53935">₦${Number(p.loanTotal||0).toLocaleString()}</span></div>`:''}
   ${p.extraDed?`<div class="row"><span>Extra Deduction</span><span style="color:#e53935">₦${Number(p.extraDed||0).toLocaleString()}</span></div>`:''}
   <div class="row bold"><span>Total Deductions</span><span style="color:#e53935">₦${Number(p.totalDeductions||0).toLocaleString()}</span></div>
@@ -4840,280 +5106,6 @@ document.addEventListener('click',e=>{
   const drop=ge('bSearchDrop'),search=ge('bSearch');
   if(drop&&search&&!drop.contains(e.target)&&e.target!==search){drop.style.display='none';}
 });
-
-// ─── BILLING TAB SWITCHER ─────────────────────────────────────────────────────
-window.switchBillTab=(tab,el)=>{
-  ['receipts','history','reports'].forEach(t=>{
-    const c=ge(`bill-tab-${t}`); if(c) c.style.display=t===tab?'block':'none';
-  });
-  document.querySelectorAll('.ptab-row .ptab').forEach(t=>t.classList.remove('active'));
-  if(el) el.classList.add('active');
-  if(tab==='history') loadReceiptHistory();
-  if(tab==='reports') loadReportSummaries();
-};
-
-// ─── RECEIPT HISTORY ──────────────────────────────────────────────────────────
-let _allBillsCache=[];
-window.loadReceiptHistory=async()=>{
-  const el=ge('receiptHistoryList'); if(!el)return;
-  el.innerHTML='<div class="cr"><i class="fa fa-spinner fa-spin"></i></div>';
-  const s=await getDocs(query(collection(db,'bills'),orderBy('createdAt','desc'),limit(200)));
-  _allBillsCache=s.docs.map(d=>({_id:d.id,...d.data()}));
-  renderReceiptHistory(_allBillsCache);
-};
-
-window.filterReceiptHistory=()=>{
-  const q=(gv('histSearch')||'').toLowerCase();
-  const meth=gv('histMethod')||'';
-  const stat=gv('histStatus')||'';
-  let list=_allBillsCache;
-  if(q) list=list.filter(b=>(b.receiptNo||'').toLowerCase().includes(q)||(b.customerName||'').toLowerCase().includes(q)||String(b.total||'').includes(q));
-  if(meth) list=list.filter(b=>b.method===meth);
-  if(stat) list=list.filter(b=>b.status===stat);
-  renderReceiptHistory(list);
-};
-
-function renderReceiptHistory(list){
-  const el=ge('receiptHistoryList'); if(!el)return;
-  if(!list.length){el.innerHTML='<div class="en">No receipts found</div>';return;}
-  el.innerHTML=list.map(b=>{
-    const ts=b.createdAt?.toDate?b.createdAt.toDate():null;
-    const timeStr=ts?ts.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}):'';
-    const dateStr=ts?ts.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}):b.date||'—';
-    return`<div class="icard" style="margin-bottom:9px">
-      <div class="crow">
-        <span class="pid">${b.receiptNo||'—'}</span>
-        <span class="badge st-${(b.status||'unpaid').toLowerCase().replace(/\s/g,'-')}">${b.status||'—'}</span>
-      </div>
-      <div style="margin:5px 0;font-weight:600;font-size:.92rem">${b.customerName||b.patientId||'—'}</div>
-      <div style="display:flex;justify-content:space-between;align-items:center;font-size:.82rem;color:var(--mu)">
-        <span><i class="fa fa-credit-card" style="margin-right:4px"></i>${b.method||'—'}</span>
-        <span style="font-weight:700;color:var(--A);font-size:.95rem">₦${(b.total||0).toLocaleString()}</span>
-      </div>
-      <div style="font-size:.75rem;color:var(--mu);margin-top:4px">
-        <i class="fa fa-calendar" style="margin-right:4px"></i>${dateStr}${timeStr?' · '+timeStr:''}
-        &nbsp;·&nbsp; <i class="fa fa-user" style="margin-right:3px"></i>${b.createdBy||'—'}
-      </div>
-      <div style="display:flex;gap:7px;margin-top:9px">
-        <button class="bsm outline" style="flex:1;font-size:.79rem;padding:6px" onclick='showReceipt(${JSON.stringify(b).replace(/'/g,"\\'")})'><i class="fa fa-eye"></i> View</button>
-        <button class="bsm primary" style="flex:1;font-size:.79rem;padding:6px" onclick='_currentReceipt=${JSON.stringify(b).replace(/'/g,"\\'")};_currentReceipt=JSON.parse(_currentReceipt.replace ? _currentReceipt : JSON.stringify(_currentReceipt));showReceipt(${JSON.stringify(b).replace(/'/g,"\\'")})'><i class="fa fa-print"></i> Reprint</button>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-// ─── PAYMENT REPORT SUMMARIES ─────────────────────────────────────────────────
-let _reportBillsData=[];
-window.loadReportSummaries=async()=>{
-  const s=await getDocs(query(collection(db,'bills'),orderBy('createdAt','desc'),limit(1000)));
-  _reportBillsData=s.docs.map(d=>({_id:d.id,...d.data()}));
-  const now=new Date();
-  const todayStr=today();
-  // Week start (Monday)
-  const weekStart=new Date(now); weekStart.setDate(now.getDate()-now.getDay()+1); weekStart.setHours(0,0,0,0);
-  const monthStr=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
-  const yearStr=String(now.getFullYear());
-
-  const paidOnly=b=>b.status==='Paid';
-  const sum=arr=>arr.filter(paidOnly).reduce((a,b)=>a+(b.total||0),0);
-
-  sv('rptTodayRev','₦'+sum(_reportBillsData.filter(b=>b.date===todayStr)).toLocaleString());
-  sv('rptWeekRev','₦'+sum(_reportBillsData.filter(b=>{const ts=b.createdAt?.toDate?b.createdAt.toDate():null;return ts&&ts>=weekStart;})).toLocaleString());
-  sv('rptMonthRev','₦'+sum(_reportBillsData.filter(b=>(b.date||'').startsWith(monthStr))).toLocaleString());
-  sv('rptYearRev','₦'+sum(_reportBillsData.filter(b=>(b.date||'').startsWith(yearStr))).toLocaleString());
-};
-
-window.generatePaymentReport=async(period)=>{
-  const now=new Date();
-  const todayStr=today();
-  let label='',filtered=[];
-
-  if(period==='today'){
-    label='Daily Report — '+now.toLocaleDateString('en-GB',{day:'2-digit',month:'long',year:'numeric'});
-    filtered=_reportBillsData.filter(b=>b.date===todayStr);
-  } else if(period==='week'){
-    const wStart=new Date(now); wStart.setDate(now.getDate()-now.getDay()+1); wStart.setHours(0,0,0,0);
-    const wEnd=new Date(wStart); wEnd.setDate(wStart.getDate()+6);
-    label=`Weekly Report — ${wStart.toLocaleDateString('en-GB',{day:'2-digit',month:'short'})} – ${wEnd.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'})}`;
-    filtered=_reportBillsData.filter(b=>{const ts=b.createdAt?.toDate?b.createdAt.toDate():null;return ts&&ts>=wStart&&ts<=wEnd;});
-  } else if(period==='month'){
-    const mStr=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
-    label='Monthly Report — '+now.toLocaleDateString('en-GB',{month:'long',year:'numeric'});
-    filtered=_reportBillsData.filter(b=>(b.date||'').startsWith(mStr));
-  } else if(period==='year'){
-    const yr=String(now.getFullYear());
-    label='Annual Report — '+yr;
-    filtered=_reportBillsData.filter(b=>(b.date||'').startsWith(yr));
-  } else if(period==='custom'){
-    const from=gv('rptFrom'),to=gv('rptTo');
-    if(!from||!to){toast('Select From and To dates','err');return;}
-    label=`Custom Report — ${from} to ${to}`;
-    filtered=_reportBillsData.filter(b=>b.date&&b.date>=from&&b.date<=to);
-  }
-
-  if(!filtered.length){toast('No records found for this period','err');return;}
-
-  const paid=filtered.filter(b=>b.status==='Paid');
-  const unpaid=filtered.filter(b=>b.status!=='Paid');
-  const totalPaid=paid.reduce((a,b)=>a+(b.total||0),0);
-  const totalUnpaid=unpaid.reduce((a,b)=>a+(b.total||0),0);
-  const totalAll=filtered.reduce((a,b)=>a+(b.total||0),0);
-  const byCash=paid.filter(b=>b.method==='Cash').reduce((a,b)=>a+(b.total||0),0);
-  const byPOS=paid.filter(b=>b.method==='POS').reduce((a,b)=>a+(b.total||0),0);
-  const byTrf=paid.filter(b=>b.method==='Transfer').reduce((a,b)=>a+(b.total||0),0);
-
-  const el=ge('rptPreviewArea');
-  ge('rptPreviewTitle').textContent=label;
-  ge('rptPreviewContent').innerHTML=buildReportHTML(label,filtered,paid,unpaid,totalPaid,totalUnpaid,totalAll,byCash,byPOS,byTrf);
-  el.style.display='block';
-  el.scrollIntoView({behavior:'smooth'});
-  // Store for download
-  window._currentReportData={label,filtered,paid,unpaid,totalPaid,totalUnpaid,totalAll,byCash,byPOS,byTrf};
-};
-
-function buildReportHTML(label,filtered,paid,unpaid,totalPaid,totalUnpaid,totalAll,byCash,byPOS,byTrf){
-  const now=new Date();
-  return`<div id="reportPrintArea" style="font-family:'DM Sans',sans-serif;font-size:.85rem">
-    <div style="background:linear-gradient(135deg,var(--P),#5e35b1);border-radius:var(--rs);padding:14px;color:#fff;margin-bottom:12px;text-align:center">
-      <div style="font-size:1rem;font-weight:700">Loving Heart Hospital</div>
-      <div style="font-size:.78rem;opacity:.87;margin-top:2px">${label}</div>
-      <div style="font-size:.72rem;opacity:.7;margin-top:4px">Generated: ${now.toLocaleString('en-GB',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})}</div>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px">
-      <div style="background:#e6f7ef;border-radius:var(--rs);padding:10px;text-align:center">
-        <div style="font-size:1rem;font-weight:700;color:#1a7a4a">₦${totalPaid.toLocaleString()}</div>
-        <div style="font-size:.72rem;color:var(--mu)">Paid (${paid.length})</div>
-      </div>
-      <div style="background:#fce8e8;border-radius:var(--rs);padding:10px;text-align:center">
-        <div style="font-size:1rem;font-weight:700;color:var(--D)">₦${totalUnpaid.toLocaleString()}</div>
-        <div style="font-size:.72rem;color:var(--mu)">Unpaid (${unpaid.length})</div>
-      </div>
-      <div style="background:var(--PL);border-radius:var(--rs);padding:10px;text-align:center">
-        <div style="font-size:1rem;font-weight:700;color:var(--P)">₦${totalAll.toLocaleString()}</div>
-        <div style="font-size:.72rem;color:var(--mu)">Total (${filtered.length})</div>
-      </div>
-    </div>
-    <div style="background:var(--bg);border-radius:var(--rs);padding:11px;margin-bottom:12px">
-      <div style="font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--mu);margin-bottom:8px">Payment Method Breakdown</div>
-      <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px dashed var(--brd);font-size:.83rem"><span>Cash</span><span style="font-weight:600;color:var(--P)">₦${byCash.toLocaleString()}</span></div>
-      <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px dashed var(--brd);font-size:.83rem"><span>POS</span><span style="font-weight:600;color:var(--A)">₦${byPOS.toLocaleString()}</span></div>
-      <div style="display:flex;justify-content:space-between;padding:5px 0;font-size:.83rem"><span>Transfer</span><span style="font-weight:600;color:var(--W)">₦${byTrf.toLocaleString()}</span></div>
-    </div>
-    <div style="font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--mu);margin-bottom:8px">Transaction Details</div>
-    <div style="overflow-x:auto;border-radius:var(--rs);border:1px solid var(--brd)">
-      <table style="width:100%;border-collapse:collapse;font-size:.79rem">
-        <thead><tr style="background:var(--P);color:#fff">
-          <th style="padding:8px 10px;text-align:left">Receipt</th>
-          <th style="padding:8px 10px;text-align:left">Patient</th>
-          <th style="padding:8px 10px;text-align:right">Amount</th>
-          <th style="padding:8px 10px;text-align:left">Method</th>
-          <th style="padding:8px 10px;text-align:left">Status</th>
-          <th style="padding:8px 10px;text-align:left">Date</th>
-          <th style="padding:8px 10px;text-align:left">Time</th>
-        </tr></thead>
-        <tbody>
-          ${filtered.map((b,i)=>{
-            const ts=b.createdAt?.toDate?b.createdAt.toDate():null;
-            const tStr=ts?ts.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}):'—';
-            return`<tr style="border-bottom:1px solid var(--brd);background:${i%2===0?'#fff':'var(--bg)'}">
-              <td style="padding:7px 10px;font-family:monospace;font-size:.76rem">${b.receiptNo||'—'}</td>
-              <td style="padding:7px 10px">${b.customerName||b.patientId||'—'}</td>
-              <td style="padding:7px 10px;text-align:right;font-weight:700">₦${(b.total||0).toLocaleString()}</td>
-              <td style="padding:7px 10px">${b.method||'—'}</td>
-              <td style="padding:7px 10px"><span style="background:${b.status==='Paid'?'#e6f7ef':'#fce8e8'};color:${b.status==='Paid'?'#1a7a4a':'var(--D)'};padding:2px 7px;border-radius:12px;font-size:.72rem;font-weight:700">${b.status||'—'}</span></td>
-              <td style="padding:7px 10px">${b.date||'—'}</td>
-              <td style="padding:7px 10px">${tStr}</td>
-            </tr>`;
-          }).join('')}
-        </tbody>
-      </table>
-    </div>
-  </div>`;
-}
-
-window.downloadReportPDF=()=>{
-  const d=window._currentReportData;
-  if(!d){toast('Generate a report first','err');return;}
-  const now=new Date();
-  const w=window.open('','_blank','width=800,height=900');
-  w.document.write(`<!DOCTYPE html><html><head>
-    <title>${d.label}</title>
-    <style>
-      *{box-sizing:border-box;margin:0;padding:0}
-      body{font-family:Arial,sans-serif;padding:24px;color:#1a2740;font-size:13px}
-      h1{font-size:1.2rem;margin-bottom:4px}
-      .hdr{background:#0057b8;color:#fff;border-radius:8px;padding:16px;margin-bottom:16px;text-align:center}
-      .hdr h1{color:#fff}.hdr p{font-size:.78rem;opacity:.87;margin-top:4px}
-      .cards{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px}
-      .card{border-radius:8px;padding:12px;text-align:center}
-      .card.green{background:#e6f7ef}.card.red{background:#fce8e8}.card.blue{background:#e8f1fb}
-      .card .val{font-size:1.1rem;font-weight:700}.card .lbl{font-size:.72rem;color:#6b7a99;margin-top:3px}
-      .card.green .val{color:#1a7a4a}.card.red .val{color:#e53935}.card.blue .val{color:#0057b8}
-      .breakdown{background:#f0f4f8;border-radius:8px;padding:12px;margin-bottom:16px}
-      .brow{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px dashed #dde4ed;font-size:.83rem}
-      .brow:last-child{border-bottom:none}
-      table{width:100%;border-collapse:collapse;font-size:.8rem}
-      th{background:#0057b8;color:#fff;padding:7px 9px;text-align:left}
-      td{padding:6px 9px;border-bottom:1px solid #dde4ed}
-      tr:nth-child(even) td{background:#f0f4f8}
-      .status-paid{background:#e6f7ef;color:#1a7a4a;padding:2px 7px;border-radius:12px;font-size:.71rem;font-weight:700}
-      .status-other{background:#fce8e8;color:#e53935;padding:2px 7px;border-radius:12px;font-size:.71rem;font-weight:700}
-      .footer{text-align:center;font-size:.72rem;color:#6b7a99;margin-top:18px;border-top:1px solid #dde4ed;padding-top:10px}
-      @media print{body{padding:10px}@page{margin:12mm;size:A4}}
-    </style>
-  </head><body>
-    <div class="hdr">
-      <h1>Loving Heart Hospital</h1>
-      <p>${d.label}</p>
-      <p>Generated: ${now.toLocaleString('en-GB',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})}</p>
-    </div>
-    <div class="cards">
-      <div class="card green"><div class="val">₦${d.totalPaid.toLocaleString()}</div><div class="lbl">Paid (${d.paid.length})</div></div>
-      <div class="card red"><div class="val">₦${d.totalUnpaid.toLocaleString()}</div><div class="lbl">Unpaid (${d.unpaid.length})</div></div>
-      <div class="card blue"><div class="val">₦${d.totalAll.toLocaleString()}</div><div class="lbl">Total (${d.filtered.length})</div></div>
-    </div>
-    <div class="breakdown">
-      <div style="font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#6b7a99;margin-bottom:8px">Payment Method Breakdown</div>
-      <div class="brow"><span>Cash</span><span style="font-weight:700;color:#0057b8">₦${d.byCash.toLocaleString()}</span></div>
-      <div class="brow"><span>POS</span><span style="font-weight:700;color:#00a878">₦${d.byPOS.toLocaleString()}</span></div>
-      <div class="brow"><span>Transfer</span><span style="font-weight:700;color:#f59e0b">₦${d.byTrf.toLocaleString()}</span></div>
-    </div>
-    <table>
-      <thead><tr><th>Receipt</th><th>Patient</th><th>Amount</th><th>Method</th><th>Status</th><th>Date</th><th>Time</th></tr></thead>
-      <tbody>
-        ${d.filtered.map(b=>{
-          const ts=b.createdAt?.toDate?b.createdAt.toDate():null;
-          const tStr=ts?ts.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}):'—';
-          return`<tr>
-            <td style="font-family:monospace;font-size:.75rem">${b.receiptNo||'—'}</td>
-            <td>${b.customerName||b.patientId||'—'}</td>
-            <td style="font-weight:700">₦${(b.total||0).toLocaleString()}</td>
-            <td>${b.method||'—'}</td>
-            <td><span class="${b.status==='Paid'?'status-paid':'status-other'}">${b.status||'—'}</span></td>
-            <td>${b.date||'—'}</td>
-            <td>${tStr}</td>
-          </tr>`;
-        }).join('')}
-      </tbody>
-    </table>
-    <div class="footer">Loving Heart Hospital Management System · Printed ${now.toLocaleString('en-GB')}</div>
-  </body></html>`);
-  w.document.close();
-  setTimeout(()=>w.print(),500);
-};
-
-// ─── LIVE CLOCK (dashboard + billing) ─────────────────────────────────────────
-function startLiveClock(){
-  function tick(){
-    const now=new Date();
-    const timeStr=now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
-    const dateTimeStr=now.toLocaleString('en-GB',{weekday:'short',day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit',second:'2-digit'});
-    const lc=ge('liveClockDash'); if(lc) lc.textContent=timeStr;
-    const bd=ge('billingDateTime'); if(bd) bd.textContent=dateTimeStr;
-  }
-  tick();
-  setInterval(tick,1000);
-}
 
 // ─── TOAST ───────────────────────────────────────────────────────────────────
 window.toast=(msg,type="ok")=>{const t=document.createElement("div");t.className=`toast t-${type}`;t.innerHTML=`<i class="fa fa-${type==="ok"?"check-circle":"exclamation-circle"}"></i> ${msg}`;ge("toasts").appendChild(t);setTimeout(()=>t.classList.add("show"),10);setTimeout(()=>{t.classList.remove("show");setTimeout(()=>t.remove(),300);},3500);};
